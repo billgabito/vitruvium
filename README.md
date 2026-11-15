@@ -36,6 +36,6 @@ MIT — see [LICENSE](LICENSE).
 
 ## How to cite (IEEE)
 
-> [1] W. Campos V., *DaVinci Mechanical Designer: A Claude Code skill for parametric mechanical design based on mechanical simplicity*, ver. 0.1.1. (2026). [Online]. Available: https://github.com/&lt;user&gt;/davinci-mechanical-designer
+> [1] W. Campos V., *DaVinci Mechanical Designer: A Claude Code skill for parametric mechanical design based on mechanical simplicity*, ver. 0.1.1. (2026). [Online]. Available: https://github.com/billgabito/davinci-mechanical-designer
 
-Replace the URL once the repository is published. Machine-readable metadata is in [CITATION.cff](CITATION.cff).
+Machine-readable metadata is in [CITATION.cff](CITATION.cff).

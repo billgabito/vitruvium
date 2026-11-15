@@ -1,7 +1,7 @@
 {
   "name": "vitruvium",
   "version": "0.2.1",
-  "description": "Vitruvium: an experienced mechanical designer built on mechanical simplicity. Interviews you, learns your workshop, proposes A/B/C designs, models in SolidCraft, checks stresses and manufacturability, and versions every project.",
+  "description": "Vitruvium: an essential, end-to-end tool to create mechanical parts from the first idea to the finished part — an experienced mechanical designer built on mechanical simplicity. Interviews you, learns your workshop, proposes A/B/C designs, models in SolidCraft, checks stresses and manufacturability, and versions every project.",
   "author": { "name": "William Campos V.", "email": "github.com/billgabito" },
   "license": "MIT"
 }

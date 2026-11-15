@@ -8,7 +8,7 @@ Ask open questions that invite the user to tell a story, not to tick boxes. Adap
 
 1. "Tell me what the part must do, where it goes, and why you need it." → function, context, the real problem behind the request.
 2. "What forces, movements or loads does it receive, and what must it deliver?" → inputs and outputs, with orders of magnitude.
-3. "What environment does it work in, and what does it connect to?" → material, protection, interfaces.
+3. "What environment does it work in, and what does it connect to?" → material, protection, interfaces. If something inside is sensitive to dust or water (electronics, bearings, lubricant), also ask whether it needs an IP rating — see ingress-protection.md.
 4. "Is it a concept prototype, a functional prototype or a final part? How many, and are there limits on cost, time or space?" → design depth and constraints.
 
 Request: "If you have photos, measurements, a sketch or the old part, share them." One photo saves ten questions.
@@ -26,6 +26,7 @@ Do not ask about the workshop here — it is in the profile. Ask only "any new e
 | Interfaces | neighbouring parts, fasteners, shafts, existing structure |
 | Constraints | space envelope, mass, budget, deadline, quantity |
 | Destiny | concept / functional / final one-off / series |
+| Ingress protection | IP rating needed? (e.g. IP54, IP66/IP67) and whether it must be certified |
 | Standards | which apply (safety, food contact, pressure, lifting…) |
 | Good enough | measurable done-criterion |
 

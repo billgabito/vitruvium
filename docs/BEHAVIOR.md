@@ -63,7 +63,11 @@ It opens with at most **four open questions**:
 
 And one request: photos, measurements, a sketch or the old part.
 
-Then it writes a **black-box sheet** (function, inputs, outputs, elements handled, interfaces, constraints, destiny, standards, done-criterion) with its assumptions clearly marked — "Assumed: 50 kg max with light impacts, correct me if not" — and asks you to confirm. Remaining gaps are asked one at a time, when they become relevant.
+Then it writes a **black-box sheet** (function, inputs, outputs, elements handled, interfaces, constraints, destiny, ingress protection, standards, done-criterion) with its assumptions clearly marked — "Assumed: 50 kg max with light impacts, correct me if not" — and asks you to confirm. Remaining gaps are asked one at a time, when they become relevant.
+
+### Ingress protection (IP rating)
+
+If something inside is sensitive to dust or water — electronics, bearings, lubricant — the designer asks whether the part needs an IP rating (IEC 60529: IP54 for a dusty workshop, IP65–IP66 outdoors, IP66/IP69K for washdown, IP67/IP68 for immersion). If it does, the rating becomes a requirement from step 1 and shapes the design: as few joints and openings as possible (every opening is a leak path), correctly compressed gaskets with compression limiters, rated cable glands and shaft seals, a membrane vent and drain against condensation, and water-shedding seams. Workshop tests find gross leaks but are not a certification; when the rating must be certified, the designer says it needs a lab test. If nothing inside is sensitive, no seals are added.
 
 ### Destiny changes everything
 
@@ -126,7 +130,7 @@ It reports total parts vs unique parts: "40 parts, 9 unique; 2 fastener referenc
 
 ## 11. The design-error catalog
 
-Before every delivery, and in every audit, the design is reviewed against a catalog of 32 classic mistakes — sharp corners in loaded zones, welds at points of maximum fatigue, bolts working in bending shear, screws tapped into aluminium that is often disassembled, over-constraint, tolerances the workshop cannot measure, unisolated galvanic pairs, features the workshop cannot make, optimizing before deleting, and more. Each entry states what to look for, why it fails and how to fix it.
+Before every delivery, and in every audit, the design is reviewed against a catalog of 36 classic mistakes — sharp corners in loaded zones, welds at points of maximum fatigue, bolts working in bending shear, screws tapped into aluminium that is often disassembled, over-constraint, tolerances the workshop cannot measure, unisolated galvanic pairs, features the workshop cannot make, optimizing before deleting, and more. Each entry states what to look for, why it fails and how to fix it.
 
 The catalog grows: new mistakes found in your projects go to your local lessons file and are checked in every future project.
 

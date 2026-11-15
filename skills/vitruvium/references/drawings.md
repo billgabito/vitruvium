@@ -12,7 +12,7 @@ ISO, first-angle projection by default (ISO 128 views and lines, ISO 129-1 dimen
 - Functional dimensions from the datums that matter for assembly, not from wherever is convenient to draw. No double dimensioning.
 - General tolerance in the title block (e.g. ISO 2768-m). Tight tolerances and fits (e.g. H7/g6) only where function requires and the workshop can measure.
 - Geometric tolerances only when size tolerances cannot control the function.
-- Material and condition, heat treatment, surface finish, coating, quantity, edge break note ("break sharp edges 0.5 × 45°").
+- Material and condition, heat treatment, surface finish, coating, quantity, IP rating as design intent (and sealing-face flatness and finish) when required, edge break note ("break sharp edges 0.5 × 45°").
 - Title block: part number, name, revision, scale, units, author, date, projection, sheet.
 
 Assemblies: assembly drawing, bill of materials (including commercial parts with manufacturer part numbers), exploded view if useful. Sheet metal: flat pattern with bend lines, direction and inside radius. Weldments: weld symbols per ISO 2553 (or AWS A2.4).

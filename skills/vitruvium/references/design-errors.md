@@ -40,8 +40,14 @@ Review every design against this list before delivery, and again in audits. Each
 27. No access for tools, wrenches, welding torch → can't build or maintain → check tool access in the model.
 28. Mirrored left/right parts when one symmetric part would do → double inventory → unify.
 
+## Sealing and ingress protection
+29. Sealing added at the end, or more openings than needed → leaks → decide the IP rating in step 1; minimize joints and penetrations.
+30. Gasket without compression limit, or compression checked only at nominal → crushed or loose gasket → compression limiters; check compression at tolerance extremes.
+31. Fully sealed box with temperature swings and no vent or drain → condensation inside → membrane vent and drain at the lowest point.
+32. Cable or shaft entries without rated glands/seals → the rating is only as good as the weakest entry → rated glands, lip seals.
+
 ## Process
-29. Optimizing or simulating before deleting → polishing waste → follow the 5 steps in order.
-30. Requirements added after freeze without impact analysis → schedule and cost creep → change control.
-31. Testing only at the end → expensive surprises → risk prototype early.
-32. Developing new technology when a catalog part exists → cost and risk → use proven parts.
+33. Optimizing or simulating before deleting → polishing waste → follow the 5 steps in order.
+34. Requirements added after freeze without impact analysis → schedule and cost creep → change control.
+35. Testing only at the end → expensive surprises → risk prototype early.
+36. Developing new technology when a catalog part exists → cost and risk → use proven parts.

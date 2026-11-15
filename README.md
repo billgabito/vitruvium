@@ -9,6 +9,7 @@ An agent skill for **any AI agent** (Claude Code, Codex, Cursor, Gemini CLI and 
 Full description of how it behaves: [docs/BEHAVIOR.md](docs/BEHAVIOR.md).
 
 - Interviews you with few, well-chosen questions and learns your workshop once.
+- Checks first whether the problem is already solved on the market — buy, adapt or design from scratch.
 - Runs Musk's 5 steps inside Ullman's process, with improvement loops.
 - Proposes A/B/C alternatives with a decision matrix — you decide.
 - Models in SolidCraft (MCP), checks by hand calc (Beer, Shigley, Roark) and FEA (Gmsh + CalculiX).
@@ -44,6 +45,6 @@ MIT — see [LICENSE](LICENSE).
 
 ## How to cite (IEEE)
 
-> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.3.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
+> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.4.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
 
 Machine-readable metadata is in [CITATION.cff](CITATION.cff).

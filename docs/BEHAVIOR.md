@@ -27,6 +27,7 @@ The designer follows **Musk's five-step algorithm inside Ullman's design process
 | Step | What the designer does |
 |---|---|
 | **1. Make requirements less dumb** | Interviews you. Every requirement gets an owner, a source and the consequence of deleting it. Fixes the applicable standards, the part's destiny and a measurable "good enough" criterion. |
+| *Before step 2: existing solutions* | Searches the market and known technical solutions by function, presents what it found, and lets you choose: buy, adapt, or design from scratch. |
 | **2. Delete parts and processes** | Climbs the simplicity ladder for every function. Keeps a list of what was deleted and what had to come back (if nothing ever comes back, it was too timid). Looks for standardization. |
 | **3. Simplify and optimize** | Proposes 2–3 real alternatives with a decision matrix, recommends one, and waits for your choice. Proposes a cheap risk prototype. Models parametrically, calculates by hand, simulates where needed, checks interfaces, reviews against the error catalog. |
 | **4. Accelerate the cycle** | Fits every part to your workshop with the shortest route, prototypes fast, tests physically. |
@@ -79,6 +80,17 @@ The designer does not design a concept prototype like a production part:
 | Functional prototype | close to final | functional only | hand calc + FEA on critical zones | model + short calc note |
 | Final one-off | final, workshop-made | complete | complete, incl. fatigue | full drawings |
 | Series production | optimized for cost and repeatability | complete + process capability | complete + batch checks | drawings, assembly guide, QC plan |
+
+## 5b. Existing solutions first: buy, adapt or design
+
+The simplest design is the one you do not have to make. Right after the black-box sheet is confirmed, the designer looks for what already exists — searching by function, not by part name:
+
+- complete products that solve the whole problem;
+- standard modules that solve most of it (guides, hinges, latches, enclosures, tensioners);
+- known technical solutions (toggle clamps, linkages, flexures) and analogies from other industries;
+- open hardware designs, with their license stated.
+
+It presents a short table (solution, source, price and lead time, which requirements it covers, gaps, workshop work needed) and three starting points with its recommendation: **buy** (fastest; the work becomes selection, mounting and verification), **adapt** (buy a module and design only the interface or missing part — often the best balance), or **design from scratch** (using what was found as the benchmark to beat). You decide. The search is kept short and skipped for trivial parts. If a very similar, recent patented solution appears and you plan to sell the product, it flags that a patent check may be needed — a flag, not legal advice.
 
 ## 6. How it asks questions
 

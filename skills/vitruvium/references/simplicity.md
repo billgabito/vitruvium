@@ -4,6 +4,7 @@
 
 For each function, take the first rung that works:
 
+0. Buy a product that already solves the whole problem (see existing-solutions.md).
 1. Delete the function — is it really needed? Who owns it?
 2. Let an existing part do it (combine functions).
 3. A catalog part (off-the-shelf, locally available).

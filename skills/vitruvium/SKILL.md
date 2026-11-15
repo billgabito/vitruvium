@@ -16,6 +16,7 @@ The best part is no part; the best process is no process. Every part, feature, t
 Run the steps in order. Do not skip ahead; the order is the point.
 
 1. **Make requirements less dumb.** Interview the user (see "Interview" below). Every requirement gets an owner (a named person or role), a source, and the consequence of deleting it. Also fix up front: applicable standards/regulations, whether ingress protection (IP rating) is needed, the part's destiny (concept prototype / functional prototype / final one-off / series production), and a measurable "good enough" criterion that ends the improvement loops. → `references/interview.md`, `references/ingress-protection.md`
+   **Then, before step 2: does a solution already exist?** Search the market and known technical solutions by function (complete products, standard modules, known mechanisms, analogies from other industries, open designs). Present what you found and let the user choose the starting point: **buy**, **adapt** (buy a module, design only the interface or missing part) or **design from scratch** (with the found solutions as benchmark). Keep the search short; skip it for trivial parts. → `references/existing-solutions.md`
 2. **Delete parts and processes.** Climb the simplicity ladder for each function. Keep a list of what was deleted and what had to be added back; if you never add back ~10%, you did not delete enough. Look for standardization (fewer screw types, one part used twice, same stock and thickness). → `references/simplicity.md`
 3. **Simplify and optimize — only now.** Propose 2–3 genuinely different alternatives with a decision matrix, recommend one, and stop for the user's choice. Then identify the top risk and suggest a cheap risk prototype before detailing. Model parametrically in SolidCraft; calculate by hand first, simulate only where geometry demands it; check interfaces between parts; review against the design-error catalog. → `references/alternatives.md`, `references/analysis.md`, `references/design-errors.md`, `references/solidcraft.md`
 4. **Accelerate the cycle.** Fit every part to the user's workshop with the shortest route (fewest machines, setups and tool changes); prototype fast; test physically. → `references/manufacturing.md`, `references/workshop.md`
@@ -29,7 +30,7 @@ When a check fails, go back to where the problem was born — not to the start b
 
 | Failure | Return to |
 |---|---|
-| No alternative fits the user | Step 1 (a requirement is missing or wrong) |
+| No alternative fits the user | Step 1 (a requirement is missing or wrong) — and re-check the market |
 | Hand calc or FEA fails, or they disagree | The parametric model |
 | Interfaces fail (wear, contact, galvanic, thermal) | The parametric model |
 | Error-catalog or adversarial review finds a concept flaw | Step 2 (something should be deleted) |

@@ -53,6 +53,10 @@ Questions buried in long text get lost. Whenever you need the user's input, use 
 
 Ask one decision at a time, and stop and wait — do not continue designing on a guess the user has not confirmed when the guess changes the design.
 
+## The user validates what they can see
+
+The user is the one who validates and corrects, and they can only judge what they see. So every iteration ends with the part shown, not just described: export the geometry from SolidCraft (glTF or STL, one file per system/component, in `03-model/`), log the iteration (`scripts/log_iteration.py --model … --fea …`), which rebuilds `viewer.html` — an interactive 3D viewer in the browser where the user can rotate and zoom the part, cut sections along X/Y/Z, switch each system on and off, overlay the simulation (stress colour map, deformed shape, supports and loads), and browse every previous version with what changed and why, including the previous version as a ghost for comparison. Open it (or give the path) and ask the user to review before moving on. Never claim a change is done without showing it. → `references/project-folder.md`
+
 ## The workshop is persistent knowledge
 
 What the builder has (machines with type, model and capacity; welding processes; measuring tools; operator skills) decides what "simple" means for them. Store it once in the user's workshop profile and reuse it; at the start of each project only ask "any new equipment since last time?". When a part needs a process the profile does not cover, ask then and save the answer. Goal: as many parts as possible made locally; outsourced parts are few and each one is justified. → `references/workshop.md`

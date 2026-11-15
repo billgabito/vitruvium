@@ -19,6 +19,7 @@ Ask once where the user keeps projects (default `~/mechanical-projects/`), remem
 ├── 08-prototypes/         photos, tests, results
 ├── references/           catalogs, datasheets, links with dates
 ├── deliveries/            released packages (v1.0/, v1.1/…) ready to send
+├── viewer.html            interactive 3D viewer: rotate, section, systems on/off, FEA overlay, version history (viewer.py)
 ├── iterations/            one folder per version with images; index.json; index.html (visual timeline)
 ├── CHANGELOG.md           per iteration: what changed, why, numbers vs previous (written by log_iteration.py)
 ├── DESIGN-LOG.md          step-by-step: what was done, what failed, where we went back
@@ -56,7 +57,10 @@ python3 scripts/log_iteration.py --project <project> --version v0.3 --title "Thi
 ```
 
 - `--why` is mandatory: every change carries its reason. Add `--loop` when an improvement loop triggered it and `--decision` when the user chose it.
-- Save a model screenshot from SolidCraft for each version (`03-model/vX.Y.png`) and attach the FEA plots.
+- Export the geometry of each version from SolidCraft into `03-model/` and pass it with `--model` (repeat once per system/component: frame, guard, motor…; or one glTF whose top-level nodes are the systems). STL is in mm; glTF is in metres by spec — the viewer rescales it automatically when an FEA result shows the mismatch.
+- Pass `--fea <run folder>` so the viewer can overlay the stress map, deformed shape, supports and loads.
+- Save a model screenshot for the changelog (`03-model/vX.Y.png`) and attach the FEA plots.
+- Rebuild the viewer alone with `python3 scripts/viewer.py --project <project> --open`. Useful URL options to open a specific view: `viewer.html?v=1&cut=x&pos=0.4&scale=0.5&ghost=1&sim=0&view=top`. The page loads three.js from cdn.jsdelivr.net, so the first opening needs internet.
 - It rebuilds `CHANGELOG.md` (newest first, with a metrics table and deltas against the previous version) and `iterations/index.html`, a timeline the user can open in any browser to see the design evolve.
 
 ## Lessons

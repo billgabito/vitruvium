@@ -15,6 +15,7 @@ Full description of how it behaves: [docs/BEHAVIOR.md](docs/BEHAVIOR.md).
 - Models in SolidCraft (MCP), checks by hand calc (Beer, Shigley, Roark) and FEA (Gmsh + CalculiX).
 - Fits parts to your machines, standardizes, reviews against a design-error catalog.
 - Every project in its own versioned folder with a design log and lessons.
+- An interactive 3D viewer per project: rotate, section, systems on/off, stress overlay and the full version history.
 - Audit mode for existing designs.
 
 ## Install
@@ -57,6 +58,6 @@ MIT — see [LICENSE](LICENSE).
 
 ## How to cite (IEEE)
 
-> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.6.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
+> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.7.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
 
 Machine-readable metadata is in [CITATION.cff](CITATION.cff).

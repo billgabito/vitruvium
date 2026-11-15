@@ -28,7 +28,7 @@ python3 scripts/fea.py part.step --out 05-simulation/v0.3/size2 --E 210000 --nu 
     --fix "xmin ymin zmin xmax ymax zmax" --load "xmin ymin zmin xmax ymax zmax Fx Fy Fz"
 ```
 
-Units mm, N, MPa. Supports and loads are selected by bounding boxes in model coordinates (get them from SolidCraft `measure`); a load is the total force spread over the nodes in its box. Run it at three element sizes for the convergence study. It writes `results.json` and `summary.md` (and stress/displacement PNGs when ccx2paraview and PyVista are installed). Validated on a cantilever: tip deflection within 0.5% of beam theory; the root stress keeps rising with refinement because of the fixed-edge singularity — exactly the behaviour described in step 5 below.
+Units mm, N, MPa. Supports and loads are selected by bounding boxes in model coordinates (get them from SolidCraft `measure`); a load is the total force spread over the nodes in its box. Run it at three element sizes for the convergence study. It writes `results.json`, `summary.md` and `fea_view.json` (outer surface with nodal von Mises and displacements, read by the 3D viewer) (and stress/displacement PNGs when ccx2paraview and PyVista are installed). Validated on a cantilever: tip deflection within 0.5% of beam theory; the root stress keeps rising with refinement because of the fixed-edge singularity — exactly the behaviour described in step 5 below.
 
 The steps the script follows, and what to check:
 

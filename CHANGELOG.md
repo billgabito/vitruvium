@@ -2,6 +2,10 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.7.0 — 2026-11-15
+- **Interactive 3D viewer** (`scripts/viewer.py` → `viewer.html`): rotate, standard views, section along X/Y/Z, systems on/off, FEA overlay (stress map, deformed shape, supports and loads), version history with reasons and the previous version as a ghost. *Why:* the user validates and corrects the design, and can only judge what they can see.
+- `fea.py` now writes `fea_view.json` (outward-oriented surface, nodal von Mises, displacements); `log_iteration.py` takes `--model` and rebuilds the viewer.
+
 ## v0.6.0 — 2026-11-15
 - **FEA script** (`scripts/fea.py`): STEP → Gmsh (C3D10) → CalculiX → max von Mises, max displacement, safety factor, optional stress images. *Why:* every project was rewriting the same pipeline; validated on a cantilever (deflection within 0.5% of beam theory).
 - **Visual iteration log** (`scripts/log_iteration.py`): `CHANGELOG.md` and `iterations/index.html` per project, with what changed, why, numbers vs the previous iteration and images. *Why:* the user must be able to see how a design evolved and the reason behind each change.

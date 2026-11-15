@@ -17,6 +17,7 @@ Install and MCP registration for every OS: see tools-setup.md.
 - Assign the real material so mass properties are meaningful.
 - Assemblies: use joints, run interference checks and motion studies through the full range of motion.
 - Sheet metal: use the sheet-metal features so flat patterns come out right.
+- Export each version for the viewer: glTF (`.glb`) or STL, one file per system/component (or one glTF with a node per system).
 - Save the JSON command script in `03-model/` — it is text, so Git shows exactly what changed between versions ("plate_t 6 → 8 mm"). Also save the `.sc` design and export STEP for FEA, drawings and outsourcing.
 
 ## Known gaps (as of late 2026)

@@ -6,6 +6,7 @@ Writes, inside the project folder:
   iterations/index.json          all iterations (data)
   CHANGELOG.md                   human-readable log, newest first
   iterations/index.html          visual timeline (open in a browser)
+  viewer.html                    interactive 3D viewer with the version history (viewer.py)
 
 Example:
   python3 log_iteration.py --project ~/mechanical-projects/pump-motor-mount --version v0.3 \
@@ -13,7 +14,7 @@ Example:
     --change "plate_t: 6 -> 8 mm" --change "fillet r: 2 -> 5 mm at the bend" \
     --loop "FEA failed -> parametric model" --decision "user chose B (bolted) on 2026-11-15" \
     --fea 05-simulation/v0.3 --metric "mass_kg=2.41" --metric "parts=7" \
-    --image 03-model/v0.3.png --image 05-simulation/v0.3/S_Mises.png
+    --image 03-model/v0.3.png --model 03-model/v0.3.glb
 Metrics from --fea (results.json) are added automatically: max_von_mises_MPa, max_displacement_mm,
 safety_factor_yield, elements.
 """
@@ -45,6 +46,7 @@ def main():
     ap.add_argument("--fea", help="folder with results.json from fea.py (relative to project or absolute)")
     ap.add_argument("--metric", action="append", default=[], help="name=value (repeatable)")
     ap.add_argument("--image", action="append", default=[], help="image to attach (repeatable)")
+    ap.add_argument("--model", action="append", default=[], help="3D model of this version for the viewer: .glb/.gltf/.stl exported from SolidCraft (repeatable, one per system)")
     a = ap.parse_args()
 
     proj = os.path.abspath(os.path.expanduser(a.project))
@@ -74,6 +76,7 @@ def main():
     prev = index[-1] if index else None
     entry = {"version": a.version, "date": datetime.date.today().isoformat(), "title": a.title, "why": a.why,
              "changes": a.change, "loop": a.loop, "decision": a.decision, "metrics": metrics, "images": images,
+             "models": a.model, "fea": a.fea,
              "previous": prev["version"] if prev else None}
     index.append(entry)
     json.dump(index, open(idx_path, "w"), indent=2, ensure_ascii=False)
@@ -118,7 +121,9 @@ h2{{margin:0 0 8px;font-size:19px}}small{{color:#5A4A2A;font-weight:400}}.why{{b
 table{{border-collapse:collapse;margin:8px 0;font-family:'JetBrains Mono',Menlo,monospace;font-size:13px}}td,th{{border:1px solid #E5D9BC;padding:4px 10px;text-align:left}}
 .imgs{{display:flex;flex-wrap:wrap;gap:10px}}.imgs img{{max-width:300px;max-height:220px;border:1px solid #E5D9BC;border-radius:8px}}</style>
 <h1>{name} · iterations</h1>{''.join(cards)}""")
-    print(f"logged {a.version}: CHANGELOG.md and iterations/index.html updated ({len(index)} iterations)")
+    import viewer                                       # same folder: rebuild the interactive 3D viewer
+    vpath, _ = viewer.build(proj)
+    print(f"logged {a.version}: CHANGELOG.md, iterations/index.html and {os.path.basename(vpath)} updated ({len(index)} iterations)")
 
 if __name__ == "__main__":
     main()

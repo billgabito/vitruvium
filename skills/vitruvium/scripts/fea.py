@@ -9,7 +9,7 @@ Example (cantilever fixed at x=0, 100 N down on the x=100 face):
 
 --fix  "xmin ymin zmin xmax ymax zmax"               nodes inside are fixed in x, y, z (repeatable)
 --load "xmin ymin zmin xmax ymax zmax Fx Fy Fz"      total force spread equally on nodes inside (repeatable)
-Writes job.inp, job.dat, job.frd, results.json and summary.md in --out; job.vtu and PNGs when
+Writes job.inp, job.dat, job.frd, results.json, summary.md and fea_view.json (for viewer.py) in --out; job.vtu and PNGs when
 ccx2paraview and pyvista are installed.
 """
 import argparse, json, math, os, re, shutil, subprocess, sys
@@ -88,8 +88,9 @@ def ccx_cmd():
     sys.exit("CalculiX (ccx) not found — see references/tools-setup.md")
 
 def read_dat(path):
-    """Max displacement magnitude and max von Mises (integration points) from job.dat."""
+    """Max displacement, max von Mises (integration points), nodal displacements and per-element von Mises."""
     umax, smax, mode = 0.0, 0.0, None
+    U, EVM = {}, {}
     num = re.compile(r"^\s*\d+(\s+\d+)?(\s+-?\d\.\d+E[+-]\d+)+\s*$")
     for line in open(path):
         if "displacements" in line: mode = "U"; continue
@@ -98,12 +99,44 @@ def read_dat(path):
             continue
         v = line.split()
         if mode == "U" and len(v) == 4:
+            U[int(v[0])] = tuple(float(x) for x in v[1:])
             umax = max(umax, math.sqrt(sum(float(x) ** 2 for x in v[1:])))
         elif mode == "S" and len(v) == 8:
             sx, sy, sz, sxy, sxz, syz = map(float, v[2:])
             vm = math.sqrt(0.5 * ((sx - sy) ** 2 + (sy - sz) ** 2 + (sz - sx) ** 2) + 3 * (sxy ** 2 + sxz ** 2 + syz ** 2))
             smax = max(smax, vm)
-    return umax, smax
+            EVM.setdefault(int(v[0]), []).append(vm)
+    return umax, smax, U, EVM
+
+def view_json(path, nodes, elems, U, EVM, fixes, loads):
+    """Outer surface with nodal von Mises and displacement, for the 3D viewer (viewer.py)."""
+    count, owner = {}, {}
+    for e in elems:
+        c = e[:4]
+        for f, opp in (((c[0], c[1], c[2]), c[3]), ((c[0], c[1], c[3]), c[2]), ((c[0], c[2], c[3]), c[1]), ((c[1], c[2], c[3]), c[0])):
+            k = tuple(sorted(f)); count[k] = count.get(k, 0) + 1; owner[k] = (f, opp)
+    faces = []
+    for k, n in count.items():
+        if n != 1:
+            continue
+        (a, b, c), opp = owner[k]                       # orient outward: normal points away from the tet's 4th node
+        A, B, C, O = (nodes[x] for x in (a, b, c, opp))
+        u = [B[i] - A[i] for i in range(3)]; v = [C[i] - A[i] for i in range(3)]
+        nrm = (u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0])
+        faces.append((a, b, c) if sum(nrm[i] * (A[i] - O[i]) for i in range(3)) > 0 else (a, c, b))
+    acc = {}
+    for i, e in enumerate(elems, 1):
+        vals = EVM.get(i)
+        if vals:
+            avg = sum(vals) / len(vals)
+            for n in e[:4]:
+                s = acc.setdefault(n, [0.0, 0]); s[0] += avg; s[1] += 1
+    ids = sorted({n for f in faces for n in f}); idx = {n: i for i, n in enumerate(ids)}
+    data = {"units": "mm, MPa", "pos": [round(c, 4) for n in ids for c in nodes[n]],
+            "u": [round(c, 7) for n in ids for c in U.get(n, (0, 0, 0))],
+            "vm": [round(acc[n][0] / acc[n][1], 3) if n in acc else 0 for n in ids],
+            "tris": [idx[n] for f in faces for n in f], "fix": fixes, "loads": loads}
+    json.dump(data, open(path, "w"), separators=(",", ":"))
 
 def images(out):
     """Optional: .frd -> .vtu (ccx2paraview) -> PNGs (pyvista). Returns list of files or a reason."""
@@ -139,7 +172,9 @@ def main():
     r = subprocess.run([ccx_cmd(), "-i", "job"], cwd=a.out, capture_output=True, text=True)
     if r.returncode != 0 or not os.path.exists(os.path.join(a.out, "job.dat")):
         sys.exit("CalculiX failed:\n" + r.stdout[-2000:] + r.stderr[-2000:])
-    umax, smax = read_dat(os.path.join(a.out, "job.dat"))
+    umax, smax, U, EVM = read_dat(os.path.join(a.out, "job.dat"))
+    view_json(os.path.join(a.out, "fea_view.json"), nodes, elems, U, EVM,
+              [parse_box(f, 6) for f in a.fix], [parse_box(l, 9) for l in a.load])
     res = {"elements": len(elems), "nodes": nn, "element_type": "C3D10" if a.order == 2 else "C3D4",
            "mesh_size_mm": a.size, "fixed_nodes": nfix, "loads": applied, "E_MPa": a.E, "nu": a.nu,
            "max_displacement_mm": round(umax, 6), "max_von_mises_MPa": round(smax, 3)}

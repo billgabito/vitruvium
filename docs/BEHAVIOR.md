@@ -171,6 +171,18 @@ Every project gets its own folder: requirements, concept, model, calculations, s
 
 Every iteration is also recorded visually: a `CHANGELOG.md` entry and a card in a browser timeline (`iterations/index.html`) with what changed, **why** (the requirement, the failed check or your decision), the key numbers against the previous version — stress, displacement, safety factor, mass, part count, with deltas — and images of the model and the stress plots. You can see how the design evolved and the reason behind each step. Released packages (PDF drawings, DXF for cutting, STEP, bill of materials) are copied to `deliveries/`. The design log tells the whole story of the design: what was done, what failed, where it went back and why each decision was made.
 
+## 13b. See it, turn it, cut it: the 3D viewer
+
+You are the one who validates and corrects, so every iteration ends with the part in front of you, not just described. Each project has a `viewer.html` that opens in any browser:
+
+- **Rotate, zoom and pan** the part, with iso, front, top and right views.
+- **Section view**: cut along X, Y or Z with a slider, and flip the side.
+- **Systems on and off**: each component or system (frame, guard, motor mount…) has its own switch.
+- **Simulation overlay**: the von Mises stress map with its colour scale, the deformed shape with an exaggeration slider, and the supports (blue) and loads (red arrows).
+- **Version history**: every version listed with what changed, why, the decision or loop behind it and its numbers against the previous one. Click a version to open it; switch on the previous version as a blue ghost to see exactly what changed.
+
+The designer asks you to review the viewer before moving on and never claims a change is done without showing it.
+
 ## 14. Drawings
 
 A design is not finished until someone else can build it from the drawing. Drawings follow ISO (first-angle) by default, or ASME Y14.5 when required: functional dimensions from the right datums, a general tolerance in the title block, tight tolerances and fits only where the function needs them and the workshop can measure them, material, finish, treatment, quantity and a complete title block. Assemblies get a bill of materials; sheet metal gets flat patterns; weldments get weld symbols.

@@ -1,4 +1,4 @@
-# mechanical-designer
+# DaVinci Mechanical Designer
 
 A Claude Code plugin: an experienced mechanical designer whose core principle is mechanical simplicity.
 
@@ -14,7 +14,7 @@ A Claude Code plugin: an experienced mechanical designer whose core principle is
 
 Quickest (skill only):
 ```
-ln -s ~/Desktop/mechanical-design-skill/skills/mechanical-designer ~/.claude/skills/mechanical-designer
+ln -s ~/Desktop/mechanical-design-skill/skills/davinci-mechanical-designer ~/.claude/skills/davinci-mechanical-designer
 ```
 Plugin packaging (marketplace) comes with the status band in v0.4.
 
@@ -25,3 +25,17 @@ Optional tools: `solidcraft-cli` (CAD), `gmsh` + `ccx` (FEA), `freecadcmd` (draw
 - v0.2 — bundled FEA scripts (STEP → Gmsh → CalculiX → report)
 - v0.3 — bundled drawing scripts (FreeCAD TechDraw), switch to SolidCraft drawings when released
 - v0.4 — status band (project · version · step · pending question) and adversarial reviewer agents
+
+## Credits
+
+Created by **William Campos V.** — github.com/billgabito
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+## How to cite (IEEE)
+
+> [1] W. Campos V., *DaVinci Mechanical Designer: A Claude Code skill for parametric mechanical design based on mechanical simplicity*, ver. 0.1.1. (2026). [Online]. Available: https://github.com/&lt;user&gt;/davinci-mechanical-designer
+
+Replace the URL once the repository is published. Machine-readable metadata is in [CITATION.cff](CITATION.cff).

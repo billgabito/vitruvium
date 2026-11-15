@@ -1,6 +1,6 @@
 # Design-error catalog
 
-Review every design against this list before delivery, and again in audits. Each entry: what to look for → why it fails → fix. When a project reveals a new error, add it to the user's local lessons file (`~/.mechanical-designer/lessons.md`); generic lessons can be proposed for this catalog.
+Review every design against this list before delivery, and again in audits. Each entry: what to look for → why it fails → fix. When a project reveals a new error, add it to the user's local lessons file (`~/.davinci-mechanical-designer/lessons.md`); generic lessons can be proposed for this catalog.
 
 ## Stress and fatigue
 1. Sharp internal corner in a loaded zone → stress concentration, fatigue crack start → add a fillet (r ≥ thickness/2 where possible), move the feature out of the high-stress region.

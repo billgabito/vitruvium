@@ -2,7 +2,7 @@
 
 ## Where
 
-Ask once where the user keeps projects (default `~/mechanical-projects/`), remember it in `~/.mechanical-designer/config.yaml`, and create one folder per project with a short kebab-case name (`pump-motor-mount`). Folder and file names stay in English for portability; document contents are in the user's language.
+Ask once where the user keeps projects (default `~/mechanical-projects/`), remember it in `~/.davinci-mechanical-designer/config.yaml`, and create one folder per project with a short kebab-case name (`pump-motor-mount`). Folder and file names stay in English for portability; document contents are in the user's language.
 
 ## Structure
 
@@ -45,7 +45,7 @@ Decision and reason:
 
 ## Lessons
 
-At each version and at project close, write lessons in `LESSONS.md` (what worked, what failed, what to do differently). Copy generalizable ones to `~/.mechanical-designer/lessons.md`, which you read at the start of every project.
+At each version and at project close, write lessons in `LESSONS.md` (what worked, what failed, what to do differently). Copy generalizable ones to `~/.davinci-mechanical-designer/lessons.md`, which you read at the start of every project.
 
 ## state.json
 

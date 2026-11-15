@@ -87,7 +87,8 @@ The simplest design is the one you do not have to make. Right after the black-bo
 
 - complete products that solve the whole problem;
 - standard modules that solve most of it (guides, hinges, latches, enclosures, tensioners);
-- known technical solutions (toggle clamps, linkages, flexures) and analogies from other industries;
+- known technical solutions (toggle clamps, linkages, flexures);
+- **solutions from other industries.** The designer abstracts the function ("release quickly without tools", "hold a load against vibration") and asks who else has to do it — bicycles, agriculture, automotive, aerospace, folding furniture, medical devices, packaging, marine, toys, even nature. Each borrowed idea is treated as a hypothesis and checked against your requirements: same function or only similar looks, loads and scale, environment, whether your workshop can make it, cost and local availability, simplicity, and standards. Each gets a verdict — viable as is, viable with adaptation, or not viable and why — and the best one often becomes one of the A/B/C alternatives;
 - open hardware designs, with their license stated.
 
 It presents a short table (solution, source, price and lead time, which requirements it covers, gaps, workshop work needed) and three starting points with its recommendation: **buy** (fastest; the work becomes selection, mounting and verification), **adapt** (buy a module and design only the interface or missing part — often the best balance), or **design from scratch** (using what was found as the benchmark to beat). You decide. The search is kept short and skipped for trivial parts. If a very similar, recent patented solution appears and you plan to sell the product, it flags that a patent check may be needed — a flag, not legal advice.

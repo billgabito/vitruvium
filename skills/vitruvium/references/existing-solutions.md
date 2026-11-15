@@ -14,14 +14,53 @@ The simplest design is the one you do not have to make. Right after the black-bo
 
 Search by **function**, not by the user's name for the part ("hold a motor and tension a belt", not "motor bracket"). Prefer suppliers the user can actually buy from locally.
 
+## Borrow from other industries (transfer of solutions)
+
+The best idea often lives in a different industry, solving the same function at another scale or for another purpose. Look deliberately outside the user's field:
+
+1. **Abstract the function.** Strip the context: verb + noun + physical principle ("hold a load against vibration", "convert rotation into a short linear stroke", "release quickly without tools", "keep a seal under thermal cycling").
+2. **Search across lenses.** Ask "who else has to do this?":
+
+| Lens | Typical strengths worth borrowing |
+|---|---|
+| Bicycles and motorsport | quick releases, light tubes, tensioners, cam locks |
+| Agriculture | rugged, field-repairable, weld-and-bolt simplicity, hitches |
+| Automotive | mass-produced cheap mechanisms, latches, bushings, seals |
+| Aerospace | weight-efficient structures, fail-safe fasteners, inspection access |
+| Furniture and folding products | hinges, slides, flat-pack joints, knock-down fittings |
+| Medical devices and lab equipment | precision with simple parts, cleanable designs, flexures |
+| Packaging and food machinery | washdown design, tool-less changeover |
+| Construction and scaffolding | modular clamps, standard tube systems, adjustability |
+| Marine | corrosion resistance, sealing, galvanic isolation |
+| Robotics and automation | compact transmissions, standard actuators and guides |
+| Toys and consumer products | snap-fits, living hinges, one-piece moulded mechanisms |
+| Nature (biomimicry) | compliant joints, efficient load paths, self-cleaning surfaces |
+
+   Use TRIZ's 40 inventive principles as a second prompt (segmentation, nesting, the other way round, prior action…) when the obvious lenses give nothing.
+3. **Evaluate viability against the user's requirements** — an idea from another industry is a hypothesis, not a solution. Check each candidate:
+
+| Check | Question |
+|---|---|
+| Function | Does it really perform the same function, or only look similar? |
+| Scale and loads | Does it survive the user's loads, speeds and cycles? Scaling changes stresses (area grows with L², mass with L³). |
+| Environment | Temperature, water, dust, chemicals, UV, cleanliness requirements |
+| Manufacturability | Can the user's workshop make or buy it? Mass-production solutions (moulding, stamping) may not transfer to one-off fabrication. |
+| Cost and availability | Can the part or its equivalent be bought locally? |
+| Simplicity | Does it reduce parts and processes, or add a clever complication? |
+| Standards and safety | Does the original rely on a certification or context that does not carry over? |
+
+   Verdict per idea: **viable as is**, **viable with adaptation** (say what changes), or **not viable** (say why — this is useful knowledge too).
+
+4. **Present the transferred ideas** in the same table as the market findings, with a column "origin industry" and the viability verdict. The best transferred idea usually becomes one of the A/B/C alternatives.
+
 ## Keep it short
 
 Time-box the search (a few targeted searches, not a market study). If nothing reasonable appears quickly, say so and move on. For a trivial part (a spacer, a simple plate), skip it and say why.
 
 ## Present what you found
 
-| # | Solution | Source (link, date) | Price / lead time | Covers requirements | Gaps | Workshop work needed |
-|---|---|---|---|---|---|---|
+| # | Solution | Origin industry | Source (link, date) | Price / lead time | Covers requirements | Gaps | Workshop work needed | Viability |
+|---|---|---|---|---|---|---|---|---|
 
 Then give three starting points, with your recommendation first, and ask the user to choose (question tool):
 

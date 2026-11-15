@@ -1,0 +1,46 @@
+# Workshop profile — lives at ~/.mechanical-designer/workshops/<name>.yaml
+# Fill progressively; unknown fields can stay empty. Add the date when something changes.
+name: home-shop
+location: ""            # city/country — for local suppliers
+units: metric           # metric | inch
+updated: YYYY-MM-DD
+
+machines:
+  # - type: lathe
+  #   model: ""
+  #   swing_mm:
+  #   between_centres_mm:
+  #   spindle_bore_mm:
+  #   threading: [metric, inch]
+  #   accessories: [tailstock, steady rest]
+  #   notes: ""
+  # - type: milling           # manual | CNC
+  #   travel_xyz_mm: [ , , ]
+  #   accessories: [dividing head, rotary table]
+  # - type: drill             # bench | pillar | radial | magnetic
+  #   max_drill_mm:
+  # - type: welder
+  #   processes: [MIG/MAG, TIG-DC, TIG-AC, SMAW]
+  #   max_amps:
+  #   materials: [steel, stainless, aluminium]
+  # - type: cutting           # plasma | oxy | laser | bandsaw | chop saw
+  #   max_thickness_mm:
+  #   table_mm: [ , ]
+  # - type: press-brake
+  #   bend_length_mm:
+  #   max_thickness_mm:
+  # - type: 3d-printer
+  #   volume_mm: [ , , ]
+  #   materials: [PLA, PETG]
+
+hand_tools: []          # grinder, taps M3–M12, dies, ...
+measuring: []           # caliper 0.02, micrometer 0.01, dial indicator, ...
+
+people:
+  # - role: builder
+  #   masters: [MIG welding, turning]
+  #   not_yet: [TIG aluminium]
+
+outsourcing:            # known external services
+  # - service: laser cutting
+  #   supplier: ""

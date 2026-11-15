@@ -152,12 +152,12 @@ def stress_color(x, y):
 
 TRI = triangulate(points())
 
-def mesh(ink="#2B2418", fill=True, opacity=0.78, width=1.1):
+def mesh(ink="#2B2418", fill=True, opacity=0.78, width=0.5):
     s = []
     for a, b, c, cx, cy in TRI:
         f = (HAIR_TONES[int(cx * 7 + cy * 3) % 4] if is_hair(cx, cy) else stress_color(cx, cy)) if fill else "none"
         area = abs((b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])) / 2
-        w = min(width, max(0.25, math.sqrt(area) * 0.16))   # líneas finas en triángulos pequeños (dedos)
+        w = min(width, max(0.15, math.sqrt(area) * 0.08))   # líneas finas en triángulos pequeños (dedos)
         s.append(f'<polygon points="{a[0]:.1f},{a[1]:.1f} {b[0]:.1f},{b[1]:.1f} {c[0]:.1f},{c[1]:.1f}" '
                  f'fill="{f}" fill-opacity="{opacity}" stroke="{ink}" stroke-width="{w:.2f}" stroke-linejoin="round"/>')
     return "".join(s)

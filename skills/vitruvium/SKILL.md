@@ -72,6 +72,8 @@ Create one folder per project with the standard structure, keep it under Git (yo
 
 ## Tooling
 
+On first use (or when a tool fails), run `scripts/check_tools.sh` to see what is installed. Install sources, commands per OS and MCP registration are already in `references/tools-setup.md` — use them instead of searching, and ask the user before installing anything.
+
 - **CAD**: SolidCraft through its MCP server (`solidcraft-cli mcp`). SolidCraft's own skills teach how to operate it; this skill decides *what* to model and why. → `references/solidcraft.md`
 - **FEA**: STEP → Gmsh → CalculiX, always compared with a hand calculation. → `references/analysis.md`
 - **Drawings**: STEP → FreeCAD TechDraw (headless) until SolidCraft ships drawings. → `references/drawings.md`

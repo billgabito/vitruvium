@@ -17,13 +17,25 @@ Full description of how it behaves: [docs/BEHAVIOR.md](docs/BEHAVIOR.md).
 - Every project in its own versioned folder with a design log and lessons.
 - Audit mode for existing designs.
 
-## Install (local)
+## Install
 
-Claude Code (skill only):
+Install it as a Git clone so it can update itself:
 ```
-ln -s ~/Desktop/mechanical-design-skill/skills/vitruvium ~/.claude/skills/vitruvium
+git clone https://github.com/billgabito/vitruvium.git ~/vitruvium
 ```
-Other agents: point the agent at `skills/vitruvium/SKILL.md` (the root `AGENTS.md` already does this for agents that read it), or copy the skill folder into the agent's skills directory.
+Claude Code:
+```
+ln -s ~/vitruvium/skills/vitruvium ~/.claude/skills/vitruvium
+```
+Other agents: point the agent at `skills/vitruvium/SKILL.md` (the root `AGENTS.md` already does this for agents that read it), or link the skill folder into the agent's skills directory. Copying the folder works too, but then it cannot update itself.
+
+## Updates
+
+Vitruvium checks for a new release at most once a day, when it is used. It asks before updating; if you choose "always update automatically" it updates without asking from then on. Your workshop profile, lessons and projects live outside the skill folder (`~/.vitruvium/`, your projects folder), so updates never touch them. Manual control:
+```
+sh ~/vitruvium/skills/vitruvium/scripts/update.sh check --force   # look now
+sh ~/vitruvium/skills/vitruvium/scripts/update.sh mode ask         # ask | auto | off
+```
 
 Plugin packaging (marketplace) comes with the status band in v0.4.
 
@@ -45,6 +57,6 @@ MIT — see [LICENSE](LICENSE).
 
 ## How to cite (IEEE)
 
-> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.4.2. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
+> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.5.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
 
 Machine-readable metadata is in [CITATION.cff](CITATION.cff).

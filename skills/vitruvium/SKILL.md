@@ -70,6 +70,17 @@ Create one folder per project with the standard structure, keep it under Git (yo
 - **Design**: a need or problem → a new design (the process above).
 - **Audit**: drawings, STEP, photos or a description of an existing design → a ranked improvement report, then A/B/C for each major improvement. → `references/audit.md`
 
+## Updates (at most once a day)
+
+At the start of a session, run `scripts/update.sh check` and act on its single status line:
+- `UP_TO_DATE`, `SKIPPED`, `DISABLED`: say nothing.
+- `UPDATE_AVAILABLE <local> <remote> mode=ask`: ask the user with the question tool — "Update now (Recommended)", "Always update automatically", "Not now". For "Always", run `scripts/update.sh mode auto` first. Then run `scripts/update.sh apply`.
+- `UPDATE_AVAILABLE … mode=auto`: the user already authorized it — run `scripts/update.sh apply` and mention the update in one line.
+- After `apply`: summarize the listed changes in one or two sentences. If it prints `BLOCKED` (local changes or commits), do not force anything; tell the user.
+- `NOT_A_GIT_INSTALL` or `CHECK_FAILED`: mention once that updates need a Git install / repository access (see README), then continue.
+
+Updates only touch the skill folder; the user's workshop profile, lessons and projects are elsewhere. Never update in the middle of a design step — finish the step first.
+
 ## Tooling
 
 On first use (or when a tool fails), run `scripts/check_tools.sh` to see what is installed. Install sources, commands per OS and MCP registration are already in `references/tools-setup.md` — use them instead of searching, and ask the user before installing anything.

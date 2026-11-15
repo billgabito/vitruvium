@@ -193,6 +193,10 @@ Until SolidCraft releases its drawing module, drawings are generated from STEP w
 
 Models are saved as SolidCraft JSON scripts, which are text, so every version shows exactly what changed ("plate thickness 6 → 8 mm").
 
+## 16b. Updates
+
+Vitruvium looks for a new release at most once a day, when you use it. If there is one, it asks: update now, always update automatically, or not now. Once you choose "always", it updates on its own and tells you in one line what changed. It never updates in the middle of a design step, never overwrites local changes, and never touches your workshop profile, lessons or projects, which live outside the skill folder. You can switch between ask, auto and off at any time.
+
 ## 17. Non-negotiables
 
 - Units are always stated and never mixed without conversion (metric/ISO by default; inch/ASME when needed).

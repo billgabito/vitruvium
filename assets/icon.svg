@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>DaVinci Mechanical Designer</title>
+  <rect width="512" height="512" rx="96" fill="#1B2A3A"/>
+  <circle cx="256" cy="256" r="214" fill="none" stroke="#C9A35A" stroke-width="3" opacity="0.55"/>
+  <path d="M402.5,223.6 L430.2,231.0 L430.2,281.0 L402.5,288.4 L399.0,301.2 L419.4,321.5 L394.4,364.7 L366.6,357.3 L357.3,366.6 L364.7,394.4 L321.5,419.4 L301.2,399.0 L288.4,402.5 L281.0,430.2 L231.0,430.2 L223.6,402.5 L210.8,399.0 L190.5,419.4 L147.3,394.4 L154.7,366.6 L145.4,357.3 L117.6,364.7 L92.6,321.5 L113.0,301.2 L109.5,288.4 L81.8,281.0 L81.8,231.0 L109.5,223.6 L113.0,210.8 L92.6,190.5 L117.6,147.3 L145.4,154.7 L154.7,145.4 L147.3,117.6 L190.5,92.6 L210.8,113.0 L223.6,109.5 L231.0,81.8 L281.0,81.8 L288.4,109.5 L301.2,113.0 L321.5,92.6 L364.7,117.6 L357.3,145.4 L366.6,154.7 L394.4,147.3 L419.4,190.5 L399.0,210.8 Z" fill="none" stroke="#E8DCC2" stroke-width="14" stroke-linejoin="round"/>
+  <circle cx="256" cy="256" r="104" fill="none" stroke="#E8DCC2" stroke-width="6" opacity="0.35"/>
+  <g stroke="#C9A35A" stroke-linecap="round" fill="none">
+    <line x1="256" y1="150" x2="200" y2="350" stroke-width="16"/>
+    <line x1="256" y1="150" x2="312" y2="350" stroke-width="16"/>
+    <path d="M214 300 Q256 318 298 300" stroke-width="8"/>
+  </g>
+  <circle cx="256" cy="148" r="20" fill="#C9A35A"/>
+  <circle cx="256" cy="148" r="7" fill="#1B2A3A"/>
+  <line x1="256" y1="128" x2="256" y2="104" stroke="#C9A35A" stroke-width="10" stroke-linecap="round"/>
+</svg>

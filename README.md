@@ -43,7 +43,7 @@ Optional tools: `solidcraft-cli` (CAD), `gmsh` + `ccx` (FEA), `freecadcmd` (draw
 
 ## Roadmap
 - v0.1 — core process, references, templates (this version)
-- v0.2 — bundled FEA scripts (STEP → Gmsh → CalculiX → report)
+- v0.2 — bundled FEA script (STEP → Gmsh → CalculiX → report) ✔ and visual iteration log ✔
 - v0.3 — bundled drawing scripts (FreeCAD TechDraw), switch to SolidCraft drawings when released
 - v0.4 — status band (project · version · step · pending question) and adversarial reviewer agents
 
@@ -57,6 +57,6 @@ MIT — see [LICENSE](LICENSE).
 
 ## How to cite (IEEE)
 
-> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.5.1. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
+> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.6.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
 
 Machine-readable metadata is in [CITATION.cff](CITATION.cff).

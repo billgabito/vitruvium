@@ -21,6 +21,17 @@ Rule: if FEA and the hand calc disagree by more than ~15% in a region where the 
 
 ## FEA pipeline (STEP → Gmsh → CalculiX)
 
+Use the bundled script instead of writing one each time:
+
+```
+python3 scripts/fea.py part.step --out 05-simulation/v0.3/size2 --E 210000 --nu 0.3 --size 2 --yield 250 \
+    --fix "xmin ymin zmin xmax ymax zmax" --load "xmin ymin zmin xmax ymax zmax Fx Fy Fz"
+```
+
+Units mm, N, MPa. Supports and loads are selected by bounding boxes in model coordinates (get them from SolidCraft `measure`); a load is the total force spread over the nodes in its box. Run it at three element sizes for the convergence study. It writes `results.json` and `summary.md` (and stress/displacement PNGs when ccx2paraview and PyVista are installed). Validated on a cantilever: tip deflection within 0.5% of beam theory; the root stress keeps rising with refinement because of the fixed-edge singularity — exactly the behaviour described in step 5 below.
+
+The steps the script follows, and what to check:
+
 1. Export STEP from SolidCraft. Defeature only what does not affect the result (cosmetic fillets far from stress paths), and say what you removed.
 2. Mesh with Gmsh: second-order tetrahedra (C3D10), refined at stress raisers; export directly to CalculiX/Abaqus format (`.inp`).
 3. CalculiX input (.inp): material (E, ν, density), boundary conditions that match reality (avoid over-constraining — fixed faces stiffen and create false peaks), loads distributed over realistic areas.

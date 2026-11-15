@@ -169,7 +169,7 @@ Every project gets its own folder: requirements, concept, model, calculations, s
 | v1.1… | improvements from real use |
 | v2.0 | redesign |
 
-Released packages (PDF drawings, DXF for cutting, STEP, bill of materials) are copied to `deliveries/`. The design log tells the whole story of the design: what was done, what failed, where it went back and why each decision was made.
+Every iteration is also recorded visually: a `CHANGELOG.md` entry and a card in a browser timeline (`iterations/index.html`) with what changed, **why** (the requirement, the failed check or your decision), the key numbers against the previous version — stress, displacement, safety factor, mass, part count, with deltas — and images of the model and the stress plots. You can see how the design evolved and the reason behind each step. Released packages (PDF drawings, DXF for cutting, STEP, bill of materials) are copied to `deliveries/`. The design log tells the whole story of the design: what was done, what failed, where it went back and why each decision was made.
 
 ## 14. Drawings
 

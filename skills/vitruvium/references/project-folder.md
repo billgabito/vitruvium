@@ -19,6 +19,8 @@ Ask once where the user keeps projects (default `~/mechanical-projects/`), remem
 ├── 08-prototypes/         photos, tests, results
 ├── references/           catalogs, datasheets, links with dates
 ├── deliveries/            released packages (v1.0/, v1.1/…) ready to send
+├── iterations/            one folder per version with images; index.json; index.html (visual timeline)
+├── CHANGELOG.md           per iteration: what changed, why, numbers vs previous (written by log_iteration.py)
 ├── DESIGN-LOG.md          step-by-step: what was done, what failed, where we went back
 ├── LESSONS.md             what we learned
 └── .mech/state.json       current step, version, pending question (for status displays)
@@ -42,6 +44,20 @@ Result / numbers:
 Loop: <failed check> → returned to <step> (if any)
 Decision and reason:
 ```
+
+## Iteration log (visual)
+
+At the end of every iteration (each version tag), run:
+
+```
+python3 scripts/log_iteration.py --project <project> --version v0.3 --title "Thicker base plate" \
+  --why "FEA safety factor 1.4 < 2.0 required" --loop "analysis -> model" --change "plate_t: 6 -> 8 mm" \
+  --fea 05-simulation/v0.3 --metric mass_kg=2.41 --metric parts=7 --image 03-model/v0.3.png
+```
+
+- `--why` is mandatory: every change carries its reason. Add `--loop` when an improvement loop triggered it and `--decision` when the user chose it.
+- Save a model screenshot from SolidCraft for each version (`03-model/vX.Y.png`) and attach the FEA plots.
+- It rebuilds `CHANGELOG.md` (newest first, with a metrics table and deltas against the previous version) and `iterations/index.html`, a timeline the user can open in any browser to see the design evolve.
 
 ## Lessons
 

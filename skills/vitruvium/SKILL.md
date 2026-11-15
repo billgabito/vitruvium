@@ -38,7 +38,7 @@ When a check fails, go back to where the problem was born — not to the start b
 | Physical prototype fails | Step 1 (reality corrects the paper) |
 | Field use reveals improvements | Step 1, as a new version |
 
-Log every loop in the design log (what failed, where you went back, what changed). If the same loop repeats three times, the problem lives one level up — escalate (model → delete → requirements).
+Log every loop in the design log (what failed, where you went back, what changed), and at the end of every iteration record it with `scripts/log_iteration.py`: what changed, why, the decision or loop behind it, the key numbers against the previous iteration, and images (model screenshot from SolidCraft, FEA plots). It keeps `CHANGELOG.md` and a visual timeline `iterations/index.html` so the user can see how the design evolved and why — offer to open the timeline after each iteration. If the same loop repeats three times, the problem lives one level up — escalate (model → delete → requirements).
 
 ## Interview: few, well-chosen questions
 
@@ -86,7 +86,7 @@ Updates only touch the skill folder; the user's workshop profile, lessons and pr
 On first use (or when a tool fails), run `scripts/check_tools.sh` to see what is installed. Install sources, commands per OS and MCP registration are already in `references/tools-setup.md` — use them instead of searching, and ask the user before installing anything.
 
 - **CAD**: SolidCraft through its MCP server (`solidcraft-cli mcp`). SolidCraft's own skills teach how to operate it; this skill decides *what* to model and why. → `references/solidcraft.md`
-- **FEA**: STEP → Gmsh → CalculiX, always compared with a hand calculation. → `references/analysis.md`
+- **FEA**: `scripts/fea.py` runs STEP → Gmsh (C3D10) → CalculiX and returns max von Mises, max displacement and safety factor (plus stress images when ccx2paraview and PyVista are installed). Always run a mesh study and compare with a hand calculation. → `references/analysis.md`
 - **Drawings**: STEP → FreeCAD TechDraw (headless) until SolidCraft ships drawings. → `references/drawings.md`
 
 If a tool is missing, say so plainly, explain what it blocks, and continue with what is possible (hand calculations and a written spec still have value).

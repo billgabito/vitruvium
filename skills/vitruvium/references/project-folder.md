@@ -60,7 +60,8 @@ python3 scripts/log_iteration.py --project <project> --version v0.3 --title "Thi
 - Export the geometry of each version from SolidCraft into `03-model/` and pass it with `--model` (repeat once per system/component: frame, guard, motor…; or one glTF whose top-level nodes are the systems). STL is in mm; glTF is in metres by spec — the viewer rescales it automatically when an FEA result shows the mismatch.
 - Pass `--fea <run folder>` so the viewer can overlay the stress map, deformed shape, supports and loads.
 - Save a model screenshot for the changelog (`03-model/vX.Y.png`) and attach the FEA plots.
-- Rebuild the viewer alone with `python3 scripts/viewer.py --project <project> --open`. Useful URL options to open a specific view: `viewer.html?v=1&cut=x&pos=0.4&scale=0.5&ghost=1&sim=0&view=top`. The page loads three.js from cdn.jsdelivr.net, so the first opening needs internet.
+- Live mode during a session: `python3 scripts/viewer.py --project <project> --serve --open` serves the viewer at http://127.0.0.1:8765 and reloads it automatically whenever `03-model/current.*` (the working copy, exported after every change) or `05-simulation/current/` changes. `/state` reports `stale: true` when a CAD file in `03-model/` is newer than the export. The working copy appears at the top of the history as **LIVE**.
+- Rebuild the static snapshot alone with `python3 scripts/viewer.py --project <project> --open` (a single file you can send to others). Useful URL options to open a specific view: `viewer.html?v=1&cut=x&pos=0.4&scale=0.5&ghost=1&sim=0&view=top`. The page loads three.js from cdn.jsdelivr.net, so the first opening needs internet.
 - It rebuilds `CHANGELOG.md` (newest first, with a metrics table and deltas against the previous version) and `iterations/index.html`, a timeline the user can open in any browser to see the design evolve.
 
 ## Lessons

@@ -2,6 +2,9 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.8.0 — 2026-11-15
+- **Live viewer** (`viewer.py --serve`): the working copy (`03-model/current.*`) appears as LIVE and the page reloads by itself after every export, keeping the camera; red banner and `/state` flag when the CAD is newer than the export; camera fit respects window shape. *Why:* what the user sees must always be the current design — one source of truth (SolidCraft), never a second model rebuilt in three.js.
+
 ## v0.7.0 — 2026-11-15
 - **Interactive 3D viewer** (`scripts/viewer.py` → `viewer.html`): rotate, standard views, section along X/Y/Z, systems on/off, FEA overlay (stress map, deformed shape, supports and loads), version history with reasons and the previous version as a ghost. *Why:* the user validates and corrects the design, and can only judge what they can see.
 - `fea.py` now writes `fea_view.json` (outward-oriented surface, nodal von Mises, displacements); `log_iteration.py` takes `--model` and rebuilds the viewer.

@@ -11,7 +11,11 @@ Data it reads (written by the other scripts):
   03-model/<file>.glb|.gltf|.stl   geometry exported from SolidCraft (one file per system/component, or one glTF with nodes)
   05-simulation/<run>/fea_view.json   FEA surface results (fea.py)
 
-Usage: python3 viewer.py --project <folder> [--open]
+Usage: python3 viewer.py --project <folder> [--open]            static snapshot (viewer.html, can be shared)
+       python3 viewer.py --project <folder> --serve --open      live: reloads automatically on every new export
+Live working copy: export the CAD state to 03-model/current.glb (or .stl, or several files in 03-model/current/)
+after every modelling change; FEA of the current state goes to 05-simulation/current/. A red banner warns when the
+CAD file is newer than the export (the 3D view would be out of date).
 Needs internet the first time it is opened (three.js loads from cdn.jsdelivr.net).
 """
 import argparse, base64, json, os, subprocess, sys, webbrowser
@@ -25,6 +29,37 @@ def load_versions(proj):
     files = sorted(f for f in os.listdir(md) if f.lower().endswith((".glb", ".gltf", ".stl"))) if os.path.isdir(md) else []
     return [{"version": os.path.splitext(f)[0], "title": f, "why": "", "changes": [], "metrics": {},
              "models": [f"03-model/{f}"], "fea": None, "date": ""} for f in files]
+
+MODEL_EXT = (".glb", ".gltf", ".stl")
+
+def live_files(proj):
+    """Working copy exported after every modelling change: 03-model/current.* or 03-model/current/*."""
+    md = os.path.join(proj, "03-model")
+    files = [os.path.join(md, f) for f in os.listdir(md) if f.startswith("current.") and f.lower().endswith(MODEL_EXT)] if os.path.isdir(md) else []
+    cd = os.path.join(md, "current")
+    if os.path.isdir(cd):
+        files += [os.path.join(cd, f) for f in sorted(os.listdir(cd)) if f.lower().endswith(MODEL_EXT)]
+    return files
+
+def state(proj):
+    """Freshness of the 3D view: newest export time, and whether the CAD file is newer than the export."""
+    lf = live_files(proj)
+    exp = max((os.path.getmtime(f) for f in lf), default=0)
+    md = os.path.join(proj, "03-model")
+    cad = max((os.path.getmtime(os.path.join(md, f)) for f in os.listdir(md) if f.endswith((".sc", ".solidcraft", ".json"))), default=0) if os.path.isdir(md) else 0
+    fea = os.path.join(proj, "05-simulation", "current", "fea_view.json")
+    idx = os.path.join(proj, "iterations", "index.json")
+    stamp = max([exp, os.path.getmtime(fea) if os.path.exists(fea) else 0, os.path.getmtime(idx) if os.path.exists(idx) else 0])
+    return {"stamp": stamp, "exported": exp, "cad": cad, "stale": bool(lf) and cad > exp + 1}
+
+def with_live(proj, versions):
+    lf = live_files(proj)
+    if lf:
+        fea = os.path.join("05-simulation", "current")
+        versions = versions + [{"version": "LIVE", "title": "Working copy (current CAD state)",
+                                "why": "Updates automatically every time the model is exported.", "changes": [], "metrics": {},
+                                "models": lf, "fea": fea if os.path.isdir(os.path.join(proj, fea)) else None, "date": ""}]
+    return versions
 
 def pack(proj, versions):
     out = []
@@ -66,11 +101,14 @@ main{flex:1;position:relative}canvas{display:block}
 .btns{display:flex;flex-wrap:wrap;gap:4px}.btns button{flex:1;padding:4px 6px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;font:inherit}
 #legend{position:absolute;left:12px;bottom:12px;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:12px 'JetBrains Mono',Menlo,monospace;display:none}
 #bar{width:220px;height:12px;border-radius:3px;background:linear-gradient(90deg,#2a5cd6,#18b2d6,#48be6e,#f2c428,#dc3c32)}
+#banner{position:absolute;left:12px;top:12px;z-index:2;padding:6px 10px;border-radius:8px;font-size:12px;display:none}
+#banner.live{display:block;background:#E6F4EA;color:#1E5631;border:1px solid #9FD3AE}#banner.stale{display:block;background:#FCE8E6;color:#8A1C14;border:1px solid #F1A39B}
+#banner.snap{display:block;background:#fff;color:#5A4A2A;border:1px solid #E0D3B4}
 #msg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:var(--sepia)}
 @media (max-width:760px){body{flex-direction:column}aside{width:100%;height:40vh}.panel{width:200px}}
 </style>
 <aside><h1>__NAME__</h1><p class="sub">Version history — click a version to open it. Newest first.</p><div id="list"></div></aside>
-<main><div id="msg">Loading…</div>
+<main><div id="msg">Loading…</div><div id="banner"></div>
 <div class="panel">
  <h4>View</h4><div class="btns"><button data-v="iso">Iso</button><button data-v="front">Front</button><button data-v="top">Top</button><button data-v="right">Right</button></div>
  <h4>Section</h4>
@@ -88,7 +126,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {STLLoader} from 'three/addons/loaders/STLLoader.js';
-const DATA = __DATA__;
+let DATA = __DATA__;
 const main = document.querySelector('main');
 const renderer = new THREE.WebGLRenderer({antialias:true, preserveDrawingBuffer:true});
 renderer.localClippingEnabled = true; renderer.setPixelRatio(devicePixelRatio); main.prepend(renderer.domElement);
@@ -160,7 +198,8 @@ function buildBC(){
 }
 function fit(view = 'iso'){
   box = new THREE.Box3().setFromObject(root); if (box.isEmpty()) return;
-  const c = box.getCenter(new THREE.Vector3()), r = box.getSize(new THREE.Vector3()).length() * 1.1;
+  const c = box.getCenter(new THREE.Vector3()), v = THREE.MathUtils.degToRad(camera.fov), h = 2 * Math.atan(Math.tan(v / 2) * camera.aspect);
+  const r = box.getSize(new THREE.Vector3()).length() / 2 / Math.sin(Math.min(v, h) / 2) * 1.05;   // whole part visible in any window shape
   const d = {iso:[1, -1.2, .9], front:[0, -1, 0], top:[0, -0.0001, 1], right:[1, 0, 0]}[view];
   camera.position.copy(c).add(new THREE.Vector3(...d).normalize().multiplyScalar(r)); camera.near = r / 1000; camera.far = r * 100;
   camera.updateProjectionMatrix(); controls.target.copy(c); controls.update(); setCut();
@@ -172,8 +211,8 @@ function setCut(){
     plane.normal.copy(n); plane.constant = (document.getElementById('flip').checked ? -1 : 1) * (mn + t * (mx - mn)); }
   scene.traverse(o => { if (o.material) o.material.clippingPlanes = clip(); });
 }
-async function show(i){
-  current = i; const v = DATA.versions[i];
+async function show(i, keepCamera = false){
+  current = Math.min(i, DATA.versions.length - 1); i = current; const v = DATA.versions[i];
   document.querySelectorAll('.ver').forEach((el, k) => el.classList.toggle('on', k === i));
   root.clear(); ghostRoot.clear(); feaMesh = null; fea = v.fea;
   layers = await loadModels(v, root, false); unitFix(layers);
@@ -192,9 +231,13 @@ async function show(i){
   if (document.getElementById('ghost').checked && i + 1 < DATA.versions.length){ const g = await loadModels(DATA.versions[i + 1], ghostRoot, true); unitFix(g); }
   document.getElementById('msg').style.display = (layers.length || fea) ? 'none' : 'block';
   document.getElementById('msg').textContent = 'No geometry or FEA for this version.';
-  fit();
+  if (keepCamera){ const old = box.getSize(new THREE.Vector3()).length(); box = new THREE.Box3().setFromObject(root);
+    const r = box.getSize(new THREE.Vector3()).length() / (old || 1);
+    if (r > 1.3 || r < 0.7) fit(); else setCut(); }          // keep the user's camera unless the part changed size a lot
+  else fit();
 }
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function renderList(){
 document.getElementById('list').innerHTML = DATA.versions.map((v, i) => {
   const p = DATA.versions[i + 1];
   const rows = Object.entries(v.metrics || {}).map(([k, x]) => `<tr><td>${esc(k)}</td><td>${esc(x)}</td><td>${p && p.metrics && p.metrics[k] !== undefined ? '← ' + esc(p.metrics[k]) : ''}</td></tr>`).join('');
@@ -203,6 +246,23 @@ document.getElementById('list').innerHTML = DATA.versions.map((v, i) => {
     (v.decision ? `<div><b>Decision:</b> ${esc(v.decision)}</div>` : '') +
     ((v.changes || []).length ? `<ul>${v.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul>` : '') + (rows ? `<table>${rows}</table>` : '') + '</div>'; }).join('');
 document.querySelectorAll('.ver').forEach((el, i) => el.onclick = () => show(i));
+document.querySelectorAll('.ver').forEach((el, k) => el.classList.toggle('on', k === current));
+}
+renderList();
+function banner(){
+  const b = document.getElementById('banner'), s = DATA.state || {}, t = s.exported ? new Date(s.exported * 1000).toLocaleTimeString() : '—';
+  const live = location.protocol.startsWith('http');
+  if (s.stale){ b.className = 'stale'; b.textContent = 'Out of date: the CAD model changed after the last export — re-export to see the current design.'; }
+  else if (live){ b.className = 'live'; b.textContent = `● Live — last export ${t}`; }
+  else { b.className = 'snap'; b.textContent = `Snapshot — open with viewer.py --serve for live updates`; }
+}
+banner();
+let stamp = (DATA.state || {}).stamp;
+if (location.protocol.startsWith('http')) setInterval(async () => {   // live mode: reload when a new export appears
+  try { const s = await (await fetch('state', {cache:'no-store'})).json();
+    if (s.stamp !== stamp){ stamp = s.stamp; DATA = await (await fetch('data.json', {cache:'no-store'})).json(); renderList(); await show(current, true); }
+    DATA.state = s; banner(); } catch (e) { const b = document.getElementById('banner'); b.className = 'stale'; b.textContent = 'Live server not reachable — the view may be out of date.'; }
+}, 1500);
 document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => fit(b.dataset.v));
 document.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { cutAxis = b.dataset.c; setCut(); });
 document.getElementById('cut').oninput = setCut; document.getElementById('flip').onchange = setCut;
@@ -220,20 +280,50 @@ if (DATA.versions.length) show(+(Q.get('v') || 0)).then(() => {
 }); else document.getElementById('msg').textContent = 'No versions logged yet.';
 </script></html>"""
 
+def data(proj):
+    return {"versions": list(reversed(pack(proj, with_live(proj, load_versions(proj))))), "state": state(proj)}   # newest first
+
 def build(proj):
-    versions = list(reversed(pack(proj, load_versions(proj))))     # newest first
+    d = data(proj); versions = d["versions"]
     name = os.path.basename(proj.rstrip("/"))
-    page = HTML.replace("__NAME__", name).replace("__DATA__", json.dumps({"versions": versions}, separators=(",", ":")))
+    page = HTML.replace("__NAME__", name).replace("__DATA__", json.dumps(d, separators=(",", ":")))
     path = os.path.join(proj, "viewer.html"); open(path, "w").write(page)
     return path, len(versions)
+
+def serve(proj, port, open_it):
+    """Live mode: the page polls /state and reloads the model as soon as a new export appears."""
+    import http.server, socketserver
+    class H(http.server.SimpleHTTPRequestHandler):
+        def __init__(self, *a, **k): super().__init__(*a, directory=proj, **k)
+        def log_message(self, *a): pass
+        def _json(self, obj):
+            b = json.dumps(obj, separators=(",", ":")).encode()
+            self.send_response(200); self.send_header("Content-Type", "application/json"); self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", str(len(b))); self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            if self.path.startswith("/state"): return self._json(state(proj))
+            if self.path.startswith("/data.json"): return self._json(data(proj))
+            if self.path in ("/", "/index.html"): build(proj); self.path = "/viewer.html"
+            return super().do_GET()
+    socketserver.TCPServer.allow_reuse_address = True
+    with socketserver.ThreadingTCPServer(("127.0.0.1", port), H) as srv:
+        url = f"http://127.0.0.1:{port}/"
+        print(f"live viewer: {url}  (Ctrl+C to stop)", flush=True)
+        if open_it: webbrowser.open(url)
+        srv.serve_forever()
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--project", required=True); ap.add_argument("--open", action="store_true")
+    ap.add_argument("--serve", action="store_true", help="live mode: local server, auto-reload on every new export")
+    ap.add_argument("--port", type=int, default=8765)
     a = ap.parse_args()
-    path, n = build(os.path.abspath(os.path.expanduser(a.project)))
+    proj = os.path.abspath(os.path.expanduser(a.project))
+    path, n = build(proj)
     print(f"viewer: {path} ({n} versions)")
-    if a.open:
+    if a.serve:
+        serve(proj, a.port, a.open)
+    elif a.open:
         webbrowser.open("file://" + path)
 
 if __name__ == "__main__":

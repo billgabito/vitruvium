@@ -55,7 +55,14 @@ Ask one decision at a time, and stop and wait — do not continue designing on a
 
 ## The user validates what they can see
 
-The user is the one who validates and corrects, and they can only judge what they see. So every iteration ends with the part shown, not just described: export the geometry from SolidCraft (glTF or STL, one file per system/component, in `03-model/`), log the iteration (`scripts/log_iteration.py --model … --fea …`), which rebuilds `viewer.html` — an interactive 3D viewer in the browser where the user can rotate and zoom the part, cut sections along X/Y/Z, switch each system on and off, overlay the simulation (stress colour map, deformed shape, supports and loads), and browse every previous version with what changed and why, including the previous version as a ghost for comparison. Open it (or give the path) and ask the user to review before moving on. Never claim a change is done without showing it. → `references/project-folder.md`
+The user is the one who validates and corrects, and they can only judge what they see. So every iteration ends with the part shown, not just described: export the geometry from SolidCraft (glTF or STL, one file per system/component, in `03-model/`), log the iteration (`scripts/log_iteration.py --model … --fea …`), which rebuilds `viewer.html` — an interactive 3D viewer in the browser where the user can rotate and zoom the part, cut sections along X/Y/Z, switch each system on and off, overlay the simulation (stress colour map, deformed shape, supports and loads), and browse every previous version with what changed and why, including the previous version as a ghost for comparison. Open it (or give the path) and ask the user to review before moving on. Never claim a change is done without showing it.
+
+**One source of truth, always in sync.** The CAD model in SolidCraft is the only master; the viewer shows SolidCraft's own exported tessellation, never geometry rebuilt by hand in three.js (a second model would drift from the real one). To keep what the user sees always current:
+- At the start of a design session, launch the live viewer in the background: `python3 scripts/viewer.py --project <project> --serve --open` (http://127.0.0.1:8765). The user interacts with the 3D there and talks to you in the console.
+- After **every** modelling change, export the current state to `03-model/current.glb` (or `.stl`, or one file per system in `03-model/current/`); if you ran FEA on it, write it to `05-simulation/current/`. The open page reloads by itself within seconds, keeping the user's camera.
+- Before saying a change is ready, check `curl -s http://127.0.0.1:8765/state`: `stale: true` means the CAD file is newer than the export — export again. The page also shows a red "out of date" banner in that case.
+- If the user wants to watch the real CAD itself, SolidCraft's MCP can drive the running desktop app (`solidcraft-cli mcp --connect`); the viewer remains the place for simulation overlays, history and sharing.
+→ `references/project-folder.md`
 
 ## The workshop is persistent knowledge
 

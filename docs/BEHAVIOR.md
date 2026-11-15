@@ -183,6 +183,8 @@ You are the one who validates and corrects, so every iteration ends with the par
 
 The designer asks you to review the viewer before moving on and never claims a change is done without showing it.
 
+**Always in sync.** The CAD model is the only master: the viewer shows the geometry exported from SolidCraft itself, never a hand-made copy that could drift. During a session the viewer runs live in your browser: after every modelling change the designer exports the current state, and the page reloads on its own within seconds, keeping your camera. A green "Live" badge shows the time of the last export; if the CAD model changed and was not exported yet, a red banner says the view is out of date, and the designer checks this before telling you a change is ready. You look and turn the part in the viewer, and talk to the designer in the AI console.
+
 ## 14. Drawings
 
 A design is not finished until someone else can build it from the drawing. Drawings follow ISO (first-angle) by default, or ASME Y14.5 when required: functional dimensions from the right datums, a general tolerance in the title block, tight tolerances and fits only where the function needs them and the workshop can measure them, material, finish, treatment, quantity and a complete title block. Assemblies get a bill of materials; sheet metal gets flat patterns; weldments get weld symbols.

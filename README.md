@@ -43,10 +43,14 @@ Plugin packaging (marketplace) comes with the status band in v0.4.
 Optional tools: `solidcraft-cli` (CAD), `gmsh` + `ccx` (FEA), `freecadcmd` (drawings), `git`. Check what you have with `sh skills/vitruvium/scripts/check_tools.sh`; verified download links and install commands for every OS are in [tools-setup.md](skills/vitruvium/references/tools-setup.md).
 
 ## Roadmap
-- v0.1 — core process, references, templates (this version)
-- v0.2 — bundled FEA script (STEP → Gmsh → CalculiX → report) ✔ and visual iteration log ✔
-- v0.3 — bundled drawing scripts (FreeCAD TechDraw), switch to SolidCraft drawings when released
-- v0.4 — status band (project · version · step · pending question) and adversarial reviewer agents
+
+Done (see [CHANGELOG.md](CHANGELOG.md)): core process, existing-solutions search, IP rating, tool setup, self-update, FEA script, iteration log, live 3D viewer (v0.8.0).
+
+Next:
+- Drawing script (FreeCAD TechDraw from STEP); switch to SolidCraft drawings when released
+- Filled section caps in the viewer
+- Status band (project · version · step · pending question) and adversarial reviewer agents
+- First real project to validate the whole flow with SolidCraft exports
 
 ## Credits
 

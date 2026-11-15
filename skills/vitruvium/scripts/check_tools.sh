@@ -10,6 +10,7 @@ echo "Vitruvium — tool check"
 
 c=$(first solidcraft-cli "/Applications/SolidCraft.app/Contents/MacOS/solidcraft-cli" "/c/Program Files/SolidCraft/solidcraft-cli.exe")
 [ -n "$c" ] && ok SolidCraft "$c" || miss SolidCraft "https://solidcraft.io/download"
+[ -n "$c" ] && printf '            %-12s %s\n' "" "MCP: claude mcp add solidcraft -- solidcraft-cli mcp  (or: solidcraft-cli mcp setup)"
 
 c=$(first gmsh)
 if [ -n "$c" ]; then ok Gmsh "$c"
@@ -18,6 +19,10 @@ else miss Gmsh "pip install --upgrade gmsh"; fi
 
 c=$(first ccx ccx_2.23 ccx_2.22 ccx_2.21)
 [ -n "$c" ] && ok CalculiX "$c" || miss CalculiX "see references/tools-setup.md (conda-forge, apt, or source)"
+
+for m in ccx2paraview pyvista; do
+  python3 -c "import $m" >/dev/null 2>&1 && ok "$m" "python module" || miss "$m" "pip install $m"
+done
 
 c=$(first freecadcmd FreeCADCmd "/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd" "/Applications/FreeCAD.app/Contents/Resources/bin/FreeCADCmd")
 [ -n "$c" ] && ok FreeCAD "$c" || miss FreeCAD "https://www.freecad.org/downloads.php"

@@ -22,13 +22,14 @@ Rule: if FEA and the hand calc disagree by more than ~15% in a region where the 
 ## FEA pipeline (STEP → Gmsh → CalculiX)
 
 1. Export STEP from SolidCraft. Defeature only what does not affect the result (cosmetic fillets far from stress paths), and say what you removed.
-2. Mesh with Gmsh: second-order tetrahedra (C3D10). Refine at stress raisers.
+2. Mesh with Gmsh: second-order tetrahedra (C3D10), refined at stress raisers; export directly to CalculiX/Abaqus format (`.inp`).
 3. CalculiX input (.inp): material (E, ν, density), boundary conditions that match reality (avoid over-constraining — fixed faces stiffen and create false peaks), loads distributed over realistic areas.
 4. Analyses: static linear; modal (*FREQUENCY) when there is vibration or rotating equipment; linear buckling (*BUCKLE) for slender or thin parts; contact or nonlinear only when needed.
 5. Convergence: at least three mesh densities; peak stress of interest changes < 5% between the last two. Ignore singularities (sharp re-entrant corners, point loads, fixed edges) — they never converge; report stress at a distance or model the real fillet.
-6. Report: model assumptions, mesh study, max stress vs allowable, deflection, safety factor, comparison with hand calc, images of stress and displacement, what was not modelled.
+6. Results: read numbers from the `.dat` file (*EL PRINT / *NODE PRINT); for images convert `.frd` → `.vtu` with `ccx2paraview` and render von Mises stress and displacement with PyVista (off-screen PNG).
+7. Report: model assumptions, mesh study, max stress vs allowable, deflection, safety factor, comparison with hand calc, images of stress and displacement, what was not modelled.
 
-Install (once): Gmsh and CalculiX (ccx) are free (GPL). Check availability with `gmsh --version` and `ccx -v`; install via the system package manager or the official binaries if missing, telling the user first.
+Tools, sources and install commands: tools-setup.md (run `scripts/check_tools.sh`).
 
 ## Interfaces between parts (systems)
 

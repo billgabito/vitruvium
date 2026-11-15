@@ -4,14 +4,19 @@ Sources verified on 2026-11-15. Use these instead of searching. Before installin
 
 All tools are free and open source.
 
-| Tool | Used for | License |
-|---|---|---|
-| SolidCraft (`solidcraft-cli`) | Parametric CAD, MCP server | Apache-2.0 |
-| Gmsh | Meshing STEP for FEA | GPL |
-| CalculiX (`ccx`) | FEA solver | GPL |
-| FreeCAD (`freecadcmd`) | Drawings (TechDraw), headless | LGPL-2.1 |
-| Git | Project versioning | GPL-2.0 |
-| Python 3 | Scripts (mesh, solver input, drawings) | PSF |
+| Tool | Used for | Interface Vitruvium uses | Needed? | License |
+|---|---|---|---|---|
+| SolidCraft | Parametric CAD | **MCP** (official, `solidcraft-cli mcp`); CLI + JSON scripts as fallback | Yes | Apache-2.0 |
+| Gmsh | Meshing STEP for FEA (exports CalculiX `.inp` directly) | CLI `gmsh` or Python API (`import gmsh`) | Yes, for FEA | GPL |
+| CalculiX | FEA solver | CLI `ccx` | Yes, for FEA | GPL |
+| ccx2paraview | Converts CalculiX results `.frd` → `.vtu` | CLI / Python | Yes, for FEA images | GPL-3.0 |
+| PyVista | Renders stress and displacement images from `.vtu` | Python | Yes, for FEA images | MIT |
+| FreeCAD | Drawings (TechDraw), headless | CLI `freecadcmd` + Python | Yes, for drawings | LGPL-2.1 |
+| Git | Project versioning, skill updates | CLI | Yes | GPL-2.0 |
+| Python 3 | All scripts | CLI | Yes | PSF |
+| ParaView | Interactive viewing of results by the user | GUI | Optional | BSD |
+
+Why CLI and not MCP for most tools: the agent runs these as commands and reads their files, which is simpler, works in any agent, and adds no extra server to maintain. Only SolidCraft is used through MCP, because modelling is an interactive, many-step session and its MCP is official.
 
 ## SolidCraft
 
@@ -48,6 +53,24 @@ All tools are free and open source.
 - The executable may be named `ccx` or `ccx_<version>` (e.g. `ccx_2.23`).
 - Check: `ccx -v`
 
+## ccx2paraview (results conversion)
+
+- Package: https://pypi.org/project/ccx2paraview · conda-forge: `ccx2paraview`
+- Install: `pip install ccx2paraview`
+- Use: `ccx2paraview job.frd vtu` (writes `job.vtu`; several time steps also write a `.pvd`). For binary `.frd`, the separate package `frd2vtu` (https://pypi.org/project/frd2vtu/) is an alternative.
+- Check: `python3 -c "import ccx2paraview"`
+
+## PyVista (result images)
+
+- Home: https://pyvista.org · Repository: https://github.com/pyvista/pyvista
+- Install: `pip install pyvista`
+- Use: load the `.vtu`, plot von Mises stress / displacement with a scalar bar, save PNG (off-screen rendering) for the FEA report.
+- Check: `python3 -c "import pyvista"`
+
+## ParaView (optional, for the user)
+
+- Downloads: https://www.paraview.org/download/ — open the `.vtu`/`.pvd` to explore results interactively.
+
 ## FreeCAD (headless drawings)
 
 - Home and downloads: https://www.freecad.org/downloads.php · Repository: https://github.com/FreeCAD/FreeCAD
@@ -57,6 +80,15 @@ All tools are free and open source.
   - Linux: AppImage from the downloads page, or the distribution package
 - Headless command: `freecadcmd` (older versions: `FreeCADCmd`). On macOS it is inside the app bundle, usually `/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd` — confirm the path with `ls` (not verified for every version).
 - Check: `freecadcmd --version`
+
+## Third-party MCP servers (optional, not required)
+
+Community projects exist that wrap these tools as MCP servers. Vitruvium does not need them (it uses the CLIs directly), and they are not official — review the code, license and maintenance before using one, and never install them without the user's consent:
+
+- CalculiX + Gmsh: casys-ai `mcp-calculix` (https://jsr.io/@casys/mcp-calculix); Cai-aa CAE-Agent-Hub `mcp-calculix` (https://mcpservers.org/servers/github-com-cai-aa-cae-agent-hub-tree-main-mcp-calculix)
+- FreeCAD (drive a running FreeCAD GUI through an addon): neka-nat `freecad-mcp` (https://mcpservers.org/servers/github-com-neka-nat-freecad-mcp), theosib `FreeCAD-MCP-Server` (https://github.com/theosib/FreeCAD-MCP-Server), spkane `freecad-robust-mcp` (https://pypi.org/project/freecad-robust-mcp/)
+
+A FreeCAD MCP can be useful only if the user wants to watch drawings being built live in FreeCAD; headless `freecadcmd` covers the drawing workflow.
 
 ## Git and Python
 
@@ -69,5 +101,6 @@ All tools are free and open source.
 |---|---|
 | SolidCraft | requirements, concept, hand calculations, written dimensioned spec; JSON scripts ready to run later |
 | Gmsh or CalculiX | hand calculations (Beer, Shigley, Roark); FEA marked "not performed" |
+| ccx2paraview or PyVista | FEA numbers from the CalculiX `.dat` output; report without stress images |
 | FreeCAD | dimension table + SolidCraft DXF view, marked "not a formal drawing" |
 | Git | `deliveries/` snapshots only |

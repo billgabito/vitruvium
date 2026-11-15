@@ -1,10 +1,12 @@
 # Vitruvium — visual identity
 
+*Version 1.1 · 2026-11-15*
+
 ![Brand board](brand-board.png)
 
 ## Concept
 
-Vitruvius' man drawn as a **finite-element mesh, coloured like a stress map**. It joins the three ideas behind the skill:
+Vitruvius' man drawn as a **finite-element mesh, coloured like a stress map**. The figure keeps the classic details — long hair (in sepia tones, outside the stress scale) and open hands with five fingers — and the hot zones sit where loads really concentrate: shoulders, hips and knees. Mesh lines are fine (thinner on small triangles) so colour and silhouette lead. It joins the three ideas behind the skill:
 - **proportion and classical design**: Vitruvius, the Roman engineer-architect of *firmitas, utilitas, venustas* (strength, utility, beauty), and Leonardo's drawing;
 - **engineering analysis**: the mesh and the stress colours;
 - **simplicity**: one figure, one frame, nothing added.

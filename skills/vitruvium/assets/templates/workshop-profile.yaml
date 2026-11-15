@@ -1,4 +1,4 @@
-# Workshop profile — lives at ~/.davinci-mechanical-designer/workshops/<name>.yaml
+# Workshop profile — lives at ~/.vitruvium/workshops/<name>.yaml
 # Fill progressively; unknown fields can stay empty. Add the date when something changes.
 name: home-shop
 location: ""            # city/country — for local suppliers

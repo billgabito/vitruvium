@@ -2,7 +2,7 @@
 
 ## Where it lives
 
-`~/.davinci-mechanical-designer/workshops/<workshop-name>.yaml`, one file per workshop (the user's own, a contracted shop, a client's). Use `assets/templates/workshop-profile.yaml` as the starting point. Projects record which profile they used.
+`~/.vitruvium/workshops/<workshop-name>.yaml`, one file per workshop (the user's own, a contracted shop, a client's). Use `assets/templates/workshop-profile.yaml` as the starting point. Projects record which profile they used.
 
 The skill files are generic and shared; the profile belongs to the user. Never write user data into the skill folder.
 

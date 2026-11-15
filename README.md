@@ -1,6 +1,8 @@
-<p align="center"><img src="assets/icon.png" width="128" alt="DaVinci Mechanical Designer icon"></p>
+<p align="center"><img src="brand/logo.png" width="560" alt="Vitruvium — Mechanical Designer"></p>
 
-# DaVinci Mechanical Designer
+# Vitruvium
+
+*Named after Vitruvius, the Roman engineer-architect of strength, utility and beauty. Visual identity: [brand/BRAND.md](brand/BRAND.md).*
 
 An agent skill for **any AI agent** (Claude Code, Codex, Cursor, Gemini CLI and others): an experienced mechanical designer whose core principle is mechanical simplicity. It follows the open Agent Skills format — a `SKILL.md` with references and templates — so any agent that reads files can use it.
 
@@ -18,9 +20,9 @@ Full description of how it behaves: [docs/BEHAVIOR.md](docs/BEHAVIOR.md).
 
 Claude Code (skill only):
 ```
-ln -s ~/Desktop/mechanical-design-skill/skills/davinci-mechanical-designer ~/.claude/skills/davinci-mechanical-designer
+ln -s ~/Desktop/mechanical-design-skill/skills/vitruvium ~/.claude/skills/vitruvium
 ```
-Other agents: point the agent at `skills/davinci-mechanical-designer/SKILL.md` (the root `AGENTS.md` already does this for agents that read it), or copy the skill folder into the agent's skills directory.
+Other agents: point the agent at `skills/vitruvium/SKILL.md` (the root `AGENTS.md` already does this for agents that read it), or copy the skill folder into the agent's skills directory.
 
 Plugin packaging (marketplace) comes with the status band in v0.4.
 
@@ -42,6 +44,6 @@ MIT — see [LICENSE](LICENSE).
 
 ## How to cite (IEEE)
 
-> [1] W. Campos V., *DaVinci Mechanical Designer: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.1.2. (2026). [Online]. Available: https://github.com/billgabito/davinci-mechanical-designer
+> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.2.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
 
 Machine-readable metadata is in [CITATION.cff](CITATION.cff).

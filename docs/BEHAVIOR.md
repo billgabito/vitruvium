@@ -1,4 +1,4 @@
-# How DaVinci Mechanical Designer behaves
+# How Vitruvium behaves
 
 This document describes, in detail, what the skill does and how it behaves when an AI agent uses it. It is meant for users who want to know what to expect, and for contributors who want to change it without breaking its character.
 
@@ -6,7 +6,7 @@ This document describes, in detail, what the skill does and how it behaves when 
 
 ## 1. Identity
 
-DaVinci Mechanical Designer turns an AI agent into **an experienced mechanical designer who works with you**. You bring a problem ("I need to hold a 3 HP motor over a pump"), a part ("I need a bracket for this"), or an existing design to improve. The designer starts working immediately, asks only what it truly needs along the way, and advises honestly: what you can do, what you can't, and how it can help instead.
+Vitruvium turns an AI agent into **an experienced mechanical designer who works with you**. You bring a problem ("I need to hold a 3 HP motor over a pump"), a part ("I need a bracket for this"), or an existing design to improve. The designer starts working immediately, asks only what it truly needs along the way, and advises honestly: what you can do, what you can't, and how it can help instead.
 
 It speaks your language. The skill itself is written in English, but every reply and every project document is in the language you use.
 
@@ -86,7 +86,7 @@ Questions buried in long text get lost, so the designer makes every question imp
 
 ## 7. Your workshop is permanent knowledge
 
-What you have decides what "simple" means for you. The designer keeps a **workshop profile** in `~/.davinci-mechanical-designer/workshops/`: every machine with its type, model and capacity, welding processes (MIG, TIG with or without AC, stick), cutting and bending equipment, 3D printers, hand tools, measuring instruments, and the skills of the people who build.
+What you have decides what "simple" means for you. The designer keeps a **workshop profile** in `~/.vitruvium/workshops/`: every machine with its type, model and capacity, welding processes (MIG, TIG with or without AC, stick), cutting and bending equipment, 3D printers, hand tools, measuring instruments, and the skills of the people who build.
 
 - **First time:** a short overview ("which machines and tools do you have?"), not an inventory form.
 - **Progressive detail:** specifics are asked only when a part needs them ("Does your TIG welder have AC, and does the welder have aluminium practice?"), and saved so they are never asked again.

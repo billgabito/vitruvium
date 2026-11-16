@@ -2,6 +2,17 @@
 
 Newest first. Each version: what changed and why.
 
+## v1.0.0 — 2026-11-15 — first public release
+
+Vitruvium is an end-to-end agent skill for mechanical design, built on mechanical simplicity, for any AI agent:
+- **Process**: Musk's five steps inside Ullman's process, workflow A–K, improvement loops; minimal interview; existing solutions first (buy / adapt / design), including transfer from other industries; simplicity ladder and standardization; A/B/C alternatives decided by the user.
+- **Engineering**: hand calculation first, FEA script (STEP → Gmsh → CalculiX, validated on a cantilever), interfaces, 43-item design-error catalog, IP rating, parts with IDs, descriptive names and a reason for every part, feature and change; assemblability as a core rule with a verified assembly sequence; visual fidelity of every part.
+- **Fabrication**: persistent workshop profile, routes to the user's machines, catalog search from primary sources, drawings to ISO/ASME.
+- **Quality**: independent auditor before anything reaches the user, expert conciliator with a binding ruling after two rounds.
+- **Visualization**: live 3D viewer always in sync with the CAD export — sections, wireframe, exploded view, part detail card, grouped systems tree, per-part visibility and opacity, FEA overlay, animation of moving parts, step-by-step assembly, full version history with reasons; medium–high rendering with real materials.
+- **Operations**: versioned project folders with changelog and visual timeline, verified tool sources and checks, daily self-update with ask / auto / off, one-line install via `INSTALL.md`.
+- Visual identity, MIT license, IEEE citation.
+
 ## v0.18.2 — 2026-11-15
 - **Install in one line**: `INSTALL.md` holds the installation steps for the AI agent (clone, link, auditor/conciliator, tools, SolidCraft MCP, update mode, verify — asking before system changes), referenced from `SKILL.md` and `AGENTS.md`; the README prompt is now a single line (EN/ES). Replaces the long prompt of v0.18.1. *Why:* the prompt was too long; instructions belong in a file the agent reads.
 

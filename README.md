@@ -1,5 +1,14 @@
 <p align="center"><img src="brand/logo.png" width="560" alt="Vitruvium — Mechanical Designer"></p>
 
+<p align="center">
+  <a href="https://github.com/billgabito/vitruvium/releases/latest"><img src="https://img.shields.io/github/v/release/billgabito/vitruvium?color=2A5CD6" alt="release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/billgabito/vitruvium?color=5A4A2A" alt="license"></a>
+  <img src="https://img.shields.io/badge/agent%20skill-any%20AI-2B2418" alt="agent skill for any AI">
+  <img src="https://img.shields.io/badge/CAD-SolidCraft-48BE6E" alt="CAD: SolidCraft">
+  <img src="https://img.shields.io/badge/FEA-Gmsh%20%2B%20CalculiX-F2C428" alt="FEA: Gmsh + CalculiX">
+  <a href="https://github.com/billgabito/vitruvium/stargazers"><img src="https://img.shields.io/github/stars/billgabito/vitruvium?style=social" alt="stars"></a>
+</p>
+
 # Vitruvium
 
 *Named after Vitruvius, the Roman engineer-architect of strength, utility and beauty. Visual identity: [brand/BRAND.md](brand/BRAND.md).*
@@ -87,13 +96,13 @@ vitruvium/
 
 ## Roadmap
 
-Done (see [CHANGELOG.md](CHANGELOG.md)): core process, existing-solutions search, IP rating, tool setup, self-update, FEA script, iteration log, live 3D viewer, animation, parts with IDs and reasons, exploded view, independent auditor and conciliator.
+**v1.0.0 — first public release** (see [CHANGELOG.md](CHANGELOG.md)).
 
 Next:
 - Drawing script (FreeCAD TechDraw from STEP); switch to SolidCraft drawings when released
 - Filled section caps in the viewer
 - Status band (project · version · step · pending question)
-- First real project to validate the whole flow with SolidCraft exports
+- More validated cases from real projects
 
 ## Credits
 
@@ -105,6 +114,6 @@ MIT — see [LICENSE](LICENSE).
 
 ## How to cite (IEEE)
 
-> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.18.2. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
+> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 1.0.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
 
 Machine-readable metadata is in [CITATION.cff](CITATION.cff).

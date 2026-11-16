@@ -48,6 +48,7 @@ def main():
     ap.add_argument("--image", action="append", default=[], help="image to attach (repeatable)")
     ap.add_argument("--audit", default="", help='independent audit result, e.g. "APPROVED, round 2 (3 findings fixed, 1 minor accepted)"')
     ap.add_argument("--audit-file", default="", help="path of the auditor's verdict, e.g. 09-audits/v0.3-round-2.md")
+    ap.add_argument("--parts", help="parts.json: parts list with IDs and names (references/parts.md)")
     ap.add_argument("--motion", help="motion.json describing moving parts for the viewer animation (references/motion.md)")
     ap.add_argument("--model", action="append", default=[], help="3D model of this version for the viewer: .glb/.gltf/.stl exported from SolidCraft (repeatable, one per system)")
     a = ap.parse_args()
@@ -63,6 +64,10 @@ def main():
         rj = os.path.join(a.fea if os.path.isabs(a.fea) else os.path.join(proj, a.fea), "results.json")
         r = json.load(open(rj))
         metrics.update({k: r[k] for k in KEYS if r.get(k) is not None})
+    if a.parts:                                          # simplicity metrics straight from the parts list
+        pl = json.load(open(a.parts if os.path.isabs(a.parts) else os.path.join(proj, a.parts)))
+        metrics["parts_total"] = sum(int(x.get("qty", 1)) for x in pl); metrics["parts_unique"] = len(pl)
+        metrics["fastener_refs"] = sum(1 for x in pl if x.get("type") == "fastener" or str(x.get("id", "")).startswith("FS-"))
     for m in a.metric:
         k, _, v = m.partition("=")
         metrics[k.strip()] = num(v) if num(v) is not None else v.strip()
@@ -79,7 +84,7 @@ def main():
     prev = index[-1] if index else None
     entry = {"version": a.version, "date": datetime.date.today().isoformat(), "title": a.title, "why": a.why,
              "changes": a.change, "loop": a.loop, "decision": a.decision, "metrics": metrics, "images": images,
-             "models": a.model, "fea": a.fea, "motion": a.motion, "audit": a.audit, "audit_file": a.audit_file,
+             "models": a.model, "fea": a.fea, "motion": a.motion, "parts": a.parts, "audit": a.audit, "audit_file": a.audit_file,
              "previous": prev["version"] if prev else None}
     index.append(entry)
     json.dump(index, open(idx_path, "w"), indent=2, ensure_ascii=False)

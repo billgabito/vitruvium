@@ -59,6 +59,7 @@ python3 scripts/log_iteration.py --project <project> --version v0.3 --title "Thi
 
 - `--why` is mandatory: every change carries its reason. Add `--loop` when an improvement loop triggered it and `--decision` when the user chose it.
 - Export the geometry of each version from SolidCraft into `03-model/` and pass it with `--model` (repeat once per system/component: frame, guard, motor…; or one glTF whose top-level nodes are the systems). STL is in mm; glTF is in metres by spec — the viewer rescales it automatically when an FEA result shows the mismatch.
+- Pass `--parts <parts.json>` (parts.md); it also fills parts_total, parts_unique and fastener_refs in the changelog.
 - Pass `--motion <motion.json>` when parts move (motion.md); for the live copy put it in `03-model/current/motion.json`.
 - Pass `--audit "APPROVED, round N (…)" --audit-file 09-audits/<version>-round-<N>.md` once the independent auditor approved; an iteration without a recorded audit is flagged in the changelog and the viewer.
 - Pass `--fea <run folder>` so the viewer can overlay the stress map, deformed shape, supports and loads.

@@ -185,6 +185,10 @@ The designer asks you to review the viewer before moving on and never claims a c
 
 **Always in sync.** The CAD model is the only master: the viewer shows the geometry exported from SolidCraft itself, never a hand-made copy that could drift. During a session the viewer runs live in your browser: after every modelling change the designer exports the current state, and the page reloads on its own within seconds, keeping your camera. A green "Live" badge shows the time of the last export; if the CAD model changed and was not exported yet, a red banner says the view is out of date, and the designer checks this before telling you a change is ready. You look and turn the part in the viewer, and talk to the designer in the AI console.
 
+## 13b-2. Parts with IDs, exploded view, engineering look
+
+Every part has an ID and a name from the first iteration — `P-01` base plate, `SH-01` shaft, `BR-01` bearing 6200-2RS, `FS-01` screw ISO 4762 M6×20 ×8 — in one parts list used everywhere: the viewer, manufacturing routes, drawings and the bill of materials. In the viewer you open the **Parts list** tab to see each part with its type, material or catalog reference and quantity; the IDs float over the parts in 3D in ISO technical lettering; clicking a part (in the list or on its label) isolates it; and the **exploded view** slider pulls the assembly apart so you can see how it goes together. The viewer carries the Vitruvium logo and favicon, engineering typography, edges, a ground grid, and a status bar with units, overall size, triangle count and export time.
+
 ## 13c. Moving parts, animated
 
 If the design has moving parts, the viewer animates them: play and pause, a slider to stop at any position, speed, the moving parts highlighted while the fixed ones fade, the joint axes drawn, and a list of each moving part and how it moves (hinge 0→100°, guide 0→40 mm, wheel geared to the lid ×3.6…). Closed-loop mechanisms such as linkages or cams are animated from positions sampled in the CAD motion study. Interference is checked through the full range before the animation is shown as valid.

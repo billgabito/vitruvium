@@ -17,6 +17,8 @@ ISO, first-angle projection by default (ISO 128 views and lines, ISO 129-1 dimen
 
 Assemblies: assembly drawing, bill of materials (including commercial parts with manufacturer part numbers), exploded view if useful. Sheet metal: flat pattern with bend lines, direction and inside radius. Weldments: weld symbols per ISO 2553 (or AWS A2.4).
 
+Use the part IDs from `parts.json` in title blocks, balloons and the bill of materials. Lettering per ISO 3098 (osifont is a free ISO 3098 font: https://github.com/hikikomori82/osifont).
+
 ## Delivery package (per part)
 
 PDF drawing + DXF for cutting (flat parts) + STEP model. Put released packages in `deliveries/vX.Y/`.

@@ -44,10 +44,11 @@ The five stress colours keep their engineering meaning everywhere — blue is sa
 ## Typography
 
 - **Cormorant Garamond** (SemiBold, wide tracking, capitals) — the name and titles. Classical, Roman.
-- **Inter** — body text and interfaces.
+- **Barlow** (DIN 1451 style) — body text and interfaces, including the 3D viewer.
+- **osifont** (ISO 3098 technical lettering, https://github.com/hikikomori82/osifont, LGPL-3 with font exception) — part IDs, annotations and drawings.
 - **JetBrains Mono** — numbers, units, results (`σ = 142.6 MPa · FS 2.4`).
 
-All three are free (Google Fonts / SIL Open Font License). Fallbacks: Baskerville/Georgia, Helvetica Neue/Arial, Menlo.
+All are free (Google Fonts / SIL Open Font License; osifont LGPL with font exception). Fallbacks: Baskerville/Georgia, Helvetica Neue/Arial, Barlow Condensed, Menlo.
 
 ## Rules
 

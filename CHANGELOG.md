@@ -2,6 +2,11 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.10.0 — 2026-11-15
+- **Professional viewer UI**: Vitruvium logo and favicon, engineering typography (Barlow; ISO 3098 osifont for IDs and annotations), header with version, audit and live badges, edges, ground grid, status bar (units, size, triangles, export time). *Why:* the visualization must look professional and engineering-grade.
+- **Parts breakdown with IDs** (`parts.json`, `references/parts.md`): ID convention (P, SH, BR, FS, SP, SE, G, MO, CP, AS), parts list tab, ID labels in 3D, click to isolate, parts metrics in the changelog. *Why:* every screw, shaft, bearing and part must be named and traceable.
+- **Exploded view** slider (direction per part optional). *Why:* to see how the assembly goes together.
+
 ## v0.9.0 — 2026-11-15
 - **Animation of moving parts** in the viewer from `motion.json` (revolute, prismatic, coupled parts, keyframes for closed loops): play/pause, position slider, speed, highlighted moving parts, joint axes, list of motions. *Why:* the user must see which parts move and how, not read it.
 - **Independent audit gate**: `vitruvium-auditor` agent (fresh context, project files only) approves each iteration or returns findings with evidence; verdicts in `09-audits/`, shown in changelog and viewer. *Why:* the designer must not audit its own work; what reaches the user must be correct.

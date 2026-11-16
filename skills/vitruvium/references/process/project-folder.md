@@ -9,6 +9,7 @@ Ask once where the user keeps projects (default `~/mechanical-projects/`), remem
 ```
 <project>/
 ├── README.md              what it is, status, current version, workshop profile used
+├── 00-questions/          concept images for questions; current.json = question shown in the viewer
 ├── 01-requirements/       references/process/interview.md, black-box.md, requirements.md
 ├── 02-concept/            deleted.md, references/process/alternatives.md, decision.md
 ├── 03-model/              SolidCraft JSON scripts, .sc, STEP exports

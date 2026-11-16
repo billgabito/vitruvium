@@ -20,7 +20,7 @@ Full description of how it behaves: [docs/BEHAVIOR.md](docs/BEHAVIOR.md).
 - Interviews you with few, well-chosen questions and learns your workshop once.
 - Checks first whether the problem is already solved on the market — buy, adapt or design from scratch.
 - Runs Musk's 5 steps inside Ullman's process, with improvement loops.
-- Proposes A/B/C alternatives with a decision matrix — you decide.
+- Proposes A/B/C alternatives with a decision matrix and a concept image per option — you decide. Questions about shape or layout always come with a picture.
 - Models in SolidCraft (MCP), checks by hand calc (Beer, Shigley, Roark) and FEA (Gmsh + CalculiX).
 - Fits parts to your machines and checks that every assembly can be put together (sequence, insertion paths, tool access), standardizes, reviews against a design-error catalog.
 - Every project in its own versioned folder with a design log and lessons.
@@ -114,6 +114,6 @@ MIT — see [LICENSE](LICENSE).
 
 ## How to cite (IEEE)
 
-> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 1.1.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
+> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 1.2.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
 
 Machine-readable metadata is in [CITATION.cff](CITATION.cff).

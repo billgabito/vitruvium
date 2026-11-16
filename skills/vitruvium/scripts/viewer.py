@@ -8,6 +8,7 @@ each version with what changed and why, its numbers, and the previous version as
 
 Display modes: shaded, shaded + edges, wireframe (feature edges only). Parts are always solid; transparency only where the
 user sets it per part in the parts list (visible on/off + opacity).
+Question panel: a pending question with concept images (00-questions/current.json) is shown over the 3D view.
 Look: engineering UI (Barlow, DIN-style), ISO 3098 lettering (osifont) for part IDs and annotations, Vitruvium logo and
 favicon (assets/brand/), edges, ground grid, status bar with units, size and triangle count; parts list with IDs (parts.json),
 ID labels in 3D, click-to-isolate, and an exploded view.
@@ -56,7 +57,9 @@ def state(proj):
     fea = os.path.join(proj, "05-simulation", "current", "fea_view.json")
     idx = os.path.join(proj, "iterations", "index.json")
     mot = live_motion(proj); asm = live_assembly(proj); prt = live_parts(proj)
-    stamp = max([os.path.getmtime(asm) if asm else 0, os.path.getmtime(prt) if prt else 0, exp, os.path.getmtime(fea) if os.path.exists(fea) else 0, os.path.getmtime(idx) if os.path.exists(idx) else 0,
+    qd = os.path.join(proj, "00-questions")
+    qm = max([os.path.getmtime(os.path.join(dp, f)) for dp, _, fs in os.walk(qd) for f in fs] + [os.path.getmtime(qd)]) if os.path.isdir(qd) else 0
+    stamp = max([qm, os.path.getmtime(asm) if asm else 0, os.path.getmtime(prt) if prt else 0, exp, os.path.getmtime(fea) if os.path.exists(fea) else 0, os.path.getmtime(idx) if os.path.exists(idx) else 0,
                  os.path.getmtime(mot) if mot else 0])
     return {"stamp": stamp, "exported": exp, "cad": cad, "stale": bool(lf) and cad > exp + 1}
 
@@ -170,6 +173,12 @@ select{font:500 12px Barlow;border:1px solid var(--line);border-radius:7px;paddi
 #card .x{border:0;background:none;font-size:18px;cursor:pointer;color:var(--muted)}#card dl{display:grid;grid-template-columns:110px 1fr;gap:3px 10px;margin:8px 0 0;font-size:12.5px}
 #card dt{color:var(--muted);font:600 10.5px Barlow;letter-spacing:1px;text-transform:uppercase;padding-top:2px}#card dd{margin:0}#card ul{margin:0;padding-left:16px}
 #card .warn{color:#8A1C14;font-weight:600}
+#qpanel{position:absolute;left:12px;right:12px;bottom:12px;background:#fff;border:2px solid var(--blue);border-radius:10px;padding:10px 14px 12px;box-shadow:0 6px 24px rgba(42,92,214,.18);display:none;z-index:4;max-height:62%;overflow:auto}
+#qpanel .qh{display:flex;align-items:baseline;gap:10px}#qpanel .qt{font-weight:600;font-size:15px;flex:1}#qpanel .qb{font:600 11px Barlow;letter-spacing:1.4px;color:var(--blue);text-transform:uppercase}
+#qpanel .qc{color:var(--muted);font-size:12.5px;margin:3px 0 8px}#qpanel .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+#qpanel .opt{border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel)}#qpanel .opt img{width:100%;height:150px;object-fit:contain;background:#F6EFDC;border-radius:6px}
+#qpanel .opt b{display:block;margin-top:5px;font-size:13px}#qpanel .opt small{color:var(--muted)}#qpanel .x{border:0;background:none;font-size:18px;cursor:pointer;color:var(--muted)}
+#qpanel .hint{font-size:11.5px;color:var(--muted);margin-top:8px}
 #msg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:var(--muted)}
 .mono{font-family:var(--mono)}
 footer{grid-area:status;display:flex;gap:18px;align-items:center;padding:0 14px;border-top:1px solid var(--line);background:#F1ECE0;font:11px var(--mono);color:var(--sepia)}
@@ -196,7 +205,7 @@ details.tree > label{padding-left:22px;margin:3px 0;align-items:baseline}details
 <div class="proj">__NAME__<span id="curVer"></span></div><div class="grow"></div><span id="auditBadge" class="badge"></span><span id="banner" class="badge"></span></header>
 <aside><div class="ph"><span class="seg" style="margin:0"><button id="tabV" class="on">Versions</button><button id="tabP">Parts list</button></span></div>
 <div id="list"></div><div id="bomWrap" style="display:none;padding:8px 10px"><div id="bom"></div><label style="margin-top:8px;display:flex;gap:6px"><input id="tags" type="checkbox" checked> Show part IDs in 3D</label></div></aside>
-<main><div id="msg">Loading…</div><div id="card"></div>
+<main><div id="msg">Loading…</div><div id="card"></div><div id="qpanel"></div>
 <div id="legend"><div>von Mises [MPa] · nodal average</div><div id="bar"></div><div style="display:flex;justify-content:space-between"><span id="lo"></span><span id="hi"></span></div></div>
 </main>
 <div class="props">
@@ -233,7 +242,7 @@ import {MeshBVH} from 'three-mesh-bvh';
 let DATA = __DATA__;
 const main = document.querySelector('main');
 const renderer = new THREE.WebGLRenderer({antialias:true, preserveDrawingBuffer:true, alpha:true});
-const labeler = new CSS2DRenderer(); labeler.domElement.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none'; main.append(labeler.domElement);
+const labeler = new CSS2DRenderer(); labeler.domElement.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;z-index:1'; main.append(labeler.domElement);
 renderer.localClippingEnabled = true; renderer.setPixelRatio(devicePixelRatio); main.prepend(renderer.domElement);
 const scene = new THREE.Scene();   // background: CSS gradient behind a transparent canvas
 // Medium–high quality without heavy effects: studio environment for metal reflections, filmic tone mapping, one soft shadow
@@ -737,6 +746,18 @@ document.querySelectorAll('.ver').forEach((el, i) => el.onclick = () => show(i))
 document.querySelectorAll('.ver').forEach((el, k) => el.classList.toggle('on', k === current));
 }
 renderList();
+function renderQuestion(){
+  const q = DATA.question, el = document.getElementById('qpanel');
+  if (!q){ el.style.display = 'none'; return; }
+  if (el.dataset.closedFor === q.question){ return; }
+  el.innerHTML = `<div class="qh"><span class="qb">❓ Question</span><span class="qt">${esc(q.question)}</span><button class="x" title="Hide">×</button></div>` +
+    (q.context ? `<div class="qc">${esc(q.context)}</div>` : '') + (q.src ? `<div class="opts"><div class="opt"><img src="${q.src}" alt=""></div></div>` : '') +
+    ((q.options || []).length ? '<div class="opts">' + q.options.map(o => `<div class="opt">${o.src ? `<img src="${o.src}" alt="${esc(o.label)}">` : ''}<b>${esc(o.label)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ''}</div>`).join('') + '</div>' : '') +
+    '<div class="hint">Answer in the AI console.</div>';
+  el.querySelector('.x').onclick = () => { el.dataset.closedFor = q.question; el.style.display = 'none'; };
+  el.style.display = 'block';
+}
+renderQuestion();
 function banner(){
   const b = document.getElementById('banner'), s = DATA.state || {}, t = s.exported ? new Date(s.exported * 1000).toLocaleTimeString() : '—';
   const live = location.protocol.startsWith('http');
@@ -748,7 +769,7 @@ banner();
 let stamp = (DATA.state || {}).stamp;
 if (location.protocol.startsWith('http')) setInterval(async () => {   // live mode: reload when a new export appears
   try { const s = await (await fetch('state', {cache:'no-store'})).json();
-    if (s.stamp !== stamp){ stamp = s.stamp; DATA = await (await fetch('data.json', {cache:'no-store'})).json(); renderList(); await show(current, true); }
+    if (s.stamp !== stamp){ stamp = s.stamp; DATA = await (await fetch('data.json', {cache:'no-store'})).json(); renderList(); renderQuestion(); await show(current, true); }
     DATA.state = s; banner(); } catch (e) { const b = document.getElementById('banner'); b.className = 'stale'; b.textContent = 'Live server not reachable — the view may be out of date.'; }
 }, 1500);
 document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => fit(b.dataset.v));
@@ -776,8 +797,23 @@ if (DATA.versions.length) show(+(Q.get('v') || 0)).then(() => {
 }); else document.getElementById('msg').textContent = 'No versions logged yet.';
 </script></html>"""
 
+def question(proj):
+    """Pending question with concept images (00-questions/current.json), images embedded as data URIs."""
+    f = os.path.join(proj, "00-questions", "current.json")
+    if not os.path.exists(f):
+        return None
+    q = json.load(open(f))
+    mime = {".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}
+    for o in q.get("options", []) + ([q] if q.get("image") else []):
+        img = o.get("image")
+        if img:
+            pth = img if os.path.isabs(img) else os.path.join(proj, img)
+            ext = os.path.splitext(pth)[1].lower()
+            o["src"] = f"data:{mime.get(ext, 'image/png')};base64," + base64.b64encode(open(pth, "rb").read()).decode() if os.path.exists(pth) else ""
+    return q
+
 def data(proj):
-    return {"versions": list(reversed(pack(proj, with_live(proj, load_versions(proj))))), "state": state(proj)}   # newest first
+    return {"versions": list(reversed(pack(proj, with_live(proj, load_versions(proj))))), "state": state(proj), "question": question(proj)}   # newest first
 
 def build(proj):
     d = data(proj); versions = d["versions"]

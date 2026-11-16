@@ -2,6 +2,9 @@
 
 Newest first. Each version: what changed and why.
 
+## v1.2.0 — 2026-11-16
+- **Questions with a picture** (`process/visual-questions.md`): questions about shape, layout, alternatives, motion, assembly or position come with a concept image per option (SVG sketch in Vitruvium style or viewer screenshot), saved in `00-questions/`; the live viewer shows a **Question panel** over the 3D view with the options side by side (`00-questions/current.json`), and the image is also attached in the conversation when the host allows. *Why:* a picture explains what text cannot.
+
 ## v1.1.0 — 2026-11-16
 - **Realistic motion**: springs deform between an anchor and a point carried by a moving part (stretch, compress and turn), with live length, force from k and free length, and coil-bind detection; **collision detection between real part geometry** (three-mesh-bvh) while animating, colliding parts in red, and a full-range check over 72 positions; `allowed_contacts` for intended contacts. Auditor checks springs, collisions and coil bind. Validated on a lever–spring–stop mechanism: lever/stop collision found at 60–100 % of the travel, matching the geometry. *Why:* simulations must respect physics and collisions to be trusted.
 

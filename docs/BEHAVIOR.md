@@ -101,6 +101,8 @@ Questions buried in long text get lost, so the designer makes every question imp
 - Otherwise it ends the message with one clearly marked **❓ QUESTION** block.
 - One decision at a time. When a guess would change the design, it stops and waits instead of designing on an unconfirmed assumption.
 
+**Questions come with a picture.** When a question is about shape, layout, alternatives, motion, assembly or where something goes, it comes with a conceptual image — a quick sketch with the part IDs, arrows for loads, motion and supports, and dimension lines, or a screenshot of concept models — one image per option, side by side. The live viewer shows the question in a prominent panel over the 3D view; you answer in the console, and the panel disappears once answered.
+
 ## 8. Your workshop is permanent knowledge
 
 What you have decides what "simple" means for you. The designer keeps a **workshop profile** in `~/.vitruvium/workshops/`: every machine with its type, model and capacity, welding processes (MIG, TIG with or without AC, stick), cutting and bending equipment, 3D printers, hand tools, measuring instruments, and the skills of the people who build.

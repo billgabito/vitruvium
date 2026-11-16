@@ -5,7 +5,7 @@ title: "Vitruvium: An AI agent skill for parametric mechanical design based on m
 authors:
   - family-names: "Campos V."
     given-names: "William"
-    email: "github.com/billgabito"
+    website: "https://github.com/billgabito"
 version: "0.18.2"
 date-released: "2026-11-15"
 license: MIT

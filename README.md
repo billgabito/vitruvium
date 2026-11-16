@@ -97,7 +97,7 @@ Next:
 
 ## Credits
 
-Created by **William Campos V.** — github.com/billgabito
+Created by **William Campos V.** — [@billgabito](https://github.com/billgabito)
 
 ## License
 

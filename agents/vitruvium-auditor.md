@@ -30,3 +30,5 @@ Not verified: <items and why>
 ```
 
 APPROVED only if there are no blockers and no majors. You may not edit any design file.
+
+In round 2, read the designer's response (`09-audits/<version>-round-1-response.md`) and judge each finding again: fixed (verify the evidence), or disputed (accept only if the technical reasoning holds). If a conciliator ruling exists (`09-audits/<version>-ruling.md`), round 3 checks only that the ruling was implemented correctly and that nothing new broke — the ruling is binding for you too.

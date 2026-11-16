@@ -17,7 +17,7 @@ Ask once where the user keeps projects (default `~/mechanical-projects/`), remem
 ├── 06-manufacturing/      routes.md, outsource.md
 ├── 07-drawings/           PDF, DXF, bill of materials
 ├── 08-prototypes/         photos, tests, results
-├── 09-audits/             independent auditor verdicts per version and round (audit-gate.md)
+├── 09-audits/             auditor verdicts per round, designer responses, conciliator ruling (audit-gate.md)
 ├── references/           catalogs, datasheets, links with dates
 ├── deliveries/            released packages (v1.0/, v1.1/…) ready to send
 ├── viewer.html            interactive 3D viewer: rotate, section, systems on/off, FEA overlay, version history (viewer.py)

@@ -7,7 +7,7 @@ No iteration is presented to the user as a result until an **independent auditor
 - A **separate agent with a fresh context**: it does not receive the designer's reasoning, drafts or conversation — only the artifacts and the requirements.
   - Claude Code: launch the `vitruvium-auditor` subagent (this plugin's `agents/vitruvium-auditor.md`) with the Agent tool.
   - Other agents: start a separate session or sub-agent with the prompt in `agents/vitruvium-auditor.md` (a different model is even better).
-- If the host cannot run a separate agent, do a cold review with the same checklist, and **tell the user plainly that the audit was not independent**.
+- If the host cannot run a separate agent, do a cold review with the same checklist, and **tell the user plainly that the audit was not independent**. The same applies to the conciliator.
 
 ## What the auditor receives
 
@@ -39,14 +39,39 @@ Findings:
 Not verified: <what the auditor could not check and why>
 ```
 
-Blockers and majors must be fixed. Minors may be accepted, but are shown to the user.
+Blockers and majors must be fixed (or overturned by the conciliator's ruling). Minors may be accepted, but are shown to the user.
 
-## Loop
+## Loop (nothing reaches the user without approval)
 
-1. Designer finishes the iteration (model exported, calcs/FEA done, changelog drafted).
-2. Auditor reviews → verdict saved in `09-audits/<version>-round-<N>.md`.
-3. `CHANGES REQUIRED`: the designer fixes each finding where it was born (improvement-loop table), re-exports, and calls the auditor again with the findings list. Each finding answered as fixed (with evidence) or disputed (with reason — the auditor decides).
-4. `APPROVED`: only now present the result to the user: viewer, changelog entry, and a one-paragraph audit summary (rounds, what was found and fixed, accepted minors, not verified).
-5. After three rounds without approval, stop and show the user the open findings and the options; the user decides.
+```
+designer builds the iteration
+        │
+        ▼
+ auditor round 1 ──APPROVED──────────────────────────────► present to the user
+        │ CHANGES REQUIRED
+        ▼
+ designer corrects + writes response (fixed / disputed)
+        │
+        ▼
+ auditor round 2 ──APPROVED──────────────────────────────► present to the user
+        │ still CHANGES REQUIRED
+        ▼
+ expert conciliator: binding ruling for designer and auditor
+        │
+        ▼
+ designer applies the ruling → auditor round 3 checks compliance with the ruling
+        │ APPROVED ──────────────────────────────────────► present to the user
+        │ not achievable
+        ▼
+ user gets a report clearly marked NOT APPROVED (ruling, open findings, options) and decides
+```
+
+1. **Round 1.** Designer finishes the iteration (model exported, calcs/FEA done, parts justified, changelog drafted). Auditor reviews → `09-audits/<version>-round-1.md`.
+2. **Correction.** For `CHANGES REQUIRED`, the designer fixes each finding where it was born (improvement-loop table), re-exports, and writes `09-audits/<version>-round-1-response.md`: each finding answered **fixed** (with evidence) or **disputed** (with technical reasoning).
+3. **Round 2.** The auditor re-reviews against its findings and the response → `09-audits/<version>-round-2.md`.
+4. **Conciliator.** If round 2 is still `CHANGES REQUIRED`, do not loop again: call the **expert conciliator** (`agents/vitruvium-conciliator.md`), run on the most capable model available. It reads the project files, both audit reports and the designer's response, and issues `09-audits/<version>-ruling.md`: for each open finding, *auditor upheld*, *designer upheld* or *alternative solution* — and it may propose a better idea altogether. **The ruling is binding for both.**
+5. **Round 3 — compliance.** The designer applies the ruling; the auditor checks only that the ruling was implemented correctly and nothing new broke → `09-audits/<version>-round-3.md`.
+6. **Present only after APPROVED**: the viewer, the changelog entry, and a short audit summary (rounds, findings fixed, ruling if any, accepted minors, what was not verified).
+7. If the ruling cannot be implemented (physics, workshop limits, a requirement conflict), the user gets a report **clearly marked NOT APPROVED** — never presented as a result — with the ruling, the open findings and the options, and decides.
 
 The user remains the final validator: the audit makes sure what reaches them is correct and honestly described — it does not replace their review.

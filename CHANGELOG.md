@@ -2,6 +2,9 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.12.0 — 2026-11-15
+- **Expert conciliator** (`agents/vitruvium-conciliator.md`, most capable model): if the auditor does not approve after round 2, it issues a binding ruling per open finding (auditor upheld / designer upheld / alternative) and may propose a better solution; round 3 checks compliance. Designer responses per finding (fixed / disputed) are recorded in `09-audits/`. Nothing reaches the user without approval; an unimplementable ruling produces a report marked NOT APPROVED. *Why:* avoid endless audit loops on complex parts while keeping the approval gate.
+
 ## v0.11.0 — 2026-11-15
 - **Every part, feature and change must have a reason**: `parts.json` requires `function`, `requirements` and `why` (plus `features` with their reasons); `log_iteration.py` warns and counts `unjustified_parts`; the viewer shows function and why per part and flags missing reasons; the independent auditor challenges each reason against the files (checklist item 0). *Why:* nothing should be in a design without a logic that someone can verify.
 

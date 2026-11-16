@@ -16,7 +16,7 @@ Full description of how it behaves: [docs/BEHAVIOR.md](docs/BEHAVIOR.md).
 - Fits parts to your machines, standardizes, reviews against a design-error catalog.
 - Every project in its own versioned folder with a design log and lessons.
 - An interactive 3D viewer per project (Vitruvium look, engineering lettering): rotate, section, explode, parts list with IDs, systems on/off, stress overlay, animation of moving parts and the full version history.
-- An independent auditor approves every iteration before it is shown to the user.
+- An independent auditor approves every iteration before it is shown to the user; an expert conciliator settles disagreements after the second round.
 - Audit mode for existing designs.
 
 ## Install
@@ -63,6 +63,6 @@ MIT — see [LICENSE](LICENSE).
 
 ## How to cite (IEEE)
 
-> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.11.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
+> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.12.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
 
 Machine-readable metadata is in [CITATION.cff](CITATION.cff).

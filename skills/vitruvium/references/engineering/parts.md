@@ -69,6 +69,27 @@ Changes follow the same rule: every alteration between versions is logged with i
 
 Optional fields: `group` (to group by functional system instead of by category, e.g. "Drive", "Lid", "Electrical" — otherwise the viewer groups by ID code: fabricated parts, shafts, bearings, gears, springs, seals, fasteners, motors, sensors, commercial parts), `spec` / `standard` (catalog number or standard designation), `supplier`, `route`, `mass_kg`, `drawing`, `explode` (direction for the exploded view; default: away from the assembly centre).
 
+## Visual fidelity: parts look like what they are (medium–high detail)
+
+The user validates what they see, so every part must be recognizable for what it is. Not photorealism — the characteristic geometry:
+
+| Part | Must show | May simplify |
+|---|---|---|
+| Spring | the helix: wire diameter, coil count, pitch, closed/ground ends | — |
+| Screw / bolt | head shape and drive (hex socket, hex head, Phillips), shank, length | thread as cosmetic (plain cylinder at major diameter) |
+| Nut / washer | hexagon with chamfers / ring with real inner and outer diameter | thread |
+| Bearing | inner and outer rings, seals or shields, width | balls and cage |
+| Gear / pulley / sprocket | teeth (count and module or pitch), hub, bore, keyway | exact involute (approximate profile is fine) |
+| Belt / chain | the band or the links following the path | individual teeth or rollers on long runs |
+| Shaft | steps, shoulders, chamfers, keyways, grooves for retaining rings | — |
+| Seal / O-ring | the toroid or lip profile at its real section | — |
+| Motor / sensor / commercial part | the manufacturer's STEP model when available (catalog-search.md); otherwise the real envelope with its mounting features and connector | internal detail |
+| Welds | weld beads where they are | — |
+
+**Never** a cylinder for a spring, a screw or a nut, a disc for a gear, or a box for a motor when its real shape is known. Prefer the manufacturer's STEP for catalog parts; model fabricated parts with their fillets, chamfers, holes and bends. In SolidCraft use the matching features (coil for springs, modelled or cosmetic threads, sheet metal for bent parts). The auditor checks this as part of a faithful presentation.
+
+Export for the viewer with fine tessellation (glTF preferred; chord tolerance about 0.05 mm, facet angle about 10°) so round parts look round.
+
 ## Linking parts to the 3D view
 
 Export each part from SolidCraft with its **ID as the file name** (`03-model/current/P-01.stl`, `FS-01.stl`…) or as the glTF node name. The viewer then labels it with its ID in 3D, lets the user click it in the parts list to isolate it, and moves it in the exploded view. Put `parts.json` in `03-model/current/` for the live copy and pass `--parts` to `log_iteration.py` for versions.

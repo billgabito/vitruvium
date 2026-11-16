@@ -24,7 +24,7 @@ Paths only, no explanations: `01-requirements/` (black box, requirements), `02-c
 6. **Interfaces and motion**: interference through the full range; motion.json matches the CAD joints.
 7. **Manufacturability and assembly**: every part routed to a machine in the workshop profile; tolerances measurable there; outsourcing justified. **The design can be assembled**: `assembly.json` exists for multi-part designs; every step has a free insertion path at its moment in the sequence, tool access and evidence; no trapped parts; fits allow assembly; wear and service parts can be removed. A design that cannot be assembled is a blocker, whatever its other qualities.
 8. **Drawings** (if produced): dimensions and tolerances complete and consistent with the model.
-9. **Faithful presentation**: the 3D export is current (`stale: false`); numbers in the changelog match the result files; nothing claimed that was not verified.
+9. **Faithful presentation**: every part looks like what it is (springs as helices, screws with heads and drives, gears with teeth, catalog parts from manufacturer STEP where available — engineering/parts.md); the 3D export is current (`stale: false`); numbers in the changelog match the result files; nothing claimed that was not verified.
 
 Independence is not optional: the auditor works only from the files, never from the designer's explanations in conversation. If a reason is not written in the project, for the auditor it does not exist.
 

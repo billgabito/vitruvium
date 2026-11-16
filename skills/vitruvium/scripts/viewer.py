@@ -203,6 +203,7 @@ details.tree > label{padding-left:22px;margin:3px 0;align-items:baseline}details
  <div class="grp"><h4>View</h4><div class="seg"><button data-v="iso">Iso</button><button data-v="front">Front</button><button data-v="top">Top</button><button data-v="right">Right</button></div>
   <label style="justify-content:space-between">Exploded view <span class="mono" id="exv">0%</span></label><input id="explode" type="range" min="0" max="1000" value="0">
   <div class="seg" style="margin-top:8px"><button data-d="shaded">Shaded</button><button data-d="edges" class="on">+ Edges</button><button data-d="wire">Wireframe</button></div>
+  <div class="seg" style="margin-top:6px"><button data-m="material" class="on">Real materials</button><button data-m="part">Colour by part</button></div>
   <label><input id="grid" type="checkbox" checked> Ground grid</label></div>
  <div class="grp"><h4>Section</h4><div class="seg"><button data-c="off" class="on">Off</button><button data-c="x">X</button><button data-c="y">Y</button><button data-c="z">Z</button></div>
   <input id="cut" type="range" min="0" max="1000" value="500"><label><input id="flip" type="checkbox"> Flip side</label></div>
@@ -226,14 +227,22 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {STLLoader} from 'three/addons/loaders/STLLoader.js';
 import {CSS2DRenderer, CSS2DObject} from 'three/addons/renderers/CSS2DRenderer.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+import {toCreasedNormals} from 'three/addons/utils/BufferGeometryUtils.js';
 let DATA = __DATA__;
 const main = document.querySelector('main');
 const renderer = new THREE.WebGLRenderer({antialias:true, preserveDrawingBuffer:true, alpha:true});
 const labeler = new CSS2DRenderer(); labeler.domElement.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none'; main.append(labeler.domElement);
 renderer.localClippingEnabled = true; renderer.setPixelRatio(devicePixelRatio); main.prepend(renderer.domElement);
 const scene = new THREE.Scene();   // background: CSS gradient behind a transparent canvas
-scene.add(new THREE.HemisphereLight(0xffffff, 0x8a7a55, 1.1));
-const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(1, 2, 1.5); scene.add(sun);
+// Medium–high quality without heavy effects: studio environment for metal reflections, filmic tone mapping, one soft shadow
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8a7a55, .35));
+const sun = new THREE.DirectionalLight(0xffffff, 1.4); sun.position.set(1, -1.5, 2.5); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0005;
+scene.add(sun, sun.target);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.ShadowMaterial({opacity:.18})); ground.receiveShadow = true; scene.add(ground);
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6); camera.up.set(0, 0, 1);
 const head = new THREE.DirectionalLight(0xffffff, 1.4); head.position.set(0.3, 0.5, 1); camera.add(head); scene.add(camera);   // headlight: the side you look at is always lit
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -246,20 +255,42 @@ addEventListener('resize', resize);
 const clip = () => cutAxis === 'off' ? [] : [plane];
 // DoubleSide: correct shading even if an exported file has inverted normals, and the inside shows through a section cut
 function solid(color){ return new THREE.MeshStandardMaterial({color, metalness:.1, roughness:.6, side:THREE.DoubleSide, clippingPlanes:clip()}); }
+// Appearance from the part's material (parts.json): parts look like what they are made of
+const LOOKS = [
+  [/inox|stainless|aisi\s?3|a2-|a4-/i, {color:0xC4C9CE, metalness:.6, roughness:.28}],
+  [/zinc|galvan|plated|8\.8|10\.9|12\.9/i, {color:0xB8BEC6, metalness:.6, roughness:.35}],
+  [/alu|almg|6061|6082|7075|5083/i, {color:0xC9CED4, metalness:.6, roughness:.32}],
+  [/brass|bronze|latón|bronce|cuzn|cusn/i, {color:0xC9A24E, metalness:.6, roughness:.3}],
+  [/copper|cobre/i, {color:0xC27A4E, metalness:.6, roughness:.3}],
+  [/steel|acero|s235|s275|s355|c45|42crmo|1018|1045|a36|hardox|cast iron|fundición|gg/i, {color:0xA3AAB1, metalness:.6, roughness:.42}],
+  [/rubber|caucho|nbr|epdm|fkm|viton|silicone|silicona/i, {color:0x2B2B2B, metalness:0, roughness:.9}],
+  [/pom|delrin|acetal|nylon|pa6|pa66|uhmw|pe-?hd|ptfe|teflon/i, {color:0xECE8DE, metalness:0, roughness:.55}],
+  [/pla|petg|abs|asa|pc\b|polycarbonate|policarbonato|plastic|plástico/i, {color:0x5A6B7D, metalness:0, roughness:.6}],
+  [/wood|madera|mdf|plywood/i, {color:0xB98B5B, metalness:0, roughness:.8}]];
+const TYPE_LOOK = {bearing:{color:0xC4C9CE, metalness:.6, roughness:.28}, fastener:{color:0xB8BEC6, metalness:.6, roughness:.35},
+  spring:{color:0xB0B6BC, metalness:.6, roughness:.32}, seal:{color:0x2B2B2B, metalness:0, roughness:.9}, sensor:{color:0x3B3F45, metalness:.2, roughness:.5},
+  motor:{color:0x3B3F45, metalness:.4, roughness:.45}};
+function lookFor(p){ if (!p) return null; const s = [p.material, p.spec, p.standard, p.name].filter(Boolean).join(' ');
+  for (const [re, look] of LOOKS) if (re.test(s)) return look; return TYPE_LOOK[p.type] || null; }
+let colorMode = 'material';
 function b64(s){ const b = atob(s), a = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a.buffer; }
 const COLORS = [0xB9A27A, 0x7E9BB5, 0x9DB58A, 0xC99B7A, 0xA493B8, 0x86B3AE];
 async function loadModels(ver, target, ghost){
   const out = [];
   for (const [i, m] of ver.models.entries()){
     let objs = [];
-    if (m.type === 'stl'){ const g = new STLLoader().parse(b64(m.b64)); g.computeVertexNormals(); objs = [[m.name, new THREE.Mesh(g)]]; }
+    if (m.type === 'stl'){ let g = new STLLoader().parse(b64(m.b64)); g = toCreasedNormals(g, THREE.MathUtils.degToRad(30)); objs = [[m.name, new THREE.Mesh(g)]]; }  // smooth round faces, keep sharp edges
     else { const gl = await new GLTFLoader().parseAsync(b64(m.b64), ''); const kids = gl.scene.children.length > 1 ? gl.scene.children : [gl.scene];
            objs = kids.map((k, j) => [k.name || `${m.name} ${j + 1}`, k]); }
     for (const [name, o] of objs){
-      const color = COLORS[(out.length) % COLORS.length];
+      const color = COLORS[(out.length) % COLORS.length], look = lookFor((ver.parts || []).find(x => x.id === name));
       o.traverse(n => { if (!n.isMesh) return;
         if (ghost){ n.material = new THREE.MeshBasicMaterial({color:0x2A5CD6, transparent:true, opacity:.35, depthTest:false, depthWrite:false, clippingPlanes:clip()}); n.renderOrder = 10; }
-        else { n.material = solid(color);
+        else { n.material = solid(color); n.castShadow = true; n.receiveShadow = true;
+          n.userData.partLook = {color, metalness:.1, roughness:.6}; n.userData.realLook = look || n.userData.partLook;
+n.material.color.setHex((colorMode === 'material' ? n.userData.realLook : n.userData.partLook).color);
+          n.material.metalness = (colorMode === 'material' ? n.userData.realLook : n.userData.partLook).metalness;
+          n.material.roughness = (colorMode === 'material' ? n.userData.realLook : n.userData.partLook).roughness;
           const e = new THREE.LineSegments(new THREE.EdgesGeometry(n.geometry, 30), new THREE.LineBasicMaterial({color:0x2B2418, transparent:true, opacity:.55, clippingPlanes:clip()}));
           e.userData.edge = true; n.add(e); } });
       target.add(o); out.push({name, obj:o});
@@ -538,6 +569,11 @@ function info(v){
   let tri = 0; root.traverse(o => { if (o.isMesh && !o.userData.edge){ const g = o.geometry; tri += g.index ? g.index.count / 3 : g.attributes.position.count / 3; } });
   document.getElementById('tris').textContent = tri.toLocaleString();
   const st = (DATA.state || {}).exported; document.getElementById('expt').innerHTML = st ? `Export <b>${new Date(st * 1000).toLocaleString()}</b>` : '';
+  if (!b.isEmpty()){   // shadow plane and light frustum follow the model
+    const c = b.getCenter(new THREE.Vector3()), r = s.length();
+    ground.scale.set(r * 3, r * 3, 1); ground.position.set(c.x, c.y, b.min.z - s.z * .02);
+    sun.position.copy(c).add(new THREE.Vector3(.5, -.8, 1.2).normalize().multiplyScalar(r * 1.5)); sun.target.position.copy(c);
+    Object.assign(sun.shadow.camera, {left:-r, right:r, top:r, bottom:-r, near:r * .1, far:r * 4}); sun.shadow.camera.updateProjectionMatrix(); }
   if (gridHelper) scene.remove(gridHelper);
   if (!b.isEmpty()){ const n = Math.pow(10, Math.ceil(Math.log10(Math.max(s.x, s.y) * 2))) ; gridHelper = new THREE.GridHelper(n, 20, 0x8A97A6, 0xBAC3CD);
     gridHelper.rotation.x = Math.PI / 2; gridHelper.position.set(b.getCenter(new THREE.Vector3()).x, b.getCenter(new THREE.Vector3()).y, b.min.z - s.z * .02);
@@ -596,6 +632,10 @@ function selectPart(id){
 document.getElementById('tabV').onclick = () => { tabV.classList.add('on'); tabP.classList.remove('on'); list.style.display = ''; bomWrap.style.display = 'none'; };
 document.getElementById('tabP').onclick = () => { tabP.classList.add('on'); tabV.classList.remove('on'); list.style.display = 'none'; bomWrap.style.display = ''; };
 document.getElementById('tags').onchange = () => refreshVis();
+document.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { colorMode = b.dataset.m;
+  document.querySelectorAll('[data-m]').forEach(x => x.classList.toggle('on', x === b));
+  root.traverse(n => { const L = n.userData && (colorMode === 'material' ? n.userData.realLook : n.userData.partLook);
+    if (L && n.material){ n.material.color.setHex(L.color); n.material.metalness = L.metalness; n.material.roughness = L.roughness; } }); });
 document.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { displayMode = b.dataset.d;
   document.querySelectorAll('[data-d]').forEach(x => x.classList.toggle('on', x === b)); applyMaterials(); });
 document.getElementById('grid').onchange = e => { if (gridHelper) gridHelper.visible = e.target.checked; };

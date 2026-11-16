@@ -176,6 +176,8 @@ Every iteration is also recorded visually: a `CHANGELOG.md` entry and a card in 
 You are the one who validates and corrects, so every iteration ends with the part in front of you, not just described. Each project has a `viewer.html` that opens in any browser:
 
 - **Rotate, zoom and pan** the part, with iso, front, top and right views.
+- **Parts look like what they are**: springs as real helices, screws with heads and hex sockets, nuts with hexagons, bearings with rings and seals, gears with teeth, commercial parts from the manufacturer's 3D model — never a cylinder standing in for a spring or a screw. The auditor checks it.
+- **Medium–high rendering quality** without heavy effects: real-material look from the parts list (steel, stainless, zinc-plated, aluminium, brass, plastics, rubber), studio reflections for metals, a soft shadow on the ground, smooth round surfaces with sharp edges kept; "colour by part" switches to distinct colours to tell parts apart.
 - **Display modes**: shaded, shaded with edges and **wireframe** (feature edges only, to see through the whole assembly; a selected part stays solid). Parts are always shown fully solid; selecting a part highlights it in colour instead of fading the others.
 - **Organized systems**: parts are grouped in an expanded tree — fabricated parts, shafts, bearings, gears, springs, seals, fasteners, motors, sensors and electronics, commercial parts (or by functional system when the designer groups them so) — each group with its own switch, so you see at once which code belongs to which system. The parts list uses the same groups.
 - **Per-part control**: in the parts list every part has a show/hide switch and its own opacity slider, so you decide what to see through.

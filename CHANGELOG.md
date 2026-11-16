@@ -2,6 +2,10 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.18.0 — 2026-11-15
+- **Visual fidelity rule** (`engineering/parts.md`): parts modelled as they are — springs as helices, screws with heads and drives, nuts, bearings with rings, gears with teeth, shafts with steps, catalog parts from manufacturer STEP; never placeholders; fine tessellation for export; checked by the auditor.
+- **Medium–high rendering**: studio environment reflections, filmic tone mapping, soft shadow on a ground plane, creased normals for smooth round surfaces, real-material look from `parts.json` materials (steel, stainless, zinc, aluminium, brass, copper, rubber, engineering plastics, 3D-print plastics, wood) with a "colour by part" alternative. *Why:* things must look like what they are, without heavy graphics effort.
+
 ## v0.17.0 — 2026-11-15
 - **Systems organized as an expanded tree** by group (fabricated parts, shafts, bearings, gears, springs, seals, fasteners, motors, sensors and electronics, commercial parts — or `group` in parts.json for functional systems), with a switch per group; the parts list uses the same groups; new ID code `SN` for sensors and electronics. *Why:* seeing which code belongs to which system at a glance.
 

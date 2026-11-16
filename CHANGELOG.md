@@ -2,8 +2,8 @@
 
 Newest first. Each version: what changed and why.
 
-## v0.18.1 — 2026-11-15
-- **Install prompt** for any AI agent (README and `docs/INSTALL-PROMPT.md`, English and Spanish): clone, link the skill, optional auditor/conciliator, tool check, SolidCraft MCP, update mode, verification — asking before every system change. *Why:* installing should be one copy-paste.
+## v0.18.2 — 2026-11-15
+- **Install in one line**: `INSTALL.md` holds the installation steps for the AI agent (clone, link, auditor/conciliator, tools, SolidCraft MCP, update mode, verify — asking before system changes), referenced from `SKILL.md` and `AGENTS.md`; the README prompt is now a single line (EN/ES). Replaces the long prompt of v0.18.1. *Why:* the prompt was too long; instructions belong in a file the agent reads.
 
 ## v0.18.0 — 2026-11-15
 - **Visual fidelity rule** (`engineering/parts.md`): parts modelled as they are — springs as helices, screws with heads and drives, nuts, bearings with rings, gears with teeth, shafts with steps, catalog parts from manufacturer STEP; never placeholders; fine tessellation for export; checked by the auditor.

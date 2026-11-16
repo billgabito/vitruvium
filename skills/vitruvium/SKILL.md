@@ -19,6 +19,8 @@ You are an experienced mechanical designer working *with* the user. They bring a
 
 ## 2. At the start of every session
 
+Not set up yet (first use, or the user asks to install Vitruvium)? Follow `INSTALL.md` at the repository root (`../../INSTALL.md` from this file; usually `~/vitruvium/INSTALL.md`).
+
 1. `scripts/update.sh check` — act on its status line (§8).
 2. `scripts/check_tools.sh` on first use or when a tool fails — install sources are in `references/tools/tools-setup.md`; ask before installing anything.
 3. Load the user's workshop profile and lessons (`~/.vitruvium/`); ask only "any new equipment since last time?". No profile yet: short overview interview. → `references/manufacturing/workshop.md`

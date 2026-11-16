@@ -6,7 +6,8 @@ X, Y or Z, switch each system/component on and off, show the FEA result (von Mis
 deformed shape with a scale slider, supports and loads), and browse the full version history —
 each version with what changed and why, its numbers, and the previous version as a ghost to compare.
 
-Display modes: shaded, shaded + edges, wireframe (feature edges only), x-ray.
+Display modes: shaded, shaded + edges, wireframe (feature edges only). Parts are always solid; transparency only where the
+user sets it per part in the parts list (visible on/off + opacity).
 Look: engineering UI (Barlow, DIN-style), ISO 3098 lettering (osifont) for part IDs and annotations, Vitruvium logo and
 favicon (assets/brand/), edges, ground grid, status bar with units, size and triangle count; parts list with IDs (parts.json),
 ID labels in 3D, click-to-isolate, and an exploded view.
@@ -175,9 +176,12 @@ footer{grid-area:status;display:flex;gap:18px;align-items:center;padding:0 14px;
 footer b{font-weight:500;color:var(--ink)}
 .tag{font:13px var(--iso);color:var(--ink);background:rgba(255,255,255,.92);border:1px solid var(--ink);border-radius:3px;padding:0 5px;white-space:nowrap;pointer-events:auto;cursor:pointer}
 .tag.on{background:var(--ink);color:#fff}
-.bom{width:100%;border-collapse:collapse;font-size:12px}.bom th{font:600 10.5px Barlow;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:left;padding:3px 4px;border-bottom:1px solid var(--line)}
+.bom{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}.bom th:first-child{width:48px}.bom th:last-child{width:34px;text-align:right}
+.bom td{overflow-wrap:anywhere}.bom td:last-child{text-align:right}.bom th{font:600 10.5px Barlow;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:left;padding:3px 4px;border-bottom:1px solid var(--line)}
 .bom td{padding:3px 4px;border-bottom:1px dotted #E6E0D2;vertical-align:top}.bom td.id{font:13px var(--iso);white-space:nowrap}.bom tr{cursor:pointer}.bom tr:hover td{background:#F1ECE0}.bom tr.on td{background:#E3EBFB}
 .bom small{color:var(--muted)}.pf{font-size:11.5px;margin-top:3px;color:#3E3526}.pf.warn{color:#8A1C14;font-weight:600}
+.pctl{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow-wrap:normal}.pctl *{white-space:nowrap}.pctl label{display:flex;gap:4px;align-items:center;margin:0}
+.pctl input[type=range]{flex:1;accent-color:var(--blue);min-width:60px}
 .pfeat{margin:3px 0 0 14px;padding:0;font-size:11.5px;color:#3E3526}
 .asmnow{font-size:12.5px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:6px;padding:6px 8px;margin:6px 0}
 .asmnow .ck{font:11px var(--mono)}.asmnow .bad{color:#8A1C14;font-weight:600}
@@ -195,7 +199,7 @@ footer b{font-weight:500;color:var(--ink)}
 <div class="props">
  <div class="grp"><h4>View</h4><div class="seg"><button data-v="iso">Iso</button><button data-v="front">Front</button><button data-v="top">Top</button><button data-v="right">Right</button></div>
   <label style="justify-content:space-between">Exploded view <span class="mono" id="exv">0%</span></label><input id="explode" type="range" min="0" max="1000" value="0">
-  <div class="seg" style="margin-top:8px"><button data-d="shaded">Shaded</button><button data-d="edges" class="on">+ Edges</button><button data-d="wire">Wireframe</button><button data-d="xray">X-ray</button></div>
+  <div class="seg" style="margin-top:8px"><button data-d="shaded">Shaded</button><button data-d="edges" class="on">+ Edges</button><button data-d="wire">Wireframe</button></div>
   <label><input id="grid" type="checkbox" checked> Ground grid</label></div>
  <div class="grp"><h4>Section</h4><div class="seg"><button data-c="off" class="on">Off</button><button data-c="x">X</button><button data-c="y">Y</button><button data-c="z">Z</button></div>
   <input id="cut" type="range" min="0" max="1000" value="500"><label><input id="flip" type="checkbox"> Flip side</label></div>
@@ -311,7 +315,13 @@ function setCut(){
 let asm = null, asmPos = 0, asmPlaying = false;
 const asmOff = new Map(), asmHidden = new Set();
 function asmOffset(obj){ return asmOff.get(obj) || new THREE.Vector3(); }
-function refreshVis(){ for (const l of layers) l.obj.visible = (l.userVisible !== false) && !asmHidden.has(l.obj); }
+function syncSystems(){ document.querySelectorAll('#layers label').forEach(lab => { const l = layers.find(x => x.name === lab.dataset.id); if (l) lab.firstChild.checked = l.userVisible !== false; }); }
+function syncPartsList(){ document.querySelectorAll('.pctl').forEach(c => { const l = layers.find(x => x.name === c.dataset.id); if (l) c.querySelector('.pvis').checked = l.userVisible !== false; }); }
+function refreshVis(){
+  for (const l of layers) l.obj.visible = (l.userVisible !== false) && !asmHidden.has(l.obj);
+  const on = document.getElementById('tags').checked;                 // labels of hidden parts hide too
+  partTags.forEach(t => t.visible = on && !!t.parent && t.parent.visible);
+}
 function setupAssembly(a){
   asm = a && (a.steps || []).length ? a : null; asmOff.clear(); asmHidden.clear(); asmPlaying = false;
   const box = document.getElementById('asmbox');
@@ -409,12 +419,12 @@ function applyMaterials(){
     if (n.userData.edge){ n.visible = displayMode !== 'shaded'; n.material.opacity = displayMode === 'wire' ? 1 : .55;
       n.material.color.setHex(displayMode === 'wire' ? 0x1F1A12 : 0x2B2418); return; }
     if (!n.isMesh || !n.material.isMeshStandardMaterial) return;
-    let op = displayMode === 'xray' ? .22 : 1;
-    if (selected && l.name !== selected) op = Math.min(op, .15);
-    if (hl && !mv.has(l.obj)) op = Math.min(op, .3);
+    const op = l.userOpacity ?? 1;                                          // solid unless the user sets an opacity for this part
     n.material.visible = displayMode !== 'wire' || (selected === l.name);   // in wireframe the selected part stays solid
     n.material.transparent = op < 1; n.material.opacity = op; n.material.depthWrite = op >= 1;
-    n.material.emissive?.setHex(hl && mv.has(l.obj) ? 0x7a5200 : 0x000000); n.material.needsUpdate = true; });
+    // highlight by colour, never by fading the others
+    n.material.emissive?.setHex(selected === l.name ? 0x1d4ed8 : (hl && mv.has(l.obj) ? 0x7a5200 : 0x000000));
+    n.material.emissiveIntensity = selected === l.name ? .35 : 1; n.material.needsUpdate = true; });
 }
 function highlight(){ applyMaterials(); if (axesGroup) axesGroup.visible = document.getElementById('axes').checked && explodeK === 0; }
 function setupMotion(mo){
@@ -473,7 +483,7 @@ async function show(i, keepCamera = false){
   const L = document.getElementById('layers'); L.innerHTML = layers.length ? '' : '<small>No geometry exported for this version.</small>';
   layers.forEach((l, k) => { const lab = document.createElement('label'), pn = (v.parts || []).find(x => x.id === l.name);
     lab.innerHTML = `<input type="checkbox" checked> <span class="mono">${esc(l.name)}</span>${pn ? ' <small style="color:var(--muted)">' + esc(pn.name) + '</small>' : ''}`;
-    lab.firstChild.onchange = e => { l.userVisible = e.target.checked; refreshVis(); }; L.appendChild(lab); });
+    lab.firstChild.onchange = e => { l.userVisible = e.target.checked; refreshVis(); syncPartsList(); }; lab.dataset.id = l.name; L.appendChild(lab); });
   const sim = document.getElementById('simbox');
   if (fea){ sim.innerHTML = '<label><input id="simOn" type="checkbox" checked> von Mises stress</label><label><input id="bcOn" type="checkbox" checked> Supports and loads</label>Deformation ×<span id="sv">0</span><input id="scale" type="range" min="0" max="1000" value="0">';
     let umax = 1e-12; for (const v of fea.u) umax = Math.max(umax, Math.abs(v)); const size = new THREE.Box3().setFromArray(fea.pos).getSize(new THREE.Vector3()).length();
@@ -522,13 +532,20 @@ function setupParts(parts){
     (p.function ? `<div class="pf"><b>Function:</b> ${esc(p.function)}${(p.requirements || []).length ? ' <small>(' + p.requirements.map(esc).join(', ') + ')</small>' : ''}</div>` : '') +
     (p.why ? `<div class="pf"><b>Why:</b> ${esc(p.why)}</div>` : `<div class="pf warn">⚠ No reason recorded — justify, merge or delete</div>`) +
     ((p.features || []).length ? '<ul class="pfeat">' + p.features.map(f => `<li>${esc(f.feature)} — <i>${esc(f.why)}</i></li>`).join('') + '</ul>' : '') +
+    `<div class="pctl" data-id="${esc(p.id)}"><label><input type="checkbox" class="pvis" checked> Show</label>` +
+    `<span>Opacity</span><input type="range" class="pop" min="10" max="100" value="100"><span class="mono popv">100%</span></div>` +
     `</td><td class="mono">${esc(p.qty ?? 1)}</td></tr>`).join('') + '</table>';
   for (const p of parts){ const l = find(p.id); if (!l) continue;
     const d = document.createElement('div'); d.className = 'tag'; d.textContent = p.id; d.title = p.name; d.onclick = () => selectPart(p.id);
     const o = new CSS2DObject(d), b = new THREE.Box3().setFromObject(l.obj), at = b.getCenter(new THREE.Vector3()); at.z = b.max.z;
     l.obj.updateMatrixWorld(true); o.position.copy(l.obj.worldToLocal(at)); o.scale.setScalar(1);
     o.visible = document.getElementById('tags').checked; l.obj.add(o); partTags.push(o); }
-  el.querySelectorAll('tr[data-id]').forEach(r => r.onclick = () => selectPart(r.dataset.id));
+  el.querySelectorAll('tr[data-id]').forEach(r => r.onclick = e => { if (!e.target.closest('.pctl')) selectPart(r.dataset.id); });
+  el.querySelectorAll('.pctl').forEach(c => { const l = find(c.dataset.id); if (!l){ c.style.display = 'none'; return; }
+    c.querySelector('.pvis').checked = l.userVisible !== false; c.querySelector('.pop').value = Math.round((l.userOpacity ?? 1) * 100);
+    c.querySelector('.popv').textContent = c.querySelector('.pop').value + '%';
+    c.querySelector('.pvis').onchange = e => { l.userVisible = e.target.checked; syncSystems(); refreshVis(); };
+    c.querySelector('.pop').oninput = e => { l.userOpacity = e.target.value / 100; c.querySelector('.popv').textContent = e.target.value + '%'; applyMaterials(); }; });
 }
 let selected = null, curParts = [];
 function showCard(id){
@@ -554,7 +571,7 @@ function selectPart(id){
 }
 document.getElementById('tabV').onclick = () => { tabV.classList.add('on'); tabP.classList.remove('on'); list.style.display = ''; bomWrap.style.display = 'none'; };
 document.getElementById('tabP').onclick = () => { tabP.classList.add('on'); tabV.classList.remove('on'); list.style.display = 'none'; bomWrap.style.display = ''; };
-document.getElementById('tags').onchange = e => partTags.forEach(t => t.visible = e.target.checked);
+document.getElementById('tags').onchange = () => refreshVis();
 document.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { displayMode = b.dataset.d;
   document.querySelectorAll('[data-d]').forEach(x => x.classList.toggle('on', x === b)); applyMaterials(); });
 document.getElementById('grid').onchange = e => { if (gridHelper) gridHelper.visible = e.target.checked; };
@@ -637,7 +654,8 @@ def serve(proj, port, open_it):
         def do_GET(self):
             if self.path.startswith("/state"): return self._json(state(proj))
             if self.path.startswith("/data.json"): return self._json(data(proj))
-            if self.path in ("/", "/index.html"): build(proj); self.path = "/viewer.html"
+            path, _, query = self.path.partition("?")
+            if path in ("/", "/index.html"): build(proj); self.path = "/viewer.html" + ("?" + query if query else "")
             return super().do_GET()
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.ThreadingTCPServer(("127.0.0.1", port), H) as srv:

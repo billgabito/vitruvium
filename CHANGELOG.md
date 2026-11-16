@@ -2,6 +2,9 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.16.0 — 2026-11-15
+- **Parts always solid**: no automatic transparency (selection highlights in colour, moving parts in amber; x-ray mode removed). **Per-part show/hide and opacity** in the parts list, synchronized with the systems list; labels of hidden parts hide too; parts table fits the side panel; live server accepts view URLs with options. *Why:* parts must look solid and real; transparency only where the user chooses it.
+
 ## v0.15.0 — 2026-11-15
 - **Display modes** in the viewer: shaded, shaded + edges, wireframe (feature edges only; the selected part stays solid) and x-ray; one function now decides every surface's look (display mode, selection, motion highlight). *Why:* wireframe lets the user see through the assembly and judge hidden parts and clearances.
 

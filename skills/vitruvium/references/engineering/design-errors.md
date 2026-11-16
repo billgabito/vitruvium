@@ -33,21 +33,30 @@ Review every design against this list before delivery, and again in audits. Each
 22. Material chosen by habit, not by performance index → heavy or expensive → Ashby index for the governing requirement.
 23. Unavailable material or stock size locally → delays → check local suppliers early.
 
-## Manufacturing and assembly
+## Manufacturing
 24. Feature the workshop cannot make (deep pocket, internal sharp corner from milling, bend too close to a hole) → outsourcing or redesign late → check against the workshop profile during design.
 25. Bend radius below material minimum / hole too close to a bend → cracking, distortion → follow sheet metal rules (references/manufacturing/manufacturing.md).
 26. Part that can be assembled the wrong way → errors → make it symmetric or obviously asymmetric (poka-yoke).
 27. No access for tools, wrenches, welding torch → can't build or maintain → check tool access in the model.
 28. Mirrored left/right parts when one symmetric part would do → double inventory → unify.
 
+## Assembly
+29. Part trapped in a closed cavity (spring, nut, magnet, seal inside a housing with no opening) → cannot be assembled → split the housing, add a cover or an opening.
+30. Insertion path blocked by a part installed earlier → impossible sequence → reorder, change the insertion direction or split the blocking part.
+31. Fastener without tool access or wrench swing room → cannot be tightened → move it, use a different head or drive, or change the joint.
+32. Bearing or shaft that must pass through a smaller bore → cannot be assembled → step the diameters the right way.
+33. Press fit without lead-in chamfer or without a press in the workshop → damaged parts → chamfer, fit class, or a clearance fit with a retainer.
+34. Wear part that can only be replaced by destroying others → unserviceable → make it removable.
+35. O-ring or gasket cut when the part slides over an edge → leak → lead-in chamfer, no sharp edges over the seal.
+
 ## Sealing and ingress protection
-29. Sealing added at the end, or more openings than needed → leaks → decide the IP rating in step 1; minimize joints and penetrations.
-30. Gasket without compression limit, or compression checked only at nominal → crushed or loose gasket → compression limiters; check compression at tolerance extremes.
-31. Fully sealed box with temperature swings and no vent or drain → condensation inside → membrane vent and drain at the lowest point.
-32. Cable or shaft entries without rated glands/seals → the rating is only as good as the weakest entry → rated glands, lip seals.
+36. Sealing added at the end, or more openings than needed → leaks → decide the IP rating in step 1; minimize joints and penetrations.
+37. Gasket without compression limit, or compression checked only at nominal → crushed or loose gasket → compression limiters; check compression at tolerance extremes.
+38. Fully sealed box with temperature swings and no vent or drain → condensation inside → membrane vent and drain at the lowest point.
+39. Cable or shaft entries without rated glands/seals → the rating is only as good as the weakest entry → rated glands, lip seals.
 
 ## Process
-33. Optimizing or simulating before deleting → polishing waste → follow the 5 steps in order.
-34. Requirements added after freeze without impact analysis → schedule and cost creep → change control.
-35. Testing only at the end → expensive surprises → risk prototype early.
-36. Developing new technology when a catalog part exists → cost and risk → use proven parts.
+40. Optimizing or simulating before deleting → polishing waste → follow the 5 steps in order.
+41. Requirements added after freeze without impact analysis → schedule and cost creep → change control.
+42. Testing only at the end → expensive surprises → risk prototype early.
+43. Developing new technology when a catalog part exists → cost and risk → use proven parts.

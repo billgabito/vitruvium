@@ -48,6 +48,7 @@ def main():
     ap.add_argument("--image", action="append", default=[], help="image to attach (repeatable)")
     ap.add_argument("--audit", default="", help='independent audit result, e.g. "APPROVED, round 2 (3 findings fixed, 1 minor accepted)"')
     ap.add_argument("--audit-file", default="", help="path of the auditor's verdict, e.g. 09-audits/v0.3-round-2.md")
+    ap.add_argument("--assembly", help="assembly.json: assembly sequence with insertion paths and checks (references/manufacturing/assembly.md)")
     ap.add_argument("--parts", help="parts.json: parts list with IDs and names (references/engineering/parts.md)")
     ap.add_argument("--motion", help="motion.json describing moving parts for the viewer animation (references/engineering/motion.md)")
     ap.add_argument("--model", action="append", default=[], help="3D model of this version for the viewer: .glb/.gltf/.stl exported from SolidCraft (repeatable, one per system)")
@@ -72,6 +73,16 @@ def main():
         metrics["unjustified_parts"] = len(bad)
         if bad:   # every part must say what it does and why it exists (references/engineering/parts.md)
             print(f"WARNING: parts without function/why: {', '.join(bad)} — justify, merge or delete them before the audit")
+    if a.assembly:                                       # a design that cannot be assembled is wrong
+        st = json.load(open(a.assembly if os.path.isabs(a.assembly) else os.path.join(proj, a.assembly))).get("steps", [])
+        metrics["assembly_steps"] = len(st)
+        failed = [str(s.get("n", i + 1)) for i, s in enumerate(st) if s.get("check") and (s["check"].get("path_clear") is False or s["check"].get("tool_access") is False)]
+        unchecked = [str(s.get("n", i + 1)) for i, s in enumerate(st) if i > 0 and not s.get("check")]
+        metrics["assembly_failed_steps"] = len(failed); metrics["assembly_unchecked_steps"] = len(unchecked)
+        if failed: print(f"WARNING: assembly steps that FAIL (path or tool access): {', '.join(failed)} — the design is not assemblable")
+        if unchecked: print(f"WARNING: assembly steps without check: {', '.join(unchecked)}")
+    elif a.parts and metrics.get("parts_unique", 0) > 1:
+        print("WARNING: more than one part and no --assembly sequence — assemblability not demonstrated")
     for m in a.metric:
         k, _, v = m.partition("=")
         metrics[k.strip()] = num(v) if num(v) is not None else v.strip()
@@ -88,7 +99,7 @@ def main():
     prev = index[-1] if index else None
     entry = {"version": a.version, "date": datetime.date.today().isoformat(), "title": a.title, "why": a.why,
              "changes": a.change, "loop": a.loop, "decision": a.decision, "metrics": metrics, "images": images,
-             "models": a.model, "fea": a.fea, "motion": a.motion, "parts": a.parts, "audit": a.audit, "audit_file": a.audit_file,
+             "models": a.model, "fea": a.fea, "motion": a.motion, "parts": a.parts, "assembly": a.assembly, "audit": a.audit, "audit_file": a.audit_file,
              "previous": prev["version"] if prev else None}
     index.append(entry)
     json.dump(index, open(idx_path, "w"), indent=2, ensure_ascii=False)

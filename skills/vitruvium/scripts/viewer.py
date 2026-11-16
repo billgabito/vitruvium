@@ -53,13 +53,19 @@ def state(proj):
     cad = max((os.path.getmtime(os.path.join(md, f)) for f in os.listdir(md) if f.endswith((".sc", ".solidcraft", ".json"))), default=0) if os.path.isdir(md) else 0
     fea = os.path.join(proj, "05-simulation", "current", "fea_view.json")
     idx = os.path.join(proj, "iterations", "index.json")
-    mot = live_motion(proj)
-    stamp = max([exp, os.path.getmtime(fea) if os.path.exists(fea) else 0, os.path.getmtime(idx) if os.path.exists(idx) else 0,
+    mot = live_motion(proj); asm = live_assembly(proj); prt = live_parts(proj)
+    stamp = max([os.path.getmtime(asm) if asm else 0, os.path.getmtime(prt) if prt else 0, exp, os.path.getmtime(fea) if os.path.exists(fea) else 0, os.path.getmtime(idx) if os.path.exists(idx) else 0,
                  os.path.getmtime(mot) if mot else 0])
     return {"stamp": stamp, "exported": exp, "cad": cad, "stale": bool(lf) and cad > exp + 1}
 
 def live_motion(proj):
     for f in (os.path.join(proj, "03-model", "current", "motion.json"), os.path.join(proj, "03-model", "motion.json")):
+        if os.path.exists(f):
+            return f
+    return None
+
+def live_assembly(proj):
+    for f in (os.path.join(proj, "03-model", "current", "assembly.json"), os.path.join(proj, "03-model", "assembly.json")):
         if os.path.exists(f):
             return f
     return None
@@ -77,7 +83,7 @@ def with_live(proj, versions):
         versions = versions + [{"version": "LIVE", "title": "Working copy (current CAD state)",
                                 "why": "Updates automatically every time the model is exported.", "changes": [], "metrics": {},
                                 "models": lf, "fea": fea if os.path.isdir(os.path.join(proj, fea)) else None, "date": "",
-                                "motion": live_motion(proj), "parts": live_parts(proj)}]
+                                "motion": live_motion(proj), "parts": live_parts(proj), "assembly": live_assembly(proj)}]
     return versions
 
 def pack(proj, versions):
@@ -104,13 +110,18 @@ def pack(proj, versions):
                 motion = json.load(open(mp))
             else:
                 print(f"warning: motion file not found for {e['version']}: {e['motion']}")
+        assembly = None
+        ap_ = e.get("assembly")
+        if ap_:
+            ap_ = ap_ if os.path.isabs(ap_) else os.path.join(proj, ap_)
+            assembly = json.load(open(ap_)) if os.path.exists(ap_) else None
         parts = None
         pp = e.get("parts")
         if pp:
             pp = pp if os.path.isabs(pp) else os.path.join(proj, pp)
             parts = json.load(open(pp)) if os.path.exists(pp) else None
         out.append({k: e.get(k) for k in ("version", "title", "date", "why", "changes", "loop", "decision", "metrics", "audit")}
-                   | {"models": models, "fea": fea, "motion": motion, "parts": parts})
+                   | {"models": models, "fea": fea, "motion": motion, "parts": parts, "assembly": assembly})
     return out
 
 HTML = r"""<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -167,6 +178,9 @@ footer b{font-weight:500;color:var(--ink)}
 .bom td{padding:3px 4px;border-bottom:1px dotted #E6E0D2;vertical-align:top}.bom td.id{font:13px var(--iso);white-space:nowrap}.bom tr{cursor:pointer}.bom tr:hover td{background:#F1ECE0}.bom tr.on td{background:#E3EBFB}
 .bom small{color:var(--muted)}.pf{font-size:11.5px;margin-top:3px;color:#3E3526}.pf.warn{color:#8A1C14;font-weight:600}
 .pfeat{margin:3px 0 0 14px;padding:0;font-size:11.5px;color:#3E3526}
+.asmnow{font-size:12.5px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:6px;padding:6px 8px;margin:6px 0}
+.asmnow .ck{font:11px var(--mono)}.asmnow .bad{color:#8A1C14;font-weight:600}
+#asmList div{font-size:12px;padding:3px 0;border-top:1px dotted #E6E0D2;cursor:pointer}#asmList div.on{color:var(--blue);font-weight:600}
 #motlist div{padding:2px 0;border-top:1px dotted #E6E0D2;font-size:12px}
 @media (max-width:900px){body{grid-template-columns:1fr;grid-template-rows:48px 38vh 1fr auto 26px;grid-template-areas:"top" "view" "props" "side" "status"}aside,.props{border:0}}
 </style>
@@ -185,6 +199,9 @@ footer b{font-weight:500;color:var(--ink)}
   <input id="cut" type="range" min="0" max="1000" value="500"><label><input id="flip" type="checkbox"> Flip side</label></div>
  <div class="grp"><h4>Systems</h4><div id="layers"></div></div>
  <div class="grp"><h4>Simulation</h4><div id="simbox"><small>No FEA for this version.</small></div></div>
+ <div class="grp" id="asmbox" style="display:none"><h4>Assembly sequence</h4>
+  <div style="display:flex;gap:6px;margin-bottom:6px"><button id="asmPrev" class="btn">◀</button><button id="asmPlay" class="btn" style="flex:1">▶ Play assembly</button><button id="asmNext" class="btn">▶</button></div>
+  <input id="asmStep" type="range" min="0" max="1000" value="1000"><div id="asmNow" class="asmnow"></div><div id="asmList"></div></div>
  <div class="grp" id="motbox" style="display:none"><h4>Motion</h4>
   <div style="display:flex;gap:6px;margin-bottom:6px"><button id="play" class="btn">▶ Play</button><select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></div>
   <input id="pose" type="range" min="0" max="1000" value="0">
@@ -288,6 +305,51 @@ function setCut(){
     plane.normal.copy(n); plane.constant = (document.getElementById('flip').checked ? -1 : 1) * (mn + t * (mx - mn)); }
   scene.traverse(o => { if (o.material) o.material.clippingPlanes = clip(); });
 }
+// ---------- assembly sequence (references/manufacturing/assembly.md) ----------
+let asm = null, asmPos = 0, asmPlaying = false;
+const asmOff = new Map(), asmHidden = new Set();
+function asmOffset(obj){ return asmOff.get(obj) || new THREE.Vector3(); }
+function refreshVis(){ for (const l of layers) l.obj.visible = (l.userVisible !== false) && !asmHidden.has(l.obj); }
+function setupAssembly(a){
+  asm = a && (a.steps || []).length ? a : null; asmOff.clear(); asmHidden.clear(); asmPlaying = false;
+  const box = document.getElementById('asmbox');
+  if (!asm){ box.style.display = 'none'; refreshVis(); return; }
+  const N = asm.steps.length; asmPos = N;
+  document.getElementById('asmList').innerHTML = asm.steps.map((s, i) => {
+    const bad = s.check && (s.check.path_clear === false || s.check.tool_access === false), miss = i > 0 && !s.check;
+    return `<div data-k="${i + 1}">${s.n ?? i + 1}. ${esc(s.action || '')} <span class="mono">${(s.parts || []).map(esc).join(', ')}</span>${bad ? ' <span style="color:#8A1C14">✖</span>' : miss ? ' <span style="color:#8A1C14">⚠</span>' : ''}</div>`; }).join('');
+  document.querySelectorAll('#asmList div').forEach(d => d.onclick = () => { asmPlaying = false; goStep(+d.dataset.k); });
+  box.style.display = 'block'; applyAssembly();
+}
+function goStep(k){ asmPos = Math.max(0, Math.min(asm.steps.length, k)); applyAssembly(); }
+function applyAssembly(){
+  if (!asm) return;
+  const N = asm.steps.length, done = Math.floor(asmPos + 1e-9), f = asmPos - done, ease = x => x * x * (3 - 2 * x);
+  asmOff.clear(); asmHidden.clear();
+  asm.steps.forEach((s, i) => { const k = i + 1;
+    for (const id of s.parts || []){ const l = layers.find(x => x.name === id); if (!l) continue;
+      if (k <= done) continue;                                    // already installed
+      if (k === done + 1 && asmPos < N){ const d = new THREE.Vector3(...(s.direction || [0, 0, -1])).normalize();
+        asmOff.set(l.obj, d.multiplyScalar(-(s.distance ?? 50) * (1 - ease(f)))); }   // flying in along its insertion direction
+      else asmHidden.add(l.obj); } });                           // future step: not there yet
+  refreshVis(); applyExplode();
+  document.getElementById('asmStep').value = asmPos / N * 1000;
+  const cur = asm.steps[Math.min(N - 1, asmPos >= N ? N - 1 : done)], ck = cur.check;
+  document.getElementById('asmNow').innerHTML = asmPos >= N ? '<b>Assembled.</b> ' + esc(asm.disassembly ? 'Disassembly: ' + asm.disassembly : '') :
+    `<b>Step ${cur.n ?? done + 1}/${N}: ${esc(cur.action || '')}</b> <span class="mono">${(cur.parts || []).map(esc).join(', ')}${cur.qty ? ' ×' + esc(cur.qty) : ''}</span><br>${esc(cur.note || '')}` +
+    (cur.tool ? `<br>Tool: ${esc(cur.tool)}` : '') + (cur.torque ? ` · Torque: ${esc(cur.torque)}` : '') +
+    (ck ? `<div class="ck ${ck.path_clear === false || ck.tool_access === false ? 'bad' : ''}">Path clear: ${ck.path_clear ? '✔' : '✖'} · Tool access: ${ck.tool_access ? '✔' : '✖'} — ${esc(ck.evidence || '')}</div>` :
+      (done > 0 ? '<div class="ck bad">⚠ Not checked: path and tool access</div>' : ''));
+  document.querySelectorAll('#asmList div').forEach(d => d.classList.toggle('on', +d.dataset.k === done + 1 && asmPos < N));
+}
+function enterAssembly(){ const e = document.getElementById('explode'); if (+e.value){ e.value = 0; e.oninput({target:e}); }
+  if (playing) document.getElementById('play').click(); }
+document.getElementById('asmStep').oninput = e => { asmPlaying = false; enterAssembly(); asmPos = e.target.value / 1000 * asm.steps.length; applyAssembly(); };
+document.getElementById('asmPlay').onclick = () => { if (!asm) return; enterAssembly(); if (asmPos >= asm.steps.length) asmPos = 0; asmPlaying = !asmPlaying;
+  document.getElementById('asmPlay').textContent = asmPlaying ? '❚❚ Pause' : '▶ Play assembly'; };
+document.getElementById('asmPrev').onclick = () => { asmPlaying = false; enterAssembly(); goStep(Math.ceil(asmPos) - 1); };
+document.getElementById('asmNext').onclick = () => { asmPlaying = false; enterAssembly(); goStep(Math.floor(asmPos) + 1); };
+
 // ---------- exploded view ----------
 let explodeK = 0, exploded = [];
 function setupExplode(parts){
@@ -301,7 +363,7 @@ function setupExplode(parts){
 }
 function explodeOffset(obj){ const e = exploded.find(x => x.obj === obj); return e ? e.off.clone().multiplyScalar(explodeK) : new THREE.Vector3(); }
 function applyExplode(){
-  for (const e of exploded) if (e.obj.matrixAutoUpdate) e.obj.position.copy(e.basePos).add(e.off.clone().multiplyScalar(explodeK));
+  for (const e of exploded) if (e.obj.matrixAutoUpdate) e.obj.position.copy(e.basePos).add(e.off.clone().multiplyScalar(explodeK)).add(asmOffset(e.obj));
   if (motion) applyPose(+document.getElementById('pose').value / 1000);
   if (axesGroup) axesGroup.visible = explodeK === 0 && document.getElementById('axes').checked;   // axes only make sense assembled
 }
@@ -333,7 +395,7 @@ function applyPose(s){
     else { const o = new THREE.Vector3(...(m.j.origin || [0, 0, 0])), a = new THREE.Vector3(...m.j.axis).normalize();
       M = new THREE.Matrix4().makeTranslation(o.x, o.y, o.z).multiply(new THREE.Matrix4().makeRotationAxis(a, THREE.MathUtils.degToRad(jointValue(m.j, s))))
         .multiply(new THREE.Matrix4().makeTranslation(-o.x, -o.y, -o.z)); }
-    const x = explodeOffset(m.obj);
+    const x = explodeOffset(m.obj).add(asmOffset(m.obj));
     m.obj.matrix.copy(new THREE.Matrix4().makeTranslation(x.x, x.y, x.z).multiply(M).multiply(m.base)); m.obj.matrixWorldNeedsUpdate = true;
   }
 }
@@ -385,6 +447,9 @@ renderer.domElement.addEventListener('pointerup', e => {
 function tick(now){
   if (playing && motion){ const dt = Math.min(.1, (now - (lastT || now)) / 1000); phase += dt * (+document.getElementById('speed').value) / (motion.duration_s || 4);
     const s = poseFromPhase(phase); applyPose(s); document.getElementById('pose').value = s * 1000; }
+  if (asmPlaying && asm){ asmPos += Math.min(.1, (now - (lastT || now)) / 1000) / 1.6;   // 1.6 s per step
+    if (asmPos >= asm.steps.length){ asmPos = asm.steps.length; asmPlaying = false; document.getElementById('asmPlay').textContent = '▶ Play assembly'; }
+    applyAssembly(); }
   lastT = now; renderer.render(scene, camera); labeler.render(scene, camera);
 }
 
@@ -396,7 +461,7 @@ async function show(i, keepCamera = false){
   const L = document.getElementById('layers'); L.innerHTML = layers.length ? '' : '<small>No geometry exported for this version.</small>';
   layers.forEach((l, k) => { const lab = document.createElement('label'), pn = (v.parts || []).find(x => x.id === l.name);
     lab.innerHTML = `<input type="checkbox" checked> <span class="mono">${esc(l.name)}</span>${pn ? ' <small style="color:var(--muted)">' + esc(pn.name) + '</small>' : ''}`;
-    lab.firstChild.onchange = e => { l.obj.visible = e.target.checked; }; L.appendChild(lab); });
+    lab.firstChild.onchange = e => { l.userVisible = e.target.checked; refreshVis(); }; L.appendChild(lab); });
   const sim = document.getElementById('simbox');
   if (fea){ sim.innerHTML = '<label><input id="simOn" type="checkbox" checked> von Mises stress</label><label><input id="bcOn" type="checkbox" checked> Supports and loads</label>Deformation ×<span id="sv">0</span><input id="scale" type="range" min="0" max="1000" value="0">';
     let umax = 1e-12; for (const v of fea.u) umax = Math.max(umax, Math.abs(v)); const size = new THREE.Box3().setFromArray(fea.pos).getSize(new THREE.Vector3()).length();
@@ -410,7 +475,7 @@ async function show(i, keepCamera = false){
   document.getElementById('msg').style.display = (layers.length || fea) ? 'none' : 'block';
   document.getElementById('msg').textContent = 'No geometry or FEA for this version.';
   explodeK = 0; document.getElementById('explode').value = 0; document.getElementById('exv').textContent = '0%';
-  setupMotion(v.motion); setupParts(v.parts); setupExplode(v.parts); info(v);
+  setupMotion(v.motion); setupParts(v.parts); setupExplode(v.parts); setupAssembly(v.assembly); info(v);
   if (keepCamera){ const old = box.getSize(new THREE.Vector3()).length(); box = new THREE.Box3().setFromObject(root);
     const r = box.getSize(new THREE.Vector3()).length() / (old || 1);
     if (r > 1.3 || r < 0.7) fit(); else setCut(); }          // keep the user's camera unless the part changed size a lot
@@ -527,6 +592,7 @@ if (DATA.versions.length) show(+(Q.get('v') || 0)).then(() => {
   if (Q.get('explode')){ const s = document.getElementById('explode'); s.value = +Q.get('explode') * 1000; s.oninput({target:s}); }
   if (Q.get('tab') === 'parts') document.getElementById('tabP').click();
   if (Q.get('select')) selectPart(Q.get('select'));
+  if (Q.get('step') && asm){ enterAssembly(); asmPos = +Q.get('step'); applyAssembly(); }
   if (Q.get('pose') && motion){ document.getElementById('pose').value = +Q.get('pose') * 1000; applyPose(+Q.get('pose')); }
   if (Q.get('play') === '1' && motion) document.getElementById('play').click();
   if (Q.get('cut')){ cutAxis = Q.get('cut'); document.getElementById('cut').value = (+(Q.get('pos') || .5)) * 1000; setCut(); }

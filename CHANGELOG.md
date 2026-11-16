@@ -2,6 +2,9 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.14.0 — 2026-11-15
+- **Assemblability is mandatory** (principle 7, `references/manufacturing/assembly.md`): every multi-part design has an `assembly.json` sequence (order, insertion direction, tool, torque, check with evidence of free path and tool access, disassembly of service parts), verified in SolidCraft by moving parts along their paths with interference checks; new loop "not assemblable → model"; auditor treats a non-assemblable design as a blocker; seven assembly errors added to the catalog (43 in total); `log_iteration.py --assembly` records steps, failed and unchecked steps and warns; viewer **Assembly sequence** panel plays the sequence step by step with failures in red. *Why:* a design that cannot be built is wrong, however good it looks.
+
 ## v0.13.0 — 2026-11-15
 - **Skill reorganized**: `SKILL.md` rewritten around principles → session start → workflow A–K (one table with what to do and what to read per phase) → loops → showing → talking → modes → updates → toolbox → non-negotiables; references grouped in `process/`, `engineering/`, `manufacturing/`, `quality/`, `tools/` (audit mode renamed `review-existing-design.md`); all links updated; README with repository structure; BEHAVIOR sections renumbered. *Why:* the skill had grown by additions; one clear structure is easier to follow for the agent and for people.
 - **Part detail card**: click a part in 3D (or its label or list row) to see ID, descriptive name, type, specification, material, quantity, function, requirements, why it exists, features, source, route and drawing; systems list shows ID + name. Descriptive names rule in `parts.md` ("Socket head cap screw M5×12", never "screw"). *Why:* an ID alone does not say what a part is.

@@ -14,6 +14,7 @@ How to work:
 - Recompute the key numbers yourself where you can (a hand calculation of the governing stress or deflection, unit checks, safety factor). Compare with `05-simulation/*/results.json` and the changelog.
 - Check every requirement in `01-requirements/requirements.md` has evidence that it is met.
 - Check every part has a manufacturing route on a machine that exists in the workshop profile, and that specified tolerances can be measured there.
+- Check that it can be assembled: for multi-part designs `assembly.json` must exist; for every step verify the insertion path is free at that moment of the sequence (parts already installed can block it), the tool can reach, nothing is trapped (e.g. a spring inside a closed part), fits allow assembly and serviceable parts can be removed. A design that cannot be assembled is a blocker.
 - If there are moving parts, check `motion.json` matches the joints described and that interference across the range was checked.
 - Check the 3D export is current if a live-viewer state is given (`stale` must be false).
 - Be specific and brief. No praise, no restating the design. Every finding has evidence (file and value) and what would be correct.

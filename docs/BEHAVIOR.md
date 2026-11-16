@@ -143,7 +143,7 @@ It reports total parts vs unique parts: "40 parts, 9 unique; 2 fastener referenc
 
 ## 12. The design-error catalog
 
-Before every delivery, and in every audit, the design is reviewed against a catalog of 36 classic mistakes — sharp corners in loaded zones, welds at points of maximum fatigue, bolts working in bending shear, screws tapped into aluminium that is often disassembled, over-constraint, tolerances the workshop cannot measure, unisolated galvanic pairs, features the workshop cannot make, optimizing before deleting, and more. Each entry states what to look for, why it fails and how to fix it.
+Before every delivery, and in every audit, the design is reviewed against a catalog of 43 classic mistakes — sharp corners in loaded zones, welds at points of maximum fatigue, bolts working in bending shear, screws tapped into aluminium that is often disassembled, over-constraint, tolerances the workshop cannot measure, unisolated galvanic pairs, features the workshop cannot make, optimizing before deleting, and more. Each entry states what to look for, why it fails and how to fix it.
 
 The catalog grows: new mistakes found in your projects go to your local lessons file and are checked in every future project.
 
@@ -195,22 +195,26 @@ Every part has an ID and a name from the first iteration — `P-01` base plate, 
 
 If the design has moving parts, the viewer animates them: play and pause, a slider to stop at any position, speed, the moving parts highlighted while the fixed ones fade, the joint axes drawn, and a list of each moving part and how it moves (hinge 0→100°, guide 0→40 mm, wheel geared to the lid ×3.6…). Closed-loop mechanisms such as linkages or cams are animated from positions sampled in the CAD motion study. Interference is checked through the full range before the animation is shown as valid.
 
-## 18. An independent auditor before you see anything
+## 18. If it cannot be assembled, it is wrong
+
+A design that cannot be put together — or taken apart where service needs it — is incorrect, however good the rest is: a spring inside a fully closed part, a screw no key can reach, a bearing that would have to pass through a smaller bore. So assembly is designed together with the parts, from the first iteration. Every multi-part design has a written assembly sequence: which part goes in, in what order, from which direction, with which tool and torque, and for each step the evidence that the insertion path is free at that moment (checked in the CAD model itself by moving the part along its path and testing interference) and that the tool can reach. Wear and service parts must be removable. In the viewer, the **Assembly sequence** panel plays it step by step — installed parts stay, the current part flies in along its insertion direction, future parts are hidden, and each step shows its action, tool, torque and check, with failures in red. The designer checks it every iteration, and the independent auditor treats a design that cannot be assembled as a blocker.
+
+## 19. An independent auditor before you see anything
 
 No result reaches you until an independent auditor has approved it. The auditor is a separate agent that never saw the designer's reasoning — only the project files — and checks them against a fixed list: requirements met with evidence, anything that could still be deleted, calculations and simulation (recomputing key numbers itself), failure modes, the error catalog, interfaces and motion, whether your workshop can make and measure every part, drawings, and that the 3D view and every number shown are current and true. It answers *approved* or *changes required*, with evidence for each finding. The designer fixes each finding and answers it — fixed, with evidence, or disputed, with reasons — and resubmits. If after the second round the auditor still does not approve, they do not keep arguing in circles: an **expert conciliator** — a separate agent run on the most capable model available, with broader engineering knowledge — reads both positions and the project files and issues a ruling that both must follow, and it may propose a better solution altogether. The designer applies it, the auditor checks it was applied, and only then do you see the result. If the ruling cannot be implemented, you get a report clearly marked *not approved*, with the options, and you decide. With each result you see a short audit summary — rounds, what was found and fixed, the conciliator's ruling if there was one, accepted minor points, and what could not be verified. The auditor makes sure what you receive is correct and honestly described; you remain the final judge.
 
-## 19. Drawings
+## 20. Drawings
 
 A design is not finished until someone else can build it from the drawing. Drawings follow ISO (first-angle) by default, or ASME Y14.5 when required: functional dimensions from the right datums, a general tolerance in the title block, tight tolerances and fits only where the function needs them and the workshop can measure them, material, finish, treatment, quantity and a complete title block. Assemblies get a bill of materials; sheet metal gets flat patterns; weldments get weld symbols.
 
 Until SolidCraft releases its drawing module, drawings are generated from STEP with FreeCAD TechDraw.
 
-## 20. Two entry modes
+## 21. Two entry modes
 
 - **Design mode:** a need or problem becomes a new design through the full process.
 - **Audit mode:** you hand over drawings, STEP files, photos or a description of an existing design. The designer runs a short reverse interview, rebuilds the black box, applies the whole method and delivers a report of findings ranked by impact (safety first, then function, cost and simplicity), with the achievable simplification numbers. For each major improvement it proposes A/B/C alternatives. If you approve a redesign, it switches to design mode with its own project folder.
 
-## 21. Tools
+## 22. Tools
 
 | Purpose | Tool | Note |
 |---|---|---|
@@ -221,11 +225,11 @@ Until SolidCraft releases its drawing module, drawings are generated from STEP w
 
 Models are saved as SolidCraft JSON scripts, which are text, so every version shows exactly what changed ("plate thickness 6 → 8 mm").
 
-## 22. Updates
+## 23. Updates
 
 Vitruvium looks for a new release at most once a day, when you use it. If there is one, it asks: update now, always update automatically, or not now. Once you choose "always", it updates on its own and tells you in one line what changed. It never updates in the middle of a design step, never overwrites local changes, and never touches your workshop profile, lessons or projects, which live outside the skill folder. You can switch between ask, auto and off at any time.
 
-## 23. Non-negotiables
+## 24. Non-negotiables
 
 - Units are always stated and never mixed without conversion (metric/ISO by default; inch/ASME when needed).
 - Safety factors, standards and protections against serious failures may be questioned, but are only removed with evidence — a calculation or a test.
@@ -233,6 +237,6 @@ Vitruvium looks for a new release at most once a day, when you use it. If there 
 - Never "it can't be done" without an alternative.
 - What was not verified is declared as such; an unchecked design is never presented as validated.
 
-## 24. Sources
+## 25. Sources
 
 The method draws on: D. G. Ullman, *The Mechanical Design Process*; R. G. Budynas and J. K. Nisbett, *Shigley's Mechanical Engineering Design*; F. P. Beer, E. R. Johnston and J. T. DeWolf, *Mechanics of Materials*; W. C. Young and R. G. Budynas, *Roark's Formulas for Stress and Strain*; W. D. Pilkey, *Peterson's Stress Concentration Factors*; G. Boothroyd, P. Dewhurst and W. Knight, *Product Design for Manufacture and Assembly*; M. F. Ashby, *Materials Selection in Mechanical Design*; G. Pahl and W. Beitz, *Engineering Design*; D. L. Blanding, *Exact Constraint*; L. L. Howell, *Compliant Mechanisms*; N. P. Suh, *Axiomatic Design*; A. Cohen, *Prototype to Product*; and Elon Musk's five-step design algorithm as publicly described.

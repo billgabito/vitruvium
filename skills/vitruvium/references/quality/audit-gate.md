@@ -11,7 +11,7 @@ No iteration is presented to the user as a result until an **independent auditor
 
 ## What the auditor receives
 
-Paths only, no explanations: `01-requirements/` (black box, requirements), `02-concept/decision.md`, `03-model/` (current export, motion.json), `04-calculations/`, `05-simulation/current/` (results.json, summary.md), `06-manufacturing/`, `07-drawings/` if any, the workshop profile, the latest `CHANGELOG.md` entry, and the viewer state (`curl -s http://127.0.0.1:8765/state` or "no live viewer").
+Paths only, no explanations: `01-requirements/` (black box, requirements), `02-concept/decision.md`, `03-model/` (current export, parts.json, assembly.json, motion.json), `04-calculations/`, `05-simulation/current/` (results.json, summary.md), `06-manufacturing/`, `07-drawings/` if any, the workshop profile, the latest `CHANGELOG.md` entry, and the viewer state (`curl -s http://127.0.0.1:8765/state` or "no live viewer").
 
 ## Checklist (the auditor verifies, it does not trust)
 
@@ -22,7 +22,7 @@ Paths only, no explanations: `01-requirements/` (black box, requirements), `02-c
 4. **Failure modes**: fatigue, buckling, joints, wear, corrosion, sealing/IP — whatever applies.
 5. **Design-error catalog**: every item checked (`references/engineering/design-errors.md`).
 6. **Interfaces and motion**: interference through the full range; motion.json matches the CAD joints.
-7. **Manufacturability**: every part routed to a machine in the workshop profile; tolerances measurable there; outsourcing justified.
+7. **Manufacturability and assembly**: every part routed to a machine in the workshop profile; tolerances measurable there; outsourcing justified. **The design can be assembled**: `assembly.json` exists for multi-part designs; every step has a free insertion path at its moment in the sequence, tool access and evidence; no trapped parts; fits allow assembly; wear and service parts can be removed. A design that cannot be assembled is a blocker, whatever its other qualities.
 8. **Drawings** (if produced): dimensions and tolerances complete and consistent with the model.
 9. **Faithful presentation**: the 3D export is current (`stale: false`); numbers in the changelog match the result files; nothing claimed that was not verified.
 

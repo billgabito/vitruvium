@@ -2,6 +2,9 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.18.1 — 2026-11-15
+- **Install prompt** for any AI agent (README and `docs/INSTALL-PROMPT.md`, English and Spanish): clone, link the skill, optional auditor/conciliator, tool check, SolidCraft MCP, update mode, verification — asking before every system change. *Why:* installing should be one copy-paste.
+
 ## v0.18.0 — 2026-11-15
 - **Visual fidelity rule** (`engineering/parts.md`): parts modelled as they are — springs as helices, screws with heads and drives, nuts, bearings with rings, gears with teeth, shafts with steps, catalog parts from manufacturer STEP; never placeholders; fine tessellation for export; checked by the auditor.
 - **Medium–high rendering**: studio environment reflections, filmic tone mapping, soft shadow on a ground plane, creased normals for smooth round surfaces, real-material look from `parts.json` materials (steel, stainless, zinc, aluminium, brass, copper, rubber, engineering plastics, 3D-print plastics, wood) with a "colour by part" alternative. *Why:* things must look like what they are, without heavy graphics effort.

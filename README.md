@@ -19,7 +19,23 @@ Full description of how it behaves: [docs/BEHAVIOR.md](docs/BEHAVIOR.md).
 - An independent auditor approves every iteration before it is shown to the user; an expert conciliator settles disagreements after the second round.
 - Review mode for existing designs: ranked improvement report.
 
-## Install
+## Install with your AI agent (copy and paste)
+
+Paste this prompt into your AI agent (Claude Code, Codex, Cursor, Gemini CLI…). It installs Vitruvium step by step and asks before changing anything outside the Vitruvium folder. Spanish version and details: [docs/INSTALL-PROMPT.md](docs/INSTALL-PROMPT.md).
+
+```text
+Install the Vitruvium mechanical design skill for me. Follow these steps in order, tell me what you are doing in one line per step, and ask me before installing any software or changing any configuration outside the Vitruvium folder.
+1. Clone https://github.com/billgabito/vitruvium.git into ~/vitruvium (or "git -C ~/vitruvium pull --ff-only" if it already exists). If it fails because the repository is private, tell me I need access and stop.
+2. Make the skill available to you by linking (not copying) ~/vitruvium/skills/vitruvium into your skills directory (Claude Code: ln -s ~/vitruvium/skills/vitruvium ~/.claude/skills/vitruvium). If your host uses AGENTS.md instead, ask me before adding a pointer to ~/vitruvium/skills/vitruvium/SKILL.md to my global instructions.
+3. If your host supports subagents, ask me whether to link the independent auditor and conciliator (Claude Code: mkdir -p ~/.claude/agents && ln -s ~/vitruvium/agents/vitruvium-*.md ~/.claude/agents/).
+4. Run sh ~/vitruvium/skills/vitruvium/scripts/check_tools.sh and show me the result; for each missing tool give me the command from ~/vitruvium/skills/vitruvium/references/tools/tools-setup.md for my OS and install it only if I say yes.
+5. If solidcraft-cli is installed, ask me whether to register its MCP server (Claude Code: claude mcp add solidcraft -- solidcraft-cli mcp; others: solidcraft-cli mcp setup).
+6. Ask me how Vitruvium should update itself (ask / auto / off) and run sh ~/vitruvium/skills/vitruvium/scripts/update.sh mode <choice>.
+7. Read ~/vitruvium/skills/vitruvium/SKILL.md, confirm the skill is visible to you, run sh ~/vitruvium/skills/vitruvium/scripts/update.sh check --force, and give me a short summary: what was installed, what is missing, and how to start.
+Reply in my language.
+```
+
+## Install manually
 
 Install it as a Git clone so it can update itself:
 ```
@@ -64,6 +80,7 @@ vitruvium/
 │   └── assets/                  templates/ (profile, requirements, logs), brand/ (logo, favicon)
 ├── agents/                      vitruvium-auditor.md, vitruvium-conciliator.md
 ├── docs/BEHAVIOR.md             full description of how the skill behaves
+├── docs/INSTALL-PROMPT.md       copy-paste install prompt for any AI agent (EN/ES)
 ├── brand/                       visual identity (BRAND.md, icons, logos, generators)
 ├── AGENTS.md                    entry point for agents that read it
 ├── CHANGELOG.md · CITATION.cff · LICENSE (MIT)
@@ -90,6 +107,6 @@ MIT — see [LICENSE](LICENSE).
 
 ## How to cite (IEEE)
 
-> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.18.0. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
+> [1] W. Campos V., *Vitruvium: An AI agent skill for parametric mechanical design based on mechanical simplicity*, ver. 0.18.1. (2026). [Online]. Available: https://github.com/billgabito/vitruvium
 
 Machine-readable metadata is in [CITATION.cff](CITATION.cff).

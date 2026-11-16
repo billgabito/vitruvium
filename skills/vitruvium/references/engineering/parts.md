@@ -21,6 +21,20 @@ Every part of a design gets an **ID**, a **name** and a **reason to exist** from
 
 Identical parts share one ID with a quantity (eight identical screws = `FS-01`, qty 8).
 
+## The name says what the part is
+
+The ID alone is not enough: the `name` must tell anyone what the part is, with its key specification, and the full designation goes in `spec` / `standard`:
+
+| ID | Name (what it is) | spec / standard |
+|---|---|---|
+| FS-01 | Socket head cap screw M5×12 | ISO 4762 M5×12 8.8 zinc |
+| FS-02 | Hex nut M5 | ISO 4032 M5 8 |
+| BR-01 | Deep groove ball bearing 6200-2RS | SKF 6200-2RS1 (10×30×9) |
+| P-03 | L-shaped lever, 6 mm plate | drawing P-03 |
+| SH-01 | Hinge pin Ø10 × 60 | C45 Ø10 h9 |
+
+Never "part 1", "bracket" or "screw" alone. In the viewer, clicking a part (in 3D, on its ID label or in the parts list) opens a detail card at the top with ID, name, type, specification, material, quantity, function and requirements, why it exists, features with their reasons, source, route and drawing.
+
 ## Every part must justify its existence
 
 Nothing is in the design "because": each part carries
@@ -58,7 +72,7 @@ Export each part from SolidCraft with its **ID as the file name** (`03-model/cur
 
 ## Rules
 
-- No `function` / `why` → not finished. If you cannot state why a part exists, try to delete it (simplicity.md).
+- No `function` / `why` → not finished. If you cannot state why a part exists, try to delete it (references/process/simplicity.md).
 - Keep IDs stable across versions; the changelog says when a part is added, deleted (ID retired) or merged.
 - Total vs unique parts and the number of fastener references come from this list (simplicity metrics).
 - Use the same IDs in manufacturing routes, drawings (title blocks, balloons) and the bill of materials.

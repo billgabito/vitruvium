@@ -152,6 +152,11 @@ main{grid-area:view;position:relative;background:linear-gradient(180deg,#EEF1F4 
 select{font:500 12px Barlow;border:1px solid var(--line);border-radius:7px;padding:4px;background:#fff}
 #legend{position:absolute;left:14px;bottom:14px;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:11px var(--mono);display:none;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 #bar{width:230px;height:10px;border-radius:2px;background:linear-gradient(90deg,#2a5cd6,#18b2d6,#48be6e,#f2c428,#dc3c32);margin:4px 0 2px}
+#card{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 24px));background:rgba(255,255,255,.97);border:1px solid var(--line);border-top:3px solid var(--ink);border-radius:8px;padding:10px 14px 12px;box-shadow:0 4px 16px rgba(43,36,24,.12);display:none;z-index:3}
+#card .hd{display:flex;align-items:baseline;gap:10px}#card .cid{font:20px var(--iso);color:var(--blue)}#card .cn{font-weight:600;font-size:15px;flex:1}
+#card .x{border:0;background:none;font-size:18px;cursor:pointer;color:var(--muted)}#card dl{display:grid;grid-template-columns:110px 1fr;gap:3px 10px;margin:8px 0 0;font-size:12.5px}
+#card dt{color:var(--muted);font:600 10.5px Barlow;letter-spacing:1px;text-transform:uppercase;padding-top:2px}#card dd{margin:0}#card ul{margin:0;padding-left:16px}
+#card .warn{color:#8A1C14;font-weight:600}
 #msg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:var(--muted)}
 .mono{font-family:var(--mono)}
 footer{grid-area:status;display:flex;gap:18px;align-items:center;padding:0 14px;border-top:1px solid var(--line);background:#F1ECE0;font:11px var(--mono);color:var(--sepia)}
@@ -169,7 +174,7 @@ footer b{font-weight:500;color:var(--ink)}
 <div class="proj">__NAME__<span id="curVer"></span></div><div class="grow"></div><span id="auditBadge" class="badge"></span><span id="banner" class="badge"></span></header>
 <aside><div class="ph"><span class="seg" style="margin:0"><button id="tabV" class="on">Versions</button><button id="tabP">Parts list</button></span></div>
 <div id="list"></div><div id="bomWrap" style="display:none;padding:8px 10px"><div id="bom"></div><label style="margin-top:8px;display:flex;gap:6px"><input id="tags" type="checkbox" checked> Show part IDs in 3D</label></div></aside>
-<main><div id="msg">Loading…</div>
+<main><div id="msg">Loading…</div><div id="card"></div>
 <div id="legend"><div>von Mises [MPa] · nodal average</div><div id="bar"></div><div style="display:flex;justify-content:space-between"><span id="lo"></span><span id="hi"></span></div></div>
 </main>
 <div class="props">
@@ -302,7 +307,7 @@ function applyExplode(){
 }
 document.getElementById('explode').oninput = e => { explodeK = e.target.value / 1000; document.getElementById('exv').textContent = Math.round(explodeK * 100) + '%'; applyExplode(); };
 
-// ---------- motion (see references/motion.md) ----------
+// ---------- motion (see references/engineering/motion.md) ----------
 let motion = null, moving = [], axesGroup = null, playing = false, phase = 0, lastT = 0;
 function jointValue(j, s, seen = {}){
   if (j.follows){ const d = motion.joints.find(x => x.part === j.follows); if (!d || seen[j.part]) return 0; seen[j.part] = 1;
@@ -364,6 +369,19 @@ document.getElementById('play').onclick = () => { playing = !playing; document.g
   const s = document.getElementById('simOn'); if (playing && s && s.checked){ s.checked = false; s.onchange({target:s}); } };
 document.getElementById('pose').oninput = e => { playing = false; document.getElementById('play').textContent = '▶ Play'; phase = 0; applyPose(e.target.value / 1000); };
 document.getElementById('hl').onchange = highlight; document.getElementById('axes').onchange = highlight;
+const ray = new THREE.Raycaster(); let downAt = null;
+renderer.domElement.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointerup', e => {
+  if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 4) return;    // it was a rotation, not a click
+  const r = renderer.domElement.getBoundingClientRect();
+  ray.setFromCamera(new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1), camera);
+  const hits = ray.intersectObjects(layers.map(l => l.obj), true).filter(h => h.object.isMesh && !h.object.userData.edge && h.object.visible &&
+    (!h.object.material.clippingPlanes || !h.object.material.clippingPlanes.length || h.object.material.clippingPlanes[0].distanceToPoint(h.point) >= 0));
+  if (!hits.length){ selectPart(null); return; }
+  let o = hits[0].object; const owner = layers.find(l => { let x = o; while (x){ if (x === l.obj) return true; x = x.parent; } return false; });
+  if (owner) selectPart(owner.name);
+});
+
 function tick(now){
   if (playing && motion){ const dt = Math.min(.1, (now - (lastT || now)) / 1000); phase += dt * (+document.getElementById('speed').value) / (motion.duration_s || 4);
     const s = poseFromPhase(phase); applyPose(s); document.getElementById('pose').value = s * 1000; }
@@ -376,7 +394,8 @@ async function show(i, keepCamera = false){
   root.clear(); ghostRoot.clear(); feaMesh = null; fea = v.fea;
   layers = await loadModels(v, root, false); unitFix(layers);
   const L = document.getElementById('layers'); L.innerHTML = layers.length ? '' : '<small>No geometry exported for this version.</small>';
-  layers.forEach((l, k) => { const lab = document.createElement('label'); lab.innerHTML = `<input type="checkbox" checked> ${l.name}`;
+  layers.forEach((l, k) => { const lab = document.createElement('label'), pn = (v.parts || []).find(x => x.id === l.name);
+    lab.innerHTML = `<input type="checkbox" checked> <span class="mono">${esc(l.name)}</span>${pn ? ' <small style="color:var(--muted)">' + esc(pn.name) + '</small>' : ''}`;
     lab.firstChild.onchange = e => { l.obj.visible = e.target.checked; }; L.appendChild(lab); });
   const sim = document.getElementById('simbox');
   if (fea){ sim.innerHTML = '<label><input id="simOn" type="checkbox" checked> von Mises stress</label><label><input id="bcOn" type="checkbox" checked> Supports and loads</label>Deformation ×<span id="sv">0</span><input id="scale" type="range" min="0" max="1000" value="0">';
@@ -415,9 +434,9 @@ function info(v){
     gridHelper.rotation.x = Math.PI / 2; gridHelper.position.set(b.getCenter(new THREE.Vector3()).x, b.getCenter(new THREE.Vector3()).y, b.min.z - s.z * .02);
     gridHelper.material.transparent = true; gridHelper.material.opacity = .6; gridHelper.visible = document.getElementById('grid').checked; scene.add(gridHelper); }
 }
-// ---------- parts list (parts.json, see references/parts.md) ----------
+// ---------- parts list (parts.json, see references/engineering/parts.md) ----------
 function setupParts(parts){
-  partTags.forEach(t => t.parent && t.parent.remove(t)); partTags = [];
+  partTags.forEach(t => t.parent && t.parent.remove(t)); partTags = []; curParts = parts || []; selected = null; showCard(null);
   const el = document.getElementById('bom');
   if (!parts || !parts.length){ el.innerHTML = '<small>No parts list for this version (parts.json).</small>'; return; }
   const find = id => layers.find(l => l.name === id);
@@ -434,9 +453,24 @@ function setupParts(parts){
     o.visible = document.getElementById('tags').checked; l.obj.add(o); partTags.push(o); }
   el.querySelectorAll('tr[data-id]').forEach(r => r.onclick = () => selectPart(r.dataset.id));
 }
-let selected = null;
+let selected = null, curParts = [];
+function showCard(id){
+  const c = document.getElementById('card'), p = curParts.find(x => x.id === id);
+  if (!id){ c.style.display = 'none'; return; }
+  const row = (k, v) => v ? `<dt>${k}</dt><dd>${v}</dd>` : '';
+  const spec = [p && p.spec, p && p.standard].filter(Boolean).map(esc).join(' · ');
+  c.innerHTML = `<div class="hd"><span class="cid">${esc(id)}</span><span class="cn">${esc(p ? p.name : 'Part without entry in parts.json')}</span><button class="x" title="Close">×</button></div>` + (p ? '<dl>' +
+    row('Type', esc(p.type)) + row('Specification', spec) + row('Material', esc(p.material)) + row('Quantity', esc(p.qty ?? 1)) +
+    row('Function', esc(p.function) + ((p.requirements || []).length ? ` <small>(${p.requirements.map(esc).join(', ')})</small>` : '')) +
+    row('Why it exists', p.why ? esc(p.why) : '<span class="warn">⚠ No reason recorded — justify, merge or delete</span>') +
+    row('Features', (p.features || []).length ? '<ul>' + p.features.map(f => `<li>${esc(f.feature)} — <i>${esc(f.why)}</i></li>`).join('') + '</ul>' : '') +
+    row('Source', esc([p.source, p.supplier].filter(Boolean).join(' · '))) + row('Route', esc(p.route)) + row('Mass', p.mass_kg ? esc(p.mass_kg) + ' kg' : '') +
+    row('Drawing', esc(p.drawing)) + '</dl>' : '<dl><dt>Note</dt><dd class="warn">Add this part to parts.json with its name, specification, function and reason.</dd></dl>');
+  c.querySelector('.x').onclick = () => selectPart(null);
+  c.style.display = 'block';
+}
 function selectPart(id){
-  selected = selected === id ? null : id;
+  selected = (id === null || selected === id) ? null : id; showCard(selected);
   document.querySelectorAll('.bom tr[data-id]').forEach(r => r.classList.toggle('on', r.dataset.id === selected));
   partTags.forEach(t => t.element.classList.toggle('on', t.element.textContent === selected));
   for (const l of layers) l.obj.traverse(n => { if (!n.isMesh || n.userData.edge) return;

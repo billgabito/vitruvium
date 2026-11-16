@@ -81,7 +81,7 @@ The designer does not design a concept prototype like a production part:
 | Final one-off | final, workshop-made | complete | complete, incl. fatigue | full drawings |
 | Series production | optimized for cost and repeatability | complete + process capability | complete + batch checks | drawings, assembly guide, QC plan |
 
-## 5b. Existing solutions first: buy, adapt or design
+## 6. Existing solutions first: buy, adapt or design
 
 The simplest design is the one you do not have to make. Right after the black-box sheet is confirmed, the designer looks for what already exists — searching by function, not by part name:
 
@@ -93,7 +93,7 @@ The simplest design is the one you do not have to make. Right after the black-bo
 
 It presents a short table (solution, source, price and lead time, which requirements it covers, gaps, workshop work needed) and three starting points with its recommendation: **buy** (fastest; the work becomes selection, mounting and verification), **adapt** (buy a module and design only the interface or missing part — often the best balance), or **design from scratch** (using what was found as the benchmark to beat). You decide. The search is kept short and skipped for trivial parts. If a very similar, recent patented solution appears and you plan to sell the product, it flags that a patent check may be needed — a flag, not legal advice.
 
-## 6. How it asks questions
+## 7. How it asks questions
 
 Questions buried in long text get lost, so the designer makes every question impossible to miss:
 
@@ -101,7 +101,7 @@ Questions buried in long text get lost, so the designer makes every question imp
 - Otherwise it ends the message with one clearly marked **❓ QUESTION** block.
 - One decision at a time. When a guess would change the design, it stops and waits instead of designing on an unconfirmed assumption.
 
-## 7. Your workshop is permanent knowledge
+## 8. Your workshop is permanent knowledge
 
 What you have decides what "simple" means for you. The designer keeps a **workshop profile** in `~/.vitruvium/workshops/`: every machine with its type, model and capacity, welding processes (MIG, TIG with or without AC, stick), cutting and bending equipment, 3D printers, hand tools, measuring instruments, and the skills of the people who build.
 
@@ -113,13 +113,13 @@ Several profiles are supported: your own shop, a contracted shop, a client's sho
 
 The goal is that **most parts are made locally**. Every part gets a manufacturing route (stock → machine → operations → setups → inspection). If a part fits no machine, the designer first redesigns it, then splits it, and only then proposes outsourcing — with a written reason and the in-house alternative it tried. It reports the percentage of parts made in-house.
 
-## 8. Alternatives — you decide
+## 9. Alternatives — you decide
 
 At every major decision (concept, joint type, material, process) the designer presents 2–3 **genuinely different** alternatives — welded vs bolted vs one bent part, not 6 mm vs 8 mm — in a weighted decision matrix: simplicity score, safety factor, mass, manufacturability in your workshop, cost (including the idiot index: finished cost / raw material cost) and main risk. Numbers come from calculation or catalog data, never invented.
 
 It recommends one, explains why in two or three sentences, and **stops for your decision**. You adjust the criteria weights per project. The decision and its reason are recorded.
 
-## 9. Standardization
+## 10. Standardization
 
 During design the designer looks for ways to reduce variety and **asks you before applying them**:
 
@@ -131,7 +131,7 @@ During design the designer looks for ways to reduce variety and **asks you befor
 
 It reports total parts vs unique parts: "40 parts, 9 unique; 2 fastener references".
 
-## 10. Engineering analysis
+## 11. Engineering analysis
 
 **Calculation ladder:** order of magnitude → closed-form (Beer & Johnston, Shigley, Roark) → FEA only where geometry defeats closed-form. If FEA and the hand calculation disagree by more than ~15% where the hand calc is valid, the designer suspects the model, not the hand calc.
 
@@ -141,13 +141,13 @@ It reports total parts vs unique parts: "40 parts, 9 unique; 2 fastener referenc
 
 **Interfaces between parts:** interference through the full motion, Hertz contact stress, wear (Archard, material pairing, lubrication), fretting, galvanic corrosion, thermal expansion mismatch, tolerance stack-up and fatigue at joints.
 
-## 11. The design-error catalog
+## 12. The design-error catalog
 
 Before every delivery, and in every audit, the design is reviewed against a catalog of 36 classic mistakes — sharp corners in loaded zones, welds at points of maximum fatigue, bolts working in bending shear, screws tapped into aluminium that is often disassembled, over-constraint, tolerances the workshop cannot measure, unisolated galvanic pairs, features the workshop cannot make, optimizing before deleting, and more. Each entry states what to look for, why it fails and how to fix it.
 
 The catalog grows: new mistakes found in your projects go to your local lessons file and are checked in every future project.
 
-## 12. Looking things up
+## 13. Looking things up
 
 The designer searches manufacturer catalogs and the web instead of guessing: part numbers (bearings, seals, belts, motors), standard dimensions (ISO, DIN, ASME), material datasheets, and STEP models of commercial parts to import into the CAD.
 
@@ -157,7 +157,7 @@ The designer searches manufacturer catalogs and the web instead of guessing: par
 - Local availability matters: a perfect part you cannot buy is not a solution.
 - It asks before downloading any file.
 
-## 13. Projects live in versioned folders
+## 14. Projects live in versioned folders
 
 Every project gets its own folder: requirements, concept, model, calculations, simulation, manufacturing, drawings, prototypes, references, deliveries, a design log and a lessons file. The designer handles Git for you — you do not need to know it — commits each meaningful step and tags versions:
 
@@ -171,7 +171,7 @@ Every project gets its own folder: requirements, concept, model, calculations, s
 
 Every iteration is also recorded visually: a `CHANGELOG.md` entry and a card in a browser timeline (`iterations/index.html`) with what changed, **why** (the requirement, the failed check or your decision), the key numbers against the previous version — stress, displacement, safety factor, mass, part count, with deltas — and images of the model and the stress plots. You can see how the design evolved and the reason behind each step. Released packages (PDF drawings, DXF for cutting, STEP, bill of materials) are copied to `deliveries/`. The design log tells the whole story of the design: what was done, what failed, where it went back and why each decision was made.
 
-## 13b. See it, turn it, cut it: the 3D viewer
+## 15. See it, turn it, cut it: the 3D viewer
 
 You are the one who validates and corrects, so every iteration ends with the part in front of you, not just described. Each project has a `viewer.html` that opens in any browser:
 
@@ -185,32 +185,32 @@ The designer asks you to review the viewer before moving on and never claims a c
 
 **Always in sync.** The CAD model is the only master: the viewer shows the geometry exported from SolidCraft itself, never a hand-made copy that could drift. During a session the viewer runs live in your browser: after every modelling change the designer exports the current state, and the page reloads on its own within seconds, keeping your camera. A green "Live" badge shows the time of the last export; if the CAD model changed and was not exported yet, a red banner says the view is out of date, and the designer checks this before telling you a change is ready. You look and turn the part in the viewer, and talk to the designer in the AI console.
 
-## 13b-2. Parts with IDs, exploded view, engineering look
+## 16. Parts with IDs, exploded view, engineering look
 
-Every part has an ID and a name from the first iteration — `P-01` base plate, `SH-01` shaft, `BR-01` bearing 6200-2RS, `FS-01` screw ISO 4762 M6×20 ×8 — in one parts list used everywhere: the viewer, manufacturing routes, drawings and the bill of materials. In the viewer you open the **Parts list** tab to see each part with its type, material or catalog reference and quantity; the IDs float over the parts in 3D in ISO technical lettering; clicking a part (in the list or on its label) isolates it; and the **exploded view** slider pulls the assembly apart so you can see how it goes together. The viewer carries the Vitruvium logo and favicon, engineering typography, edges, a ground grid, and a status bar with units, overall size, triangle count and export time.
+Every part has an ID and a name from the first iteration — `P-01` base plate, `SH-01` shaft, `BR-01` bearing 6200-2RS, `FS-01` screw ISO 4762 M6×20 ×8 — in one parts list used everywhere: the viewer, manufacturing routes, drawings and the bill of materials. In the viewer you open the **Parts list** tab to see each part with its type, material or catalog reference and quantity; the IDs float over the parts in 3D in ISO technical lettering; clicking a part — on the 3D model itself, on its label or in the list — isolates it and opens a detail card at the top of the view with its ID and descriptive name ("Socket head cap screw M5×12", "L-shaped lid, 4 mm plate", "Deep groove ball bearing 6200-2RS"), type, specification or standard, material, quantity, function and the requirements it serves, why it exists, the reason for each feature, source, manufacturing route and drawing; and the **exploded view** slider pulls the assembly apart so you can see how it goes together. The viewer carries the Vitruvium logo and favicon, engineering typography, edges, a ground grid, and a status bar with units, overall size, triangle count and export time.
 
 **Nothing exists without a reason.** Every part states what it does, which requirements it serves and why it must be a separate part instead of being deleted or merged; every non-obvious feature — a hole, a slot, a fillet, a thickness, a tight tolerance — states its reason; every change between versions states its why. You see these reasons in the parts list of the viewer, and a part without a reason is flagged in red. The independent auditor does not take the reasons on trust: working only from the project files, it challenges each one (does it really move, need another material, need to be separate? does the requirement exist? does the fillet really lower the stress?) and returns the deletions, merges or corrections it implies.
 
-## 13c. Moving parts, animated
+## 17. Moving parts, animated
 
 If the design has moving parts, the viewer animates them: play and pause, a slider to stop at any position, speed, the moving parts highlighted while the fixed ones fade, the joint axes drawn, and a list of each moving part and how it moves (hinge 0→100°, guide 0→40 mm, wheel geared to the lid ×3.6…). Closed-loop mechanisms such as linkages or cams are animated from positions sampled in the CAD motion study. Interference is checked through the full range before the animation is shown as valid.
 
-## 13d. An independent auditor before you see anything
+## 18. An independent auditor before you see anything
 
 No result reaches you until an independent auditor has approved it. The auditor is a separate agent that never saw the designer's reasoning — only the project files — and checks them against a fixed list: requirements met with evidence, anything that could still be deleted, calculations and simulation (recomputing key numbers itself), failure modes, the error catalog, interfaces and motion, whether your workshop can make and measure every part, drawings, and that the 3D view and every number shown are current and true. It answers *approved* or *changes required*, with evidence for each finding. The designer fixes each finding and answers it — fixed, with evidence, or disputed, with reasons — and resubmits. If after the second round the auditor still does not approve, they do not keep arguing in circles: an **expert conciliator** — a separate agent run on the most capable model available, with broader engineering knowledge — reads both positions and the project files and issues a ruling that both must follow, and it may propose a better solution altogether. The designer applies it, the auditor checks it was applied, and only then do you see the result. If the ruling cannot be implemented, you get a report clearly marked *not approved*, with the options, and you decide. With each result you see a short audit summary — rounds, what was found and fixed, the conciliator's ruling if there was one, accepted minor points, and what could not be verified. The auditor makes sure what you receive is correct and honestly described; you remain the final judge.
 
-## 14. Drawings
+## 19. Drawings
 
 A design is not finished until someone else can build it from the drawing. Drawings follow ISO (first-angle) by default, or ASME Y14.5 when required: functional dimensions from the right datums, a general tolerance in the title block, tight tolerances and fits only where the function needs them and the workshop can measure them, material, finish, treatment, quantity and a complete title block. Assemblies get a bill of materials; sheet metal gets flat patterns; weldments get weld symbols.
 
 Until SolidCraft releases its drawing module, drawings are generated from STEP with FreeCAD TechDraw.
 
-## 15. Two entry modes
+## 20. Two entry modes
 
 - **Design mode:** a need or problem becomes a new design through the full process.
 - **Audit mode:** you hand over drawings, STEP files, photos or a description of an existing design. The designer runs a short reverse interview, rebuilds the black box, applies the whole method and delivers a report of findings ranked by impact (safety first, then function, cost and simplicity), with the achievable simplification numbers. For each major improvement it proposes A/B/C alternatives. If you approve a redesign, it switches to design mode with its own project folder.
 
-## 16. Tools
+## 21. Tools
 
 | Purpose | Tool | Note |
 |---|---|---|
@@ -221,11 +221,11 @@ Until SolidCraft releases its drawing module, drawings are generated from STEP w
 
 Models are saved as SolidCraft JSON scripts, which are text, so every version shows exactly what changed ("plate thickness 6 → 8 mm").
 
-## 16b. Updates
+## 22. Updates
 
 Vitruvium looks for a new release at most once a day, when you use it. If there is one, it asks: update now, always update automatically, or not now. Once you choose "always", it updates on its own and tells you in one line what changed. It never updates in the middle of a design step, never overwrites local changes, and never touches your workshop profile, lessons or projects, which live outside the skill folder. You can switch between ask, auto and off at any time.
 
-## 17. Non-negotiables
+## 23. Non-negotiables
 
 - Units are always stated and never mixed without conversion (metric/ISO by default; inch/ASME when needed).
 - Safety factors, standards and protections against serious failures may be questioned, but are only removed with evidence — a calculation or a test.
@@ -233,6 +233,6 @@ Vitruvium looks for a new release at most once a day, when you use it. If there 
 - Never "it can't be done" without an alternative.
 - What was not verified is declared as such; an unchecked design is never presented as validated.
 
-## 18. Sources
+## 24. Sources
 
 The method draws on: D. G. Ullman, *The Mechanical Design Process*; R. G. Budynas and J. K. Nisbett, *Shigley's Mechanical Engineering Design*; F. P. Beer, E. R. Johnston and J. T. DeWolf, *Mechanics of Materials*; W. C. Young and R. G. Budynas, *Roark's Formulas for Stress and Strain*; W. D. Pilkey, *Peterson's Stress Concentration Factors*; G. Boothroyd, P. Dewhurst and W. Knight, *Product Design for Manufacture and Assembly*; M. F. Ashby, *Materials Selection in Mechanical Design*; G. Pahl and W. Beitz, *Engineering Design*; D. L. Blanding, *Exact Constraint*; L. L. Howell, *Compliant Mechanisms*; N. P. Suh, *Axiomatic Design*; A. Cohen, *Prototype to Product*; and Elon Musk's five-step design algorithm as publicly described.

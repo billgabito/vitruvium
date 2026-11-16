@@ -4,7 +4,7 @@ SolidCraft (github.com/tangency-labs/solidcraft) is an open-source parametric CA
 
 ## Setup
 
-Install and MCP registration for every OS: see tools-setup.md.
+Install and MCP registration for every OS: see references/tools/tools-setup.md.
 
 - MCP: register `solidcraft-cli mcp` as an MCP server in your agent host (Claude Code: `claude mcp add solidcraft -- solidcraft-cli mcp`; other hosts: the same command in their MCP settings). Add `--connect` to drive the running desktop app so the user can watch.
 - If the MCP tools are not available, tell the user how to add them; meanwhile you can still write the JSON command script and run it with `solidcraft-cli run script.json --out part.step`.
@@ -22,6 +22,6 @@ Install and MCP registration for every OS: see tools-setup.md.
 
 ## Known gaps (as of late 2026)
 
-- No FEA → use the Gmsh + CalculiX pipeline (analysis.md).
-- Drawings not released yet (only DXF of the current view) → FreeCAD TechDraw from STEP (drawings.md). Switch to native drawings when available.
+- No FEA → use the Gmsh + CalculiX pipeline (references/engineering/analysis.md).
+- Drawings not released yet (only DXF of the current view) → FreeCAD TechDraw from STEP (references/manufacturing/drawings.md). Switch to native drawings when available.
 - No CAM.

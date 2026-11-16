@@ -11,7 +11,7 @@ Input: drawings, STEP, photos, the physical part, or a description.
    - interfaces between parts;
    - standardization (part and fastener variety);
    - manufacturability in the user's workshop;
-   - the market: is there now a commercial product or standard module that would replace part or all of the design? (existing-solutions.md)
+   - the market: is there now a commercial product or standard module that would replace part or all of the design? (references/process/existing-solutions.md)
 4. **Report**, findings ranked by impact (safety first, then function, cost, simplicity):
 
 | # | Finding | Evidence | Risk / impact | Proposed fix | Effort |

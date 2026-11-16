@@ -27,7 +27,7 @@ def mesh(step, size, order, out):
     """Mesh with the gmsh CLI (works for pip, uv, Homebrew or binary installs) and read back the .inp."""
     exe = os.environ.get("GMSH") or shutil.which("gmsh")
     if not exe:
-        sys.exit("gmsh not found — see references/tools-setup.md")
+        sys.exit("gmsh not found — see references/tools/tools-setup.md")
     msh = os.path.join(out, "mesh.inp")
     r = subprocess.run([exe, step, "-3", "-order", str(order), "-clmax", str(size), "-clmin", str(size / 4),
                         "-format", "inp", "-o", msh], capture_output=True, text=True)
@@ -85,7 +85,7 @@ def ccx_cmd():
     for c in [os.environ.get("CCX", ""), "ccx", "ccx_2.23", "ccx_2.22", "ccx_2.21"]:
         if c and shutil.which(c):
             return c
-    sys.exit("CalculiX (ccx) not found — see references/tools-setup.md")
+    sys.exit("CalculiX (ccx) not found — see references/tools/tools-setup.md")
 
 def read_dat(path):
     """Max displacement, max von Mises (integration points), nodal displacements and per-element von Mises."""
@@ -143,7 +143,7 @@ def images(out):
     try:
         import ccx2paraview, pyvista as pv
     except ImportError:
-        return "images skipped: install ccx2paraview and pyvista (references/tools-setup.md)"
+        return "images skipped: install ccx2paraview and pyvista (references/tools/tools-setup.md)"
     ccx2paraview.Converter(os.path.join(out, "job.frd"), ["vtu"]).run()
     vtus = sorted(f for f in os.listdir(out) if f.endswith(".vtu"))
     if not vtus:
@@ -188,7 +188,7 @@ def main():
         f"- Max von Mises (integration points): {smax:.4g} MPa\n"
         + (f"- Safety factor on yield: {res['safety_factor_yield']}\n" if a.sy else "")
         + "\nCheck before trusting: mesh convergence (run 3 sizes), singularities at fixed edges and point loads,"
-          " and agreement with the hand calculation (references/analysis.md).\n")
+          " and agreement with the hand calculation (references/engineering/analysis.md).\n")
     print(json.dumps(res, indent=2))
 
 if __name__ == "__main__":

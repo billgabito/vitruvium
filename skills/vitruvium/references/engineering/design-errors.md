@@ -35,7 +35,7 @@ Review every design against this list before delivery, and again in audits. Each
 
 ## Manufacturing and assembly
 24. Feature the workshop cannot make (deep pocket, internal sharp corner from milling, bend too close to a hole) → outsourcing or redesign late → check against the workshop profile during design.
-25. Bend radius below material minimum / hole too close to a bend → cracking, distortion → follow sheet metal rules (manufacturing.md).
+25. Bend radius below material minimum / hole too close to a bend → cracking, distortion → follow sheet metal rules (references/manufacturing/manufacturing.md).
 26. Part that can be assembled the wrong way → errors → make it symmetric or obviously asymmetric (poka-yoke).
 27. No access for tools, wrenches, welding torch → can't build or maintain → check tool access in the model.
 28. Mirrored left/right parts when one symmetric part would do → double inventory → unify.

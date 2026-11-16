@@ -6,6 +6,6 @@ When the user asks to design, redesign, audit or fabricate a mechanical part, me
 
 `skills/vitruvium/SKILL.md`
 
-Before presenting any iteration to the user, run an independent audit with the prompt in `agents/vitruvium-auditor.md` in a separate agent or session. If it is still not approved after round 2, run the expert conciliator (`agents/vitruvium-conciliator.md`) on the most capable model available; its ruling is binding (see `skills/vitruvium/references/audit-gate.md`).
+Before presenting any iteration to the user, run an independent audit with the prompt in `agents/vitruvium-auditor.md` in a separate agent or session. If it is still not approved after round 2, run the expert conciliator (`agents/vitruvium-conciliator.md`) on the most capable model available; its ruling is binding (see `skills/vitruvium/references/quality/audit-gate.md`).
 
 Load the files in `skills/vitruvium/references/` only when the step you are on needs them.

@@ -40,7 +40,7 @@ The steps the script follows, and what to check:
 6. Results: read numbers from the `.dat` file (*EL PRINT / *NODE PRINT); for images convert `.frd` → `.vtu` with `ccx2paraview` and render von Mises stress and displacement with PyVista (off-screen PNG).
 7. Report: model assumptions, mesh study, max stress vs allowable, deflection, safety factor, comparison with hand calc, images of stress and displacement, what was not modelled.
 
-Tools, sources and install commands: tools-setup.md (run `scripts/check_tools.sh`).
+Tools, sources and install commands: references/tools/tools-setup.md (run `scripts/check_tools.sh`).
 
 ## Interfaces between parts (systems)
 

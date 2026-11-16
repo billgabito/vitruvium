@@ -1,6 +1,6 @@
 #!/bin/sh
 # Shows which external tools Vitruvium can use on this machine. Changes nothing.
-# Install sources: references/tools-setup.md
+# Install sources: references/tools/tools-setup.md
 
 ok()   { printf '  [ok]      %-12s %s\n' "$1" "$2"; }
 miss() { printf '  [missing] %-12s %s\n' "$1" "$2"; }
@@ -18,7 +18,7 @@ elif python3 -c "import gmsh" >/dev/null 2>&1; then ok Gmsh "python module (pip)
 else miss Gmsh "pip install --upgrade gmsh"; fi
 
 c=$(first ccx ccx_2.23 ccx_2.22 ccx_2.21)
-[ -n "$c" ] && ok CalculiX "$c" || miss CalculiX "see references/tools-setup.md (conda-forge, apt, or source)"
+[ -n "$c" ] && ok CalculiX "$c" || miss CalculiX "see references/tools/tools-setup.md (conda-forge, apt, or source)"
 
 for m in ccx2paraview pyvista; do
   python3 -c "import $m" >/dev/null 2>&1 && ok "$m" "python module" || miss "$m" "pip install $m"

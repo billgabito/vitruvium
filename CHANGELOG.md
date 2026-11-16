@@ -2,6 +2,10 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.13.0 — 2026-11-15
+- **Skill reorganized**: `SKILL.md` rewritten around principles → session start → workflow A–K (one table with what to do and what to read per phase) → loops → showing → talking → modes → updates → toolbox → non-negotiables; references grouped in `process/`, `engineering/`, `manufacturing/`, `quality/`, `tools/` (audit mode renamed `review-existing-design.md`); all links updated; README with repository structure; BEHAVIOR sections renumbered. *Why:* the skill had grown by additions; one clear structure is easier to follow for the agent and for people.
+- **Part detail card**: click a part in 3D (or its label or list row) to see ID, descriptive name, type, specification, material, quantity, function, requirements, why it exists, features, source, route and drawing; systems list shows ID + name. Descriptive names rule in `parts.md` ("Socket head cap screw M5×12", never "screw"). *Why:* an ID alone does not say what a part is.
+
 ## v0.12.0 — 2026-11-15
 - **Expert conciliator** (`agents/vitruvium-conciliator.md`, most capable model): if the auditor does not approve after round 2, it issues a binding ruling per open finding (auditor upheld / designer upheld / alternative) and may propose a better solution; round 3 checks compliance. Designer responses per finding (fixed / disputed) are recorded in `09-audits/`. Nothing reaches the user without approval; an unimplementable ruling produces a report marked NOT APPROVED. *Why:* avoid endless audit loops on complex parts while keeping the approval gate.
 
@@ -10,7 +14,7 @@ Newest first. Each version: what changed and why.
 
 ## v0.10.0 — 2026-11-15
 - **Professional viewer UI**: Vitruvium logo and favicon, engineering typography (Barlow; ISO 3098 osifont for IDs and annotations), header with version, audit and live badges, edges, ground grid, status bar (units, size, triangles, export time). *Why:* the visualization must look professional and engineering-grade.
-- **Parts breakdown with IDs** (`parts.json`, `references/parts.md`): ID convention (P, SH, BR, FS, SP, SE, G, MO, CP, AS), parts list tab, ID labels in 3D, click to isolate, parts metrics in the changelog. *Why:* every screw, shaft, bearing and part must be named and traceable.
+- **Parts breakdown with IDs** (`parts.json`, `references/engineering/parts.md`): ID convention (P, SH, BR, FS, SP, SE, G, MO, CP, AS), parts list tab, ID labels in 3D, click to isolate, parts metrics in the changelog. *Why:* every screw, shaft, bearing and part must be named and traceable.
 - **Exploded view** slider (direction per part optional). *Why:* to see how the assembly goes together.
 
 ## v0.9.0 — 2026-11-15

@@ -48,8 +48,8 @@ def main():
     ap.add_argument("--image", action="append", default=[], help="image to attach (repeatable)")
     ap.add_argument("--audit", default="", help='independent audit result, e.g. "APPROVED, round 2 (3 findings fixed, 1 minor accepted)"')
     ap.add_argument("--audit-file", default="", help="path of the auditor's verdict, e.g. 09-audits/v0.3-round-2.md")
-    ap.add_argument("--parts", help="parts.json: parts list with IDs and names (references/parts.md)")
-    ap.add_argument("--motion", help="motion.json describing moving parts for the viewer animation (references/motion.md)")
+    ap.add_argument("--parts", help="parts.json: parts list with IDs and names (references/engineering/parts.md)")
+    ap.add_argument("--motion", help="motion.json describing moving parts for the viewer animation (references/engineering/motion.md)")
     ap.add_argument("--model", action="append", default=[], help="3D model of this version for the viewer: .glb/.gltf/.stl exported from SolidCraft (repeatable, one per system)")
     a = ap.parse_args()
 
@@ -70,7 +70,7 @@ def main():
         metrics["fastener_refs"] = sum(1 for x in pl if x.get("type") == "fastener" or str(x.get("id", "")).startswith("FS-"))
         bad = [x.get("id", "?") for x in pl if not str(x.get("function", "")).strip() or not str(x.get("why", "")).strip()]
         metrics["unjustified_parts"] = len(bad)
-        if bad:   # every part must say what it does and why it exists (references/parts.md)
+        if bad:   # every part must say what it does and why it exists (references/engineering/parts.md)
             print(f"WARNING: parts without function/why: {', '.join(bad)} — justify, merge or delete them before the audit")
     for m in a.metric:
         k, _, v = m.partition("=")

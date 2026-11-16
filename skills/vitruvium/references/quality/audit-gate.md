@@ -20,7 +20,7 @@ Paths only, no explanations: `01-requirements/` (black box, requirements), `02-c
 2. **Simplicity**: parts or processes that could still be deleted; unnecessary tolerances, fasteners, variety.
 3. **Calculations**: units consistent; loads match the black box; hand calculation present; FEA agrees with it (±15% where valid); mesh study done; singularities not reported as real stress; safety factors stated and adequate.
 4. **Failure modes**: fatigue, buckling, joints, wear, corrosion, sealing/IP — whatever applies.
-5. **Design-error catalog**: every item checked (`references/design-errors.md`).
+5. **Design-error catalog**: every item checked (`references/engineering/design-errors.md`).
 6. **Interfaces and motion**: interference through the full range; motion.json matches the CAD joints.
 7. **Manufacturability**: every part routed to a machine in the workshop profile; tolerances measurable there; outsourcing justified.
 8. **Drawings** (if produced): dimensions and tolerances complete and consistent with the model.

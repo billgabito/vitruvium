@@ -176,6 +176,7 @@ Every iteration is also recorded visually: a `CHANGELOG.md` entry and a card in 
 You are the one who validates and corrects, so every iteration ends with the part in front of you, not just described. Each project has a `viewer.html` that opens in any browser:
 
 - **Rotate, zoom and pan** the part, with iso, front, top and right views.
+- **Display modes**: shaded, shaded with edges, **wireframe** (feature edges only, to see through the whole assembly) and x-ray (transparent surfaces with edges). In wireframe, a selected part stays solid.
 - **Section view**: cut along X, Y or Z with a slider, and flip the side.
 - **Systems on and off**: each component or system (frame, guard, motor mount…) has its own switch.
 - **Simulation overlay**: the von Mises stress map with its colour scale, the deformed shape with an exaggeration slider, and the supports (blue) and loads (red arrows).

@@ -2,6 +2,9 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.15.0 — 2026-11-15
+- **Display modes** in the viewer: shaded, shaded + edges, wireframe (feature edges only; the selected part stays solid) and x-ray; one function now decides every surface's look (display mode, selection, motion highlight). *Why:* wireframe lets the user see through the assembly and judge hidden parts and clearances.
+
 ## v0.14.0 — 2026-11-15
 - **Assemblability is mandatory** (principle 7, `references/manufacturing/assembly.md`): every multi-part design has an `assembly.json` sequence (order, insertion direction, tool, torque, check with evidence of free path and tool access, disassembly of service parts), verified in SolidCraft by moving parts along their paths with interference checks; new loop "not assemblable → model"; auditor treats a non-assemblable design as a blocker; seven assembly errors added to the catalog (43 in total); `log_iteration.py --assembly` records steps, failed and unchecked steps and warns; viewer **Assembly sequence** panel plays the sequence step by step with failures in red. *Why:* a design that cannot be built is wrong, however good it looks.
 

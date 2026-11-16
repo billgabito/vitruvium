@@ -6,6 +6,7 @@ X, Y or Z, switch each system/component on and off, show the FEA result (von Mis
 deformed shape with a scale slider, supports and loads), and browse the full version history —
 each version with what changed and why, its numbers, and the previous version as a ghost to compare.
 
+Display modes: shaded, shaded + edges, wireframe (feature edges only), x-ray.
 Look: engineering UI (Barlow, DIN-style), ISO 3098 lettering (osifont) for part IDs and annotations, Vitruvium logo and
 favicon (assets/brand/), edges, ground grid, status bar with units, size and triangle count; parts list with IDs (parts.json),
 ID labels in 3D, click-to-isolate, and an exploded view.
@@ -194,7 +195,8 @@ footer b{font-weight:500;color:var(--ink)}
 <div class="props">
  <div class="grp"><h4>View</h4><div class="seg"><button data-v="iso">Iso</button><button data-v="front">Front</button><button data-v="top">Top</button><button data-v="right">Right</button></div>
   <label style="justify-content:space-between">Exploded view <span class="mono" id="exv">0%</span></label><input id="explode" type="range" min="0" max="1000" value="0">
-  <label><input id="edges" type="checkbox" checked> Edges</label><label><input id="grid" type="checkbox" checked> Ground grid</label></div>
+  <div class="seg" style="margin-top:8px"><button data-d="shaded">Shaded</button><button data-d="edges" class="on">+ Edges</button><button data-d="wire">Wireframe</button><button data-d="xray">X-ray</button></div>
+  <label><input id="grid" type="checkbox" checked> Ground grid</label></div>
  <div class="grp"><h4>Section</h4><div class="seg"><button data-c="off" class="on">Off</button><button data-c="x">X</button><button data-c="y">Y</button><button data-c="z">Z</button></div>
   <input id="cut" type="range" min="0" max="1000" value="500"><label><input id="flip" type="checkbox"> Flip side</label></div>
  <div class="grp"><h4>Systems</h4><div id="layers"></div></div>
@@ -252,7 +254,7 @@ async function loadModels(ver, target, ghost){
         if (ghost){ n.material = new THREE.MeshBasicMaterial({color:0x2A5CD6, transparent:true, opacity:.35, depthTest:false, depthWrite:false, clippingPlanes:clip()}); n.renderOrder = 10; }
         else { n.material = solid(color);
           const e = new THREE.LineSegments(new THREE.EdgesGeometry(n.geometry, 30), new THREE.LineBasicMaterial({color:0x2B2418, transparent:true, opacity:.55, clippingPlanes:clip()}));
-          e.userData.edge = true; e.visible = document.getElementById('edges').checked; n.add(e); } });
+          e.userData.edge = true; n.add(e); } });
       target.add(o); out.push({name, obj:o});
     }
   }
@@ -399,12 +401,22 @@ function applyPose(s){
     m.obj.matrix.copy(new THREE.Matrix4().makeTranslation(x.x, x.y, x.z).multiply(M).multiply(m.base)); m.obj.matrixWorldNeedsUpdate = true;
   }
 }
-function highlight(){
-  const on = document.getElementById('hl').checked, ids = new Set(moving.map(m => m.obj));
-  for (const l of layers) l.obj.traverse(n => { if (!n.isMesh) return; const mv = ids.has(l.obj);
-    n.material.emissive?.setHex(on && mv ? 0x7a5200 : 0x000000); n.material.transparent = on && !mv; n.material.opacity = on && !mv ? .3 : 1; n.material.needsUpdate = true; });
-  if (axesGroup) axesGroup.visible = document.getElementById('axes').checked;
+// One place decides how every surface looks: display mode (shaded / +edges / wireframe / x-ray), selected part, motion highlight
+let displayMode = 'edges';
+function applyMaterials(){
+  const hl = motion && document.getElementById('hl').checked, mv = new Set(moving.map(m => m.obj));
+  for (const l of layers) l.obj.traverse(n => {
+    if (n.userData.edge){ n.visible = displayMode !== 'shaded'; n.material.opacity = displayMode === 'wire' ? 1 : .55;
+      n.material.color.setHex(displayMode === 'wire' ? 0x1F1A12 : 0x2B2418); return; }
+    if (!n.isMesh || !n.material.isMeshStandardMaterial) return;
+    let op = displayMode === 'xray' ? .22 : 1;
+    if (selected && l.name !== selected) op = Math.min(op, .15);
+    if (hl && !mv.has(l.obj)) op = Math.min(op, .3);
+    n.material.visible = displayMode !== 'wire' || (selected === l.name);   // in wireframe the selected part stays solid
+    n.material.transparent = op < 1; n.material.opacity = op; n.material.depthWrite = op >= 1;
+    n.material.emissive?.setHex(hl && mv.has(l.obj) ? 0x7a5200 : 0x000000); n.material.needsUpdate = true; });
 }
+function highlight(){ applyMaterials(); if (axesGroup) axesGroup.visible = document.getElementById('axes').checked && explodeK === 0; }
 function setupMotion(mo){
   motion = mo; moving = []; playing = false; phase = 0; document.getElementById('play').textContent = '▶ Play';
   if (axesGroup){ root.remove(axesGroup); axesGroup = null; }
@@ -475,7 +487,7 @@ async function show(i, keepCamera = false){
   document.getElementById('msg').style.display = (layers.length || fea) ? 'none' : 'block';
   document.getElementById('msg').textContent = 'No geometry or FEA for this version.';
   explodeK = 0; document.getElementById('explode').value = 0; document.getElementById('exv').textContent = '0%';
-  setupMotion(v.motion); setupParts(v.parts); setupExplode(v.parts); setupAssembly(v.assembly); info(v);
+  setupMotion(v.motion); setupParts(v.parts); setupExplode(v.parts); setupAssembly(v.assembly); applyMaterials(); info(v);
   if (keepCamera){ const old = box.getSize(new THREE.Vector3()).length(); box = new THREE.Box3().setFromObject(root);
     const r = box.getSize(new THREE.Vector3()).length() / (old || 1);
     if (r > 1.3 || r < 0.7) fit(); else setCut(); }          // keep the user's camera unless the part changed size a lot
@@ -538,13 +550,13 @@ function selectPart(id){
   selected = (id === null || selected === id) ? null : id; showCard(selected);
   document.querySelectorAll('.bom tr[data-id]').forEach(r => r.classList.toggle('on', r.dataset.id === selected));
   partTags.forEach(t => t.element.classList.toggle('on', t.element.textContent === selected));
-  for (const l of layers) l.obj.traverse(n => { if (!n.isMesh || n.userData.edge) return;
-    const dim = selected && l.name !== selected; n.material.transparent = dim; n.material.opacity = dim ? .15 : 1; n.material.needsUpdate = true; });
+  applyMaterials();
 }
 document.getElementById('tabV').onclick = () => { tabV.classList.add('on'); tabP.classList.remove('on'); list.style.display = ''; bomWrap.style.display = 'none'; };
 document.getElementById('tabP').onclick = () => { tabP.classList.add('on'); tabV.classList.remove('on'); list.style.display = 'none'; bomWrap.style.display = ''; };
 document.getElementById('tags').onchange = e => partTags.forEach(t => t.visible = e.target.checked);
-document.getElementById('edges').onchange = e => root.traverse(o => { if (o.userData.edge) o.visible = e.target.checked; });
+document.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { displayMode = b.dataset.d;
+  document.querySelectorAll('[data-d]').forEach(x => x.classList.toggle('on', x === b)); applyMaterials(); });
 document.getElementById('grid').onchange = e => { if (gridHelper) gridHelper.visible = e.target.checked; };
 
 function renderList(){
@@ -592,6 +604,7 @@ if (DATA.versions.length) show(+(Q.get('v') || 0)).then(() => {
   if (Q.get('explode')){ const s = document.getElementById('explode'); s.value = +Q.get('explode') * 1000; s.oninput({target:s}); }
   if (Q.get('tab') === 'parts') document.getElementById('tabP').click();
   if (Q.get('select')) selectPart(Q.get('select'));
+  if (Q.get('display')){ const b = document.querySelector(`[data-d="${Q.get('display')}"]`); if (b) b.click(); }
   if (Q.get('step') && asm){ enterAssembly(); asmPos = +Q.get('step'); applyAssembly(); }
   if (Q.get('pose') && motion){ document.getElementById('pose').value = +Q.get('pose') * 1000; applyPose(+Q.get('pose')); }
   if (Q.get('play') === '1' && motion) document.getElementById('play').click();

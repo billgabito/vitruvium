@@ -2,6 +2,9 @@
 
 Newest first. Each version: what changed and why.
 
+## v1.1.0 — 2026-11-16
+- **Realistic motion**: springs deform between an anchor and a point carried by a moving part (stretch, compress and turn), with live length, force from k and free length, and coil-bind detection; **collision detection between real part geometry** (three-mesh-bvh) while animating, colliding parts in red, and a full-range check over 72 positions; `allowed_contacts` for intended contacts. Auditor checks springs, collisions and coil bind. Validated on a lever–spring–stop mechanism: lever/stop collision found at 60–100 % of the travel, matching the geometry. *Why:* simulations must respect physics and collisions to be trusted.
+
 ## v1.0.0 — 2026-11-15 — first public release
 
 Vitruvium is an end-to-end agent skill for mechanical design, built on mechanical simplicity, for any AI agent:

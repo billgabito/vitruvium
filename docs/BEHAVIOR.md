@@ -198,7 +198,7 @@ Every part has an ID and a name from the first iteration — `P-01` base plate, 
 
 ## 17. Moving parts, animated
 
-If the design has moving parts, the viewer animates them: play and pause, a slider to stop at any position, speed, the moving parts highlighted while the fixed ones fade, the joint axes drawn, and a list of each moving part and how it moves (hinge 0→100°, guide 0→40 mm, wheel geared to the lid ×3.6…). Closed-loop mechanisms such as linkages or cams are animated from positions sampled in the CAD motion study. Interference is checked through the full range before the animation is shown as valid.
+If the design has moving parts, the viewer animates them: play and pause, a slider to stop at any position, speed, the moving parts highlighted while the fixed ones fade, the joint axes drawn, and a list of each moving part and how it moves (hinge 0→100°, guide 0→40 mm, wheel geared to the lid ×3.6…). Closed-loop mechanisms such as linkages or cams are animated from positions sampled in the CAD motion study. The animation respects physics: springs compress and stretch with the mechanism, showing their live length and force and flagging coil bind; collisions between parts are detected on the real geometry while it plays — the parts turn red and the pair is named — and a full-range check reports every collision with the part of the travel where it happens. Only contacts declared as intended (a pin in its bore, a spring on its seat) are allowed. The CAD interference check and the viewer check must agree before the motion is shown as valid.
 
 ## 18. If it cannot be assembled, it is wrong
 

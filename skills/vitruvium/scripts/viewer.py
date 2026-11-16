@@ -220,7 +220,7 @@ details.tree > label{padding-left:22px;margin:3px 0;align-items:baseline}details
  <div class="grp"><h4>Compare</h4><label><input id="ghost" type="checkbox"> Previous version as blue ghost</label></div>
 </div>
 <footer><span>Units <b>mm · N · MPa</b></span><span>Size <b id="dims">—</b></span><span>Triangles <b id="tris">—</b></span><span id="expt"></span><span class="grow"></span><span>Vitruvium viewer</span></footer>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/","three-mesh-bvh":"https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.7.6/build/index.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
@@ -229,6 +229,7 @@ import {STLLoader} from 'three/addons/loaders/STLLoader.js';
 import {CSS2DRenderer, CSS2DObject} from 'three/addons/renderers/CSS2DRenderer.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {toCreasedNormals} from 'three/addons/utils/BufferGeometryUtils.js';
+import {MeshBVH} from 'three-mesh-bvh';
 let DATA = __DATA__;
 const main = document.querySelector('main');
 const renderer = new THREE.WebGLRenderer({antialias:true, preserveDrawingBuffer:true, alpha:true});
@@ -448,6 +449,7 @@ function kfMatrix(k, s){
 }
 function applyPose(s){
   for (const m of moving){
+    if (m.spring) continue;                              // springs follow their ends, after the rigid parts move
     let M;
     if (m.kf) M = kfMatrix(m.kf, s);
     else if (m.j.type === 'prismatic'){ const a = new THREE.Vector3(...m.j.axis).normalize().multiplyScalar(jointValue(m.j, s)); M = new THREE.Matrix4().makeTranslation(a.x, a.y, a.z); }
@@ -457,7 +459,79 @@ function applyPose(s){
     const x = explodeOffset(m.obj).add(asmOffset(m.obj));
     m.obj.matrix.copy(new THREE.Matrix4().makeTranslation(x.x, x.y, x.z).multiply(M).multiply(m.base)); m.obj.matrixWorldNeedsUpdate = true;
   }
+  for (const m of moving) if (m.spring) applySpring(m);
+  checkCollisions(false);
 }
+// A spring is stretched or compressed between a fixed anchor and a point carried by another part.
+function springEnd(m){
+  const p = new THREE.Vector3(...m.j.attach.point);
+  if (!m.attach) return p;
+  const rel = m.attach.obj.matrix.clone().multiply(m.attach.baseInv);  // how the carrier moved from its assembled pose
+  return p.applyMatrix4(rel);
+}
+function applySpring(m){
+  const a = new THREE.Vector3(...m.j.anchor), e = springEnd(m), d = e.clone().sub(a), L = d.length();
+  const ax = m.axis0, k = L / m.Lmodel, dir = d.clone().normalize();
+  const S = new THREE.Matrix4().set(                    // scale along the spring axis only
+    1 + (k - 1) * ax.x * ax.x, (k - 1) * ax.x * ax.y, (k - 1) * ax.x * ax.z, 0,
+    (k - 1) * ax.y * ax.x, 1 + (k - 1) * ax.y * ax.y, (k - 1) * ax.y * ax.z, 0,
+    (k - 1) * ax.z * ax.x, (k - 1) * ax.z * ax.y, 1 + (k - 1) * ax.z * ax.z, 0, 0, 0, 0, 1);
+  const R = new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(ax, dir));
+  const x = explodeOffset(m.obj).add(asmOffset(m.obj));
+  m.obj.matrix.copy(new THREE.Matrix4().makeTranslation(a.x + x.x, a.y + x.y, a.z + x.z).multiply(R).multiply(S)
+    .multiply(new THREE.Matrix4().makeTranslation(-a.x, -a.y, -a.z)).multiply(m.base)); m.obj.matrixWorldNeedsUpdate = true;
+  // physics readout: length, force, coil bind
+  const j = m.j, el = document.getElementById('spr-' + j.part); m.L = L;
+  if (el){ const F = j.k != null && j.free_length != null ? j.k * (j.free_length - L) : null, bind = j.solid_length != null && L < j.solid_length;
+    m.bind = bind;
+    el.innerHTML = `<b>${esc(j.label || j.part)}</b> — spring: L = ${L.toFixed(1)} mm` + (F != null ? `, F = ${F.toFixed(1)} N ${F >= 0 ? '(compression)' : '(tension)'}` : '') +
+      (bind ? ' <span style="color:#8A1C14;font-weight:600">✖ coil bind: below solid length ' + j.solid_length + ' mm</span>' : ''); }
+}
+// ---------- collisions between parts (three-mesh-bvh); the authoritative check stays in SolidCraft ----------
+let colliding = new Set(), collisionOn = true, frameN = 0;
+function partMeshes(l){ const out = []; l.obj.traverse(n => { if (n.isMesh && !n.userData.edge && n.material.isMeshStandardMaterial){
+  if (!n.geometry.boundsTree){                           // BVH needs an indexed geometry (STL comes without index)
+    if (!n.geometry.index) n.geometry.setIndex([...Array(n.geometry.attributes.position.count).keys()]);
+    n.geometry.boundsTree = new MeshBVH(n.geometry); }
+  out.push(n); } }); return out; }
+function allowedPair(a, b){ const al = (motion && motion.allowed_contacts) || [];
+  return al.some(([x, y]) => (x === a && y === b) || (x === b && y === a)); }
+function collisionsNow(){
+  const found = [], movingIds = new Set(moving.map(m => layers.find(l => l.obj === m.obj)?.name)), seen = new Set();
+  root.updateMatrixWorld(true);
+  for (const A of layers){ if (!movingIds.has(A.name) || !A.obj.visible) continue;
+    for (const B of layers){ if (A === B || !B.obj.visible) continue;
+      const key = [A.name, B.name].sort().join('|'); if (seen.has(key) || allowedPair(A.name, B.name)) continue; seen.add(key);
+      const sp = moving.find(m => m.spring && (m.obj === A.obj || m.obj === B.obj));   // a spring touches its own carrier by design
+      if (sp && sp.attach && (sp.attach.obj === A.obj || sp.attach.obj === B.obj)) continue;
+      let hit = false;
+      for (const ma of partMeshes(A)){
+        for (const mb of partMeshes(B)){
+          const M = new THREE.Matrix4().copy(ma.matrixWorld).invert().multiply(mb.matrixWorld);
+          if (ma.geometry.boundsTree.intersectsGeometry(mb.geometry, M)){ hit = true; break; } }
+        if (hit) break; }
+      if (hit) found.push([A.name, B.name]); } }
+  return found;
+}
+function checkCollisions(force){
+  if (!motion || !collisionOn) { if (colliding.size){ colliding = new Set(); applyMaterials(); } return; }
+  if (!force && playing && (frameN++ % 3)) return;          // throttle while playing
+  const found = collisionsNow(); const ids = new Set(found.flat());
+  moving.forEach(m => { if (m.spring && m.bind) ids.add(layers.find(l => l.obj === m.obj)?.name); });
+  const changed = ids.size !== colliding.size || [...ids].some(i => !colliding.has(i));
+  colliding = ids; if (changed) applyMaterials();
+  const el = document.getElementById('colNow'); if (el) el.innerHTML = found.length ? '<span style="color:#8A1C14;font-weight:600">✖ Collision now: ' + found.map(p => p.join(' ↔ ')).map(esc).join(', ') + '</span>' : '✔ No collision at this position';
+}
+function checkFullRange(){
+  const N = 72, hits = new Map(), was = +document.getElementById('pose').value / 1000;
+  for (let i = 0; i <= N; i++){ const s = i / N; applyPoseQuiet(s);
+    for (const [a, b] of collisionsNow()){ const k = a + ' ↔ ' + b; if (!hits.has(k)) hits.set(k, [s, s]); hits.get(k)[1] = s; }
+    moving.forEach(m => { if (m.spring && m.bind){ const k = (m.j.label || m.j.part) + ' coil bind'; if (!hits.has(k)) hits.set(k, [s, s]); hits.get(k)[1] = s; } }); }
+  applyPose(was);
+  document.getElementById('colRange').innerHTML = hits.size ? [...hits].map(([k, [a, b]]) => `<div style="color:#8A1C14">✖ ${esc(k)}: ${Math.round(a * 100)}%–${Math.round(b * 100)}% of the range</div>`).join('')
+    : '<div style="color:#1E5631">✔ No collisions through the full range (72 positions)</div>';
+}
+function applyPoseQuiet(s){ const on = collisionOn; collisionOn = false; applyPose(s); collisionOn = on; }
 // One place decides how every surface looks: display mode (shaded / +edges / wireframe / x-ray), selected part, motion highlight
 let displayMode = 'edges';
 function applyMaterials(){
@@ -470,12 +544,13 @@ function applyMaterials(){
     n.material.visible = displayMode !== 'wire' || (selected === l.name);   // in wireframe the selected part stays solid
     n.material.transparent = op < 1; n.material.opacity = op; n.material.depthWrite = op >= 1;
     // highlight by colour, never by fading the others
-    n.material.emissive?.setHex(selected === l.name ? 0x1d4ed8 : (hl && mv.has(l.obj) ? 0x7a5200 : 0x000000));
-    n.material.emissiveIntensity = selected === l.name ? .35 : 1; n.material.needsUpdate = true; });
+    const hitNow = colliding.has(l.name);
+    n.material.emissive?.setHex(hitNow ? 0xb91c1c : selected === l.name ? 0x1d4ed8 : (hl && mv.has(l.obj) ? 0x7a5200 : 0x000000));
+    n.material.emissiveIntensity = hitNow ? .6 : selected === l.name ? .35 : 1; n.material.needsUpdate = true; });
 }
 function highlight(){ applyMaterials(); if (axesGroup) axesGroup.visible = document.getElementById('axes').checked && explodeK === 0; }
 function setupMotion(mo){
-  motion = mo; moving = []; playing = false; phase = 0; document.getElementById('play').textContent = '▶ Play';
+  motion = mo; moving = []; colliding = new Set(); playing = false; phase = 0; document.getElementById('play').textContent = '▶ Play';
   if (axesGroup){ root.remove(axesGroup); axesGroup = null; }
   const box = document.getElementById('motbox');
   if (!mo){ box.style.display = 'none'; return; }
@@ -483,7 +558,11 @@ function setupMotion(mo){
   const size = new THREE.Box3().setFromObject(root).getSize(new THREE.Vector3()).length(), rows = [];
   axesGroup = new THREE.Group();
   for (const j of mo.joints || []){ const l = find(j.part); if (!l){ rows.push(`<div>⚠ ${esc(j.part)}: no system with this name</div>`); continue; }
-    l.obj.updateMatrix(); l.obj.matrixAutoUpdate = false; moving.push({obj:l.obj, base:l.obj.matrix.clone(), j});
+    l.obj.updateMatrix(); l.obj.matrixAutoUpdate = false;
+    if (j.type === 'spring'){ const a = new THREE.Vector3(...j.anchor), e = new THREE.Vector3(...j.attach.point);
+      moving.push({obj:l.obj, base:l.obj.matrix.clone(), j, spring:true, axis0:e.clone().sub(a).normalize(), Lmodel:e.distanceTo(a), attachName:j.attach.part});
+      rows.push(`<div id="spr-${esc(j.part)}"><b>${esc(j.label || j.part)}</b> — spring</div>`); continue; }
+    moving.push({obj:l.obj, base:l.obj.matrix.clone(), j});
     const a = new THREE.Vector3(...j.axis).normalize(), o = new THREE.Vector3(...(j.origin || l.obj.position.toArray()));
     if (j.type === 'prismatic') axesGroup.add(new THREE.ArrowHelper(a, new THREE.Box3().setFromObject(l.obj).getCenter(new THREE.Vector3()), Math.abs(j.range[1] - j.range[0]) || size * .2, 0x7F77DD, size * .04, size * .02));
     else { axesGroup.add(new THREE.ArrowHelper(a, o.clone().addScaledVector(a, -size * .15), size * .3, 0x7F77DD, size * .04, size * .02)); }
@@ -492,8 +571,12 @@ function setupMotion(mo){
   for (const [name, k] of Object.entries(mo.keyframes || {})){ const l = find(name); if (!l){ rows.push(`<div>⚠ ${esc(name)}: no system with this name</div>`); continue; }
     l.obj.updateMatrix(); l.obj.matrixAutoUpdate = false; moving.push({obj:l.obj, base:l.obj.matrix.clone(), kf:k});
     rows.push(`<div><b>${esc(name)}</b> — path (${k.t.length} keyframes)</div>`); }
+  for (const m of moving) if (m.spring && m.attachName){ const c = moving.find(x => !x.spring && x.obj === find(m.attachName)?.obj);
+    m.attach = c ? {obj:c.obj, baseInv:c.base.clone().invert()} : null; }      // carrier that moves the spring's free end
   root.add(axesGroup);
+  rows.push('<div id="colNow"></div><div style="display:flex;gap:6px;margin-top:6px"><button id="colRun" class="btn">Check collisions over full range</button></div><div id="colRange"></div>');
   document.getElementById('motlist').innerHTML = rows.join('') || '<small>No moving parts found.</small>';
+  document.getElementById('colRun').onclick = checkFullRange;
   box.style.display = 'block'; highlight(); applyPose(0);
 }
 document.getElementById('play').onclick = () => { playing = !playing; document.getElementById('play').textContent = playing ? '❚❚ Pause' : '▶ Play';

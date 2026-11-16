@@ -177,6 +177,7 @@ You are the one who validates and corrects, so every iteration ends with the par
 
 - **Rotate, zoom and pan** the part, with iso, front, top and right views.
 - **Display modes**: shaded, shaded with edges and **wireframe** (feature edges only, to see through the whole assembly; a selected part stays solid). Parts are always shown fully solid; selecting a part highlights it in colour instead of fading the others.
+- **Organized systems**: parts are grouped in an expanded tree — fabricated parts, shafts, bearings, gears, springs, seals, fasteners, motors, sensors and electronics, commercial parts (or by functional system when the designer groups them so) — each group with its own switch, so you see at once which code belongs to which system. The parts list uses the same groups.
 - **Per-part control**: in the parts list every part has a show/hide switch and its own opacity slider, so you decide what to see through.
 - **Section view**: cut along X, Y or Z with a slider, and flip the side.
 - **Systems on and off**: each component or system (frame, guard, motor mount…) has its own switch.

@@ -16,6 +16,7 @@ Every part of a design gets an **ID**, a **name** and a **reason to exist** from
 | SE | Seal, gasket, O-ring | O-ring 30×2 NBR |
 | G | Gear, pulley, sprocket, wheel | pulley T5 20T |
 | MO | Motor, actuator | gearmotor 24 V |
+| SN | Sensor, switch, electronics | limit switch, proximity sensor, encoder, PCB |
 | CP | Other commercial part | linear guide, handle, cable gland |
 | AS | Sub-assembly | lid assembly |
 
@@ -32,6 +33,8 @@ The ID alone is not enough: the `name` must tell anyone what the part is, with i
 | BR-01 | Deep groove ball bearing 6200-2RS | SKF 6200-2RS1 (10×30×9) |
 | P-03 | L-shaped lever, 6 mm plate | drawing P-03 |
 | SH-01 | Hinge pin Ø10 × 60 | C45 Ø10 h9 |
+
+In the viewer, the systems panel and the parts list are organized as an expanded tree by group — fasteners together, bearings together, sensors together — each group with its own show/hide switch.
 
 Never "part 1", "bracket" or "screw" alone. In the viewer, clicking a part (in 3D, on its ID label or in the parts list) opens a detail card at the top with ID, name, type, specification, material, quantity, function and requirements, why it exists, features with their reasons, source, route and drawing.
 
@@ -64,7 +67,7 @@ Changes follow the same rule: every alteration between versions is logged with i
 ]
 ```
 
-Optional fields: `spec` / `standard` (catalog number or standard designation), `supplier`, `route`, `mass_kg`, `drawing`, `explode` (direction for the exploded view; default: away from the assembly centre).
+Optional fields: `group` (to group by functional system instead of by category, e.g. "Drive", "Lid", "Electrical" — otherwise the viewer groups by ID code: fabricated parts, shafts, bearings, gears, springs, seals, fasteners, motors, sensors, commercial parts), `spec` / `standard` (catalog number or standard designation), `supplier`, `route`, `mass_kg`, `drawing`, `explode` (direction for the exploded view; default: away from the assembly centre).
 
 ## Linking parts to the 3D view
 

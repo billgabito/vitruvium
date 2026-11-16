@@ -6,7 +6,7 @@ authors:
   - family-names: "Campos V."
     given-names: "William"
     email: "github.com/billgabito"
-version: "0.16.0"
+version: "0.17.0"
 date-released: "2026-11-15"
 license: MIT
 repository-code: "https://github.com/billgabito/vitruvium"

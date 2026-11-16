@@ -186,6 +186,9 @@ footer b{font-weight:500;color:var(--ink)}
 .asmnow{font-size:12.5px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:6px;padding:6px 8px;margin:6px 0}
 .asmnow .ck{font:11px var(--mono)}.asmnow .bad{color:#8A1C14;font-weight:600}
 #asmList div{font-size:12px;padding:3px 0;border-top:1px dotted #E6E0D2;cursor:pointer}#asmList div.on{color:var(--blue);font-weight:600}
+details.tree{margin:2px 0 6px}details.tree summary{cursor:pointer;padding:3px 0;list-style:revert;font-size:12.5px}details.tree summary small{color:var(--muted)}
+details.tree > label{padding-left:22px;margin:3px 0;align-items:baseline}details.tree > label .mono{white-space:nowrap}
+.bom tr.grp td{text-align:left !important;background:#F1ECE0;font:600 10.5px Barlow;letter-spacing:1px;text-transform:uppercase;color:var(--sepia);padding:5px 4px;cursor:default}
 #motlist div{padding:2px 0;border-top:1px dotted #E6E0D2;font-size:12px}
 @media (max-width:900px){body{grid-template-columns:1fr;grid-template-rows:48px 38vh 1fr auto 26px;grid-template-areas:"top" "view" "props" "side" "status"}aside,.props{border:0}}
 </style>
@@ -315,7 +318,20 @@ function setCut(){
 let asm = null, asmPos = 0, asmPlaying = false;
 const asmOff = new Map(), asmHidden = new Set();
 function asmOffset(obj){ return asmOff.get(obj) || new THREE.Vector3(); }
-function syncSystems(){ document.querySelectorAll('#layers label').forEach(lab => { const l = layers.find(x => x.name === lab.dataset.id); if (l) lab.firstChild.checked = l.userVisible !== false; }); }
+// Logical groups for the tree (references/engineering/parts.md): parts.json "group" wins, else the ID code
+const GROUPS = [['AS', 'Sub-assemblies'], ['P', 'Fabricated parts'], ['SH', 'Shafts and pins'], ['BR', 'Bearings and bushings'],
+  ['G', 'Gears, pulleys and wheels'], ['SP', 'Springs'], ['SE', 'Seals and gaskets'], ['FS', 'Fasteners'], ['MO', 'Motors and actuators'],
+  ['SN', 'Sensors and electronics'], ['CP', 'Commercial parts']];
+function groupName(id, p){ if (p && p.group) return p.group; const m = /^([A-Z]+)-/.exec(id || ''); const g = m && GROUPS.find(x => x[0] === m[1]); return g ? g[1] : 'Other'; }
+function grouped(items){ const map = new Map();
+  for (const it of items){ const g = groupName(it.id, it.p); if (!map.has(g)) map.set(g, []); map.get(g).push(it); }
+  const order = g => { const i = GROUPS.findIndex(x => x[1] === g); return i < 0 ? (g === 'Other' ? 999 : 500) : i; };
+  return [...map.entries()].sort((a, b) => order(a[0]) - order(b[0]) || a[0].localeCompare(b[0])); }
+function syncSystems(){
+  document.querySelectorAll('#layers label').forEach(lab => { const l = layers.find(x => x.name === lab.dataset.id); if (l) lab.firstChild.checked = l.userVisible !== false; });
+  document.querySelectorAll('#layers details').forEach(d => { const c = [...d.querySelectorAll('label input')], on = c.filter(x => x.checked).length, g = d.querySelector('.gchk');
+    g.checked = on === c.length; g.indeterminate = on > 0 && on < c.length; });
+}
 function syncPartsList(){ document.querySelectorAll('.pctl').forEach(c => { const l = layers.find(x => x.name === c.dataset.id); if (l) c.querySelector('.pvis').checked = l.userVisible !== false; }); }
 function refreshVis(){
   for (const l of layers) l.obj.visible = (l.userVisible !== false) && !asmHidden.has(l.obj);
@@ -481,9 +497,15 @@ async function show(i, keepCamera = false){
   root.clear(); ghostRoot.clear(); feaMesh = null; fea = v.fea;
   layers = await loadModels(v, root, false); unitFix(layers);
   const L = document.getElementById('layers'); L.innerHTML = layers.length ? '' : '<small>No geometry exported for this version.</small>';
-  layers.forEach((l, k) => { const lab = document.createElement('label'), pn = (v.parts || []).find(x => x.id === l.name);
-    lab.innerHTML = `<input type="checkbox" checked> <span class="mono">${esc(l.name)}</span>${pn ? ' <small style="color:var(--muted)">' + esc(pn.name) + '</small>' : ''}`;
-    lab.firstChild.onchange = e => { l.userVisible = e.target.checked; refreshVis(); syncPartsList(); }; lab.dataset.id = l.name; L.appendChild(lab); });
+  for (const [gname, items] of grouped(layers.map(l => ({l, p:(v.parts || []).find(x => x.id === l.name), id:l.name})))){   // tree, all expanded
+    const det = document.createElement('details'); det.open = true; det.className = 'tree';
+    det.innerHTML = `<summary><input type="checkbox" class="gchk" checked> <b>${esc(gname)}</b> <small>(${items.length})</small></summary>`;
+    const gchk = det.querySelector('.gchk'); gchk.onclick = e => e.stopPropagation();
+    gchk.onchange = e => { items.forEach(it => it.l.userVisible = e.target.checked); refreshVis(); syncSystems(); syncPartsList(); };
+    for (const {l, p} of items){ const lab = document.createElement('label');
+      lab.innerHTML = `<input type="checkbox" checked> <span class="mono">${esc(l.name)}</span>${p ? ' <small style="color:var(--muted)">' + esc(p.name) + '</small>' : ''}`;
+      lab.firstChild.onchange = e => { l.userVisible = e.target.checked; refreshVis(); syncSystems(); syncPartsList(); }; lab.dataset.id = l.name; det.appendChild(lab); }
+    L.appendChild(det); }
   const sim = document.getElementById('simbox');
   if (fea){ sim.innerHTML = '<label><input id="simOn" type="checkbox" checked> von Mises stress</label><label><input id="bcOn" type="checkbox" checked> Supports and loads</label>Deformation ×<span id="sv">0</span><input id="scale" type="range" min="0" max="1000" value="0">';
     let umax = 1e-12; for (const v of fea.u) umax = Math.max(umax, Math.abs(v)); const size = new THREE.Box3().setFromArray(fea.pos).getSize(new THREE.Vector3()).length();
@@ -527,14 +549,16 @@ function setupParts(parts){
   const el = document.getElementById('bom');
   if (!parts || !parts.length){ el.innerHTML = '<small>No parts list for this version (parts.json).</small>'; return; }
   const find = id => layers.find(l => l.name === id);
-  el.innerHTML = '<table class="bom"><tr><th>ID</th><th>Name</th><th>Qty</th></tr>' + parts.map(p =>
+  const rowsFor = list => list.map(p =>
     `<tr data-id="${esc(p.id)}"><td class="id">${esc(p.id)}</td><td>${esc(p.name)}<br><small>${esc([p.type, p.spec || p.standard, p.material, p.source].filter(Boolean).join(' · '))}</small>` +
     (p.function ? `<div class="pf"><b>Function:</b> ${esc(p.function)}${(p.requirements || []).length ? ' <small>(' + p.requirements.map(esc).join(', ') + ')</small>' : ''}</div>` : '') +
     (p.why ? `<div class="pf"><b>Why:</b> ${esc(p.why)}</div>` : `<div class="pf warn">⚠ No reason recorded — justify, merge or delete</div>`) +
     ((p.features || []).length ? '<ul class="pfeat">' + p.features.map(f => `<li>${esc(f.feature)} — <i>${esc(f.why)}</i></li>`).join('') + '</ul>' : '') +
     `<div class="pctl" data-id="${esc(p.id)}"><label><input type="checkbox" class="pvis" checked> Show</label>` +
     `<span>Opacity</span><input type="range" class="pop" min="10" max="100" value="100"><span class="mono popv">100%</span></div>` +
-    `</td><td class="mono">${esc(p.qty ?? 1)}</td></tr>`).join('') + '</table>';
+    `</td><td class="mono">${esc(p.qty ?? 1)}</td></tr>`).join('');
+  el.innerHTML = '<table class="bom"><tr><th>ID</th><th>Name</th><th>Qty</th></tr>' +
+    grouped(parts.map(p => ({p, id:p.id}))).map(([g, items]) => `<tr class="grp"><td colspan="3">${esc(g)} (${items.length})</td></tr>` + rowsFor(items.map(i => i.p))).join('') + '</table>';
   for (const p of parts){ const l = find(p.id); if (!l) continue;
     const d = document.createElement('div'); d.className = 'tag'; d.textContent = p.id; d.title = p.name; d.onclick = () => selectPart(p.id);
     const o = new CSS2DObject(d), b = new THREE.Box3().setFromObject(l.obj), at = b.getCenter(new THREE.Vector3()); at.z = b.max.z;

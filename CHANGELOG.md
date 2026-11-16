@@ -2,6 +2,9 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.17.0 — 2026-11-15
+- **Systems organized as an expanded tree** by group (fabricated parts, shafts, bearings, gears, springs, seals, fasteners, motors, sensors and electronics, commercial parts — or `group` in parts.json for functional systems), with a switch per group; the parts list uses the same groups; new ID code `SN` for sensors and electronics. *Why:* seeing which code belongs to which system at a glance.
+
 ## v0.16.0 — 2026-11-15
 - **Parts always solid**: no automatic transparency (selection highlights in colour, moving parts in amber; x-ray mode removed). **Per-part show/hide and opacity** in the parts list, synchronized with the systems list; labels of hidden parts hide too; parts table fits the side panel; live server accepts view URLs with options. *Why:* parts must look solid and real; transparency only where the user chooses it.
 

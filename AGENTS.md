@@ -6,4 +6,6 @@ When the user asks to design, redesign, audit or fabricate a mechanical part, me
 
 `skills/vitruvium/SKILL.md`
 
+Before presenting any iteration to the user, run an independent audit with the prompt in `agents/vitruvium-auditor.md` in a separate agent or session (see `skills/vitruvium/references/audit-gate.md`).
+
 Load the files in `skills/vitruvium/references/` only when the step you are on needs them.

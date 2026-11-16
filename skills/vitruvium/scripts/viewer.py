@@ -49,8 +49,16 @@ def state(proj):
     cad = max((os.path.getmtime(os.path.join(md, f)) for f in os.listdir(md) if f.endswith((".sc", ".solidcraft", ".json"))), default=0) if os.path.isdir(md) else 0
     fea = os.path.join(proj, "05-simulation", "current", "fea_view.json")
     idx = os.path.join(proj, "iterations", "index.json")
-    stamp = max([exp, os.path.getmtime(fea) if os.path.exists(fea) else 0, os.path.getmtime(idx) if os.path.exists(idx) else 0])
+    mot = live_motion(proj)
+    stamp = max([exp, os.path.getmtime(fea) if os.path.exists(fea) else 0, os.path.getmtime(idx) if os.path.exists(idx) else 0,
+                 os.path.getmtime(mot) if mot else 0])
     return {"stamp": stamp, "exported": exp, "cad": cad, "stale": bool(lf) and cad > exp + 1}
+
+def live_motion(proj):
+    for f in (os.path.join(proj, "03-model", "current", "motion.json"), os.path.join(proj, "03-model", "motion.json")):
+        if os.path.exists(f):
+            return f
+    return None
 
 def with_live(proj, versions):
     lf = live_files(proj)
@@ -58,7 +66,8 @@ def with_live(proj, versions):
         fea = os.path.join("05-simulation", "current")
         versions = versions + [{"version": "LIVE", "title": "Working copy (current CAD state)",
                                 "why": "Updates automatically every time the model is exported.", "changes": [], "metrics": {},
-                                "models": lf, "fea": fea if os.path.isdir(os.path.join(proj, fea)) else None, "date": ""}]
+                                "models": lf, "fea": fea if os.path.isdir(os.path.join(proj, fea)) else None, "date": "",
+                                "motion": live_motion(proj)}]
     return versions
 
 def pack(proj, versions):
@@ -78,8 +87,15 @@ def pack(proj, versions):
             f = os.path.join(proj, e["fea"], "fea_view.json") if not os.path.isabs(e["fea"]) else os.path.join(e["fea"], "fea_view.json")
             if os.path.exists(f):
                 fea = json.load(open(f))
-        out.append({k: e.get(k) for k in ("version", "title", "date", "why", "changes", "loop", "decision", "metrics")}
-                   | {"models": models, "fea": fea})
+        motion = None
+        if e.get("motion"):
+            mp = e["motion"] if os.path.isabs(e["motion"]) else os.path.join(proj, e["motion"])
+            if os.path.exists(mp):
+                motion = json.load(open(mp))
+            else:
+                print(f"warning: motion file not found for {e['version']}: {e['motion']}")
+        out.append({k: e.get(k) for k in ("version", "title", "date", "why", "changes", "loop", "decision", "metrics", "audit")}
+                   | {"models": models, "fea": fea, "motion": motion})
     return out
 
 HTML = r"""<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -116,6 +132,11 @@ main{flex:1;position:relative}canvas{display:block}
  <input id="cut" type="range" min="0" max="1000" value="500"><label><input id="flip" type="checkbox">Flip side</label>
  <h4>Systems</h4><div id="layers"></div>
  <h4>Simulation</h4><div id="simbox"><small>No FEA for this version.</small></div>
+ <div id="motbox" style="display:none"><h4>Motion</h4>
+  <div class="btns"><button id="play">▶ Play</button><select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></div>
+  <input id="pose" type="range" min="0" max="1000" value="0">
+  <label><input id="hl" type="checkbox" checked> Highlight moving parts</label><label><input id="axes" type="checkbox" checked> Show joint axes</label>
+  <div id="motlist" style="font-size:12px"></div></div>
  <h4>Compare</h4><label><input id="ghost" type="checkbox">Show previous version (blue ghost)</label>
 </div>
 <div id="legend"><div>von Mises [MPa] · nodal average</div><div id="bar"></div><div style="display:flex;justify-content:space-between"><span id="lo"></span><span id="hi"></span></div></div>
@@ -211,6 +232,73 @@ function setCut(){
     plane.normal.copy(n); plane.constant = (document.getElementById('flip').checked ? -1 : 1) * (mn + t * (mx - mn)); }
   scene.traverse(o => { if (o.material) o.material.clippingPlanes = clip(); });
 }
+// ---------- motion (see references/motion.md) ----------
+let motion = null, moving = [], axesGroup = null, playing = false, phase = 0, lastT = 0;
+function jointValue(j, s, seen = {}){
+  if (j.follows){ const d = motion.joints.find(x => x.part === j.follows); if (!d || seen[j.part]) return 0; seen[j.part] = 1;
+    return (j.ratio ?? 1) * jointValue(d, s, seen) + (j.offset ?? 0); }
+  return j.range[0] + (j.range[1] - j.range[0]) * s;
+}
+function poseFromPhase(p){ return (motion.loop === 'cycle') ? p % 1 : 0.5 - 0.5 * Math.cos(2 * Math.PI * p); }
+function kfMatrix(k, s){
+  const t = k.t; let i = 0; while (i < t.length - 2 && s > t[i + 1]) i++;
+  const f = Math.min(1, Math.max(0, (s - t[i]) / ((t[i + 1] - t[i]) || 1)));
+  const tr = k.translate ? k.translate[i].map((v, n) => v + f * (k.translate[i + 1][n] - v)) : [0, 0, 0];
+  const r0 = k.rotate ? k.rotate[i] : [0, 0, 1, 0], r1 = k.rotate ? k.rotate[i + 1] : [0, 0, 1, 0];
+  const ax = new THREE.Vector3(r0[0] + f * (r1[0] - r0[0]), r0[1] + f * (r1[1] - r0[1]), r0[2] + f * (r1[2] - r0[2])).normalize();
+  const ang = THREE.MathUtils.degToRad(r0[3] + f * (r1[3] - r0[3])), o = new THREE.Vector3(...(k.origin || [0, 0, 0]));
+  return new THREE.Matrix4().makeTranslation(tr[0] + o.x, tr[1] + o.y, tr[2] + o.z)
+    .multiply(new THREE.Matrix4().makeRotationAxis(ax, ang)).multiply(new THREE.Matrix4().makeTranslation(-o.x, -o.y, -o.z));
+}
+function applyPose(s){
+  for (const m of moving){
+    let M;
+    if (m.kf) M = kfMatrix(m.kf, s);
+    else if (m.j.type === 'prismatic'){ const a = new THREE.Vector3(...m.j.axis).normalize().multiplyScalar(jointValue(m.j, s)); M = new THREE.Matrix4().makeTranslation(a.x, a.y, a.z); }
+    else { const o = new THREE.Vector3(...(m.j.origin || [0, 0, 0])), a = new THREE.Vector3(...m.j.axis).normalize();
+      M = new THREE.Matrix4().makeTranslation(o.x, o.y, o.z).multiply(new THREE.Matrix4().makeRotationAxis(a, THREE.MathUtils.degToRad(jointValue(m.j, s))))
+        .multiply(new THREE.Matrix4().makeTranslation(-o.x, -o.y, -o.z)); }
+    m.obj.matrix.copy(M.multiply(m.base)); m.obj.matrixWorldNeedsUpdate = true;
+  }
+}
+function highlight(){
+  const on = document.getElementById('hl').checked, ids = new Set(moving.map(m => m.obj));
+  for (const l of layers) l.obj.traverse(n => { if (!n.isMesh) return; const mv = ids.has(l.obj);
+    n.material.emissive?.setHex(on && mv ? 0x7a5200 : 0x000000); n.material.transparent = on && !mv; n.material.opacity = on && !mv ? .3 : 1; n.material.needsUpdate = true; });
+  if (axesGroup) axesGroup.visible = document.getElementById('axes').checked;
+}
+function setupMotion(mo){
+  motion = mo; moving = []; playing = false; phase = 0; document.getElementById('play').textContent = '▶ Play';
+  if (axesGroup){ root.remove(axesGroup); axesGroup = null; }
+  const box = document.getElementById('motbox');
+  if (!mo){ box.style.display = 'none'; return; }
+  const find = name => layers.find(l => l.name === name);
+  const size = new THREE.Box3().setFromObject(root).getSize(new THREE.Vector3()).length(), rows = [];
+  axesGroup = new THREE.Group();
+  for (const j of mo.joints || []){ const l = find(j.part); if (!l){ rows.push(`<div>⚠ ${esc(j.part)}: no system with this name</div>`); continue; }
+    l.obj.updateMatrix(); l.obj.matrixAutoUpdate = false; moving.push({obj:l.obj, base:l.obj.matrix.clone(), j});
+    const a = new THREE.Vector3(...j.axis).normalize(), o = new THREE.Vector3(...(j.origin || l.obj.position.toArray()));
+    if (j.type === 'prismatic') axesGroup.add(new THREE.ArrowHelper(a, new THREE.Box3().setFromObject(l.obj).getCenter(new THREE.Vector3()), Math.abs(j.range[1] - j.range[0]) || size * .2, 0x7F77DD, size * .04, size * .02));
+    else { axesGroup.add(new THREE.ArrowHelper(a, o.clone().addScaledVector(a, -size * .15), size * .3, 0x7F77DD, size * .04, size * .02)); }
+    const unit = j.type === 'prismatic' ? ' mm' : '°';
+    rows.push(`<div><b>${esc(j.label || j.part)}</b> — ${esc(j.type)}${j.follows ? `, follows ${esc(j.follows)} ×${j.ratio ?? 1}` : `, ${j.range[0]}→${j.range[1]}${unit}`}</div>`); }
+  for (const [name, k] of Object.entries(mo.keyframes || {})){ const l = find(name); if (!l){ rows.push(`<div>⚠ ${esc(name)}: no system with this name</div>`); continue; }
+    l.obj.updateMatrix(); l.obj.matrixAutoUpdate = false; moving.push({obj:l.obj, base:l.obj.matrix.clone(), kf:k});
+    rows.push(`<div><b>${esc(name)}</b> — path (${k.t.length} keyframes)</div>`); }
+  root.add(axesGroup);
+  document.getElementById('motlist').innerHTML = rows.join('') || '<small>No moving parts found.</small>';
+  box.style.display = 'block'; highlight(); applyPose(0);
+}
+document.getElementById('play').onclick = () => { playing = !playing; document.getElementById('play').textContent = playing ? '❚❚ Pause' : '▶ Play';
+  const s = document.getElementById('simOn'); if (playing && s && s.checked){ s.checked = false; s.onchange({target:s}); } };
+document.getElementById('pose').oninput = e => { playing = false; document.getElementById('play').textContent = '▶ Play'; phase = 0; applyPose(e.target.value / 1000); };
+document.getElementById('hl').onchange = highlight; document.getElementById('axes').onchange = highlight;
+function tick(now){
+  if (playing && motion){ const dt = Math.min(.1, (now - (lastT || now)) / 1000); phase += dt * (+document.getElementById('speed').value) / (motion.duration_s || 4);
+    const s = poseFromPhase(phase); applyPose(s); document.getElementById('pose').value = s * 1000; }
+  lastT = now; renderer.render(scene, camera);
+}
+
 async function show(i, keepCamera = false){
   current = Math.min(i, DATA.versions.length - 1); i = current; const v = DATA.versions[i];
   document.querySelectorAll('.ver').forEach((el, k) => el.classList.toggle('on', k === i));
@@ -231,6 +319,7 @@ async function show(i, keepCamera = false){
   if (document.getElementById('ghost').checked && i + 1 < DATA.versions.length){ const g = await loadModels(DATA.versions[i + 1], ghostRoot, true); unitFix(g); }
   document.getElementById('msg').style.display = (layers.length || fea) ? 'none' : 'block';
   document.getElementById('msg').textContent = 'No geometry or FEA for this version.';
+  setupMotion(v.motion);
   if (keepCamera){ const old = box.getSize(new THREE.Vector3()).length(); box = new THREE.Box3().setFromObject(root);
     const r = box.getSize(new THREE.Vector3()).length() / (old || 1);
     if (r > 1.3 || r < 0.7) fit(); else setCut(); }          // keep the user's camera unless the part changed size a lot
@@ -244,6 +333,8 @@ document.getElementById('list').innerHTML = DATA.versions.map((v, i) => {
   return `<div class="ver"><h3>${esc(v.version)} — ${esc(v.title)}</h3><small>${esc(v.date)}</small>` +
     (v.why ? `<div class="why"><b>Why:</b> ${esc(v.why)}</div>` : '') + (v.loop ? `<div><b>Loop:</b> ${esc(v.loop)}</div>` : '') +
     (v.decision ? `<div><b>Decision:</b> ${esc(v.decision)}</div>` : '') +
+    (v.version === 'LIVE' ? '<div style="color:#8A1C14"><b>Not audited yet</b> — work in progress</div>' :
+      v.audit ? `<div style="color:${/^APPROVED/i.test(v.audit) ? '#1E5631' : '#8A1C14'}"><b>Audit:</b> ${esc(v.audit)}</div>` : '<div style="color:#8A1C14"><b>Audit:</b> not recorded</div>') +
     ((v.changes || []).length ? `<ul>${v.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul>` : '') + (rows ? `<table>${rows}</table>` : '') + '</div>'; }).join('');
 document.querySelectorAll('.ver').forEach((el, i) => el.onclick = () => show(i));
 document.querySelectorAll('.ver').forEach((el, k) => el.classList.toggle('on', k === current));
@@ -267,8 +358,8 @@ document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => fit(b.datas
 document.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { cutAxis = b.dataset.c; setCut(); });
 document.getElementById('cut').oninput = setCut; document.getElementById('flip').onchange = setCut;
 document.getElementById('ghost').onchange = () => show(current);
-resize(); renderer.setAnimationLoop(() => renderer.render(scene, camera));
-// URL options to open a specific view: ?v=1&cut=y&pos=0.5&flip=1&ghost=1&sim=0&scale=0.5&view=top
+resize(); renderer.setAnimationLoop(tick);
+// URL options to open a specific view: ?v=1&cut=y&pos=0.5&flip=1&ghost=1&sim=0&scale=0.5&view=top&pose=0.5&play=1
 const Q = new URLSearchParams(location.search);
 if (Q.get('ghost') === '1') document.getElementById('ghost').checked = true;
 if (DATA.versions.length) show(+(Q.get('v') || 0)).then(() => {
@@ -276,6 +367,8 @@ if (DATA.versions.length) show(+(Q.get('v') || 0)).then(() => {
   if (Q.get('scale') && document.getElementById('scale')){ const s = document.getElementById('scale'); s.value = +Q.get('scale') * 1000; s.oninput({target:s}); }
   if (Q.get('view')) fit(Q.get('view'));
   if (Q.get('flip') === '1') document.getElementById('flip').checked = true;
+  if (Q.get('pose') && motion){ document.getElementById('pose').value = +Q.get('pose') * 1000; applyPose(+Q.get('pose')); }
+  if (Q.get('play') === '1' && motion) document.getElementById('play').click();
   if (Q.get('cut')){ cutAxis = Q.get('cut'); document.getElementById('cut').value = (+(Q.get('pos') || .5)) * 1000; setCut(); }
 }); else document.getElementById('msg').textContent = 'No versions logged yet.';
 </script></html>"""

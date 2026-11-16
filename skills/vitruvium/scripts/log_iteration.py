@@ -46,6 +46,9 @@ def main():
     ap.add_argument("--fea", help="folder with results.json from fea.py (relative to project or absolute)")
     ap.add_argument("--metric", action="append", default=[], help="name=value (repeatable)")
     ap.add_argument("--image", action="append", default=[], help="image to attach (repeatable)")
+    ap.add_argument("--audit", default="", help='independent audit result, e.g. "APPROVED, round 2 (3 findings fixed, 1 minor accepted)"')
+    ap.add_argument("--audit-file", default="", help="path of the auditor's verdict, e.g. 09-audits/v0.3-round-2.md")
+    ap.add_argument("--motion", help="motion.json describing moving parts for the viewer animation (references/motion.md)")
     ap.add_argument("--model", action="append", default=[], help="3D model of this version for the viewer: .glb/.gltf/.stl exported from SolidCraft (repeatable, one per system)")
     a = ap.parse_args()
 
@@ -76,7 +79,7 @@ def main():
     prev = index[-1] if index else None
     entry = {"version": a.version, "date": datetime.date.today().isoformat(), "title": a.title, "why": a.why,
              "changes": a.change, "loop": a.loop, "decision": a.decision, "metrics": metrics, "images": images,
-             "models": a.model, "fea": a.fea,
+             "models": a.model, "fea": a.fea, "motion": a.motion, "audit": a.audit, "audit_file": a.audit_file,
              "previous": prev["version"] if prev else None}
     index.append(entry)
     json.dump(index, open(idx_path, "w"), indent=2, ensure_ascii=False)
@@ -88,6 +91,8 @@ def main():
         md += [f"## {e['version']} — {e['title']} ({e['date']})", "", f"**Why:** {e['why']}"]
         if e["loop"]: md.append(f"**Loop:** {e['loop']}")
         if e["decision"]: md.append(f"**Decision:** {e['decision']}")
+        if e.get("audit"): md.append(f"**Independent audit:** {e['audit']}" + (f" ([report]({e['audit_file']}))" if e.get("audit_file") else ""))
+        elif i == len(index) - 1: md.append("**Independent audit:** not recorded — do not present as final")
         if e["changes"]: md += ["", "**Changes:**"] + [f"- {c}" for c in e["changes"]]
         if e["metrics"]:
             md += ["", f"| Metric | {e['version']} | {p['version'] if p else '—'} | Δ |", "|---|---|---|---|"]
@@ -107,7 +112,7 @@ def main():
                        f"<td>{html.escape(delta(v, p['metrics'].get(k)) if p else '')}</td></tr>" for k, v in e["metrics"].items())
         imgs = "".join(f'<a href="{html.escape(x)}"><img src="{html.escape(x)}" alt=""></a>' for x in e["images"])
         ch = "".join(f"<li>{html.escape(c)}</li>" for c in e["changes"])
-        extra = "".join(f"<p><b>{lbl}:</b> {html.escape(e[k])}</p>" for k, lbl in (("loop", "Loop"), ("decision", "Decision")) if e[k])
+        extra = "".join(f"<p><b>{lbl}:</b> {html.escape(e[k])}</p>" for k, lbl in (("loop", "Loop"), ("decision", "Decision"), ("audit", "Independent audit")) if e.get(k))
         cards.append(f'<section><h2>{html.escape(e["version"])} — {html.escape(e["title"])} <small>{e["date"]}</small></h2>'
                      f'<p class="why"><b>Why:</b> {html.escape(e["why"])}</p>{extra}<ul>{ch}</ul>'
                      + (f'<table><tr><th>Metric</th><th>{html.escape(e["version"])}</th><th>{html.escape(p["version"]) if p else "—"}</th><th>Δ</th></tr>{rows}</table>' if rows else "")

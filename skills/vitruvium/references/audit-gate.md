@@ -1,0 +1,49 @@
+# Independent audit gate (before the user sees a result)
+
+No iteration is presented to the user as a result until an **independent auditor** has reviewed it and approved it. The designer must not audit its own work: it knows what it meant to do and will see that instead of what is there.
+
+## What "independent" means
+
+- A **separate agent with a fresh context**: it does not receive the designer's reasoning, drafts or conversation — only the artifacts and the requirements.
+  - Claude Code: launch the `vitruvium-auditor` subagent (this plugin's `agents/vitruvium-auditor.md`) with the Agent tool.
+  - Other agents: start a separate session or sub-agent with the prompt in `agents/vitruvium-auditor.md` (a different model is even better).
+- If the host cannot run a separate agent, do a cold review with the same checklist, and **tell the user plainly that the audit was not independent**.
+
+## What the auditor receives
+
+Paths only, no explanations: `01-requirements/` (black box, requirements), `02-concept/decision.md`, `03-model/` (current export, motion.json), `04-calculations/`, `05-simulation/current/` (results.json, summary.md), `06-manufacturing/`, `07-drawings/` if any, the workshop profile, the latest `CHANGELOG.md` entry, and the viewer state (`curl -s http://127.0.0.1:8765/state` or "no live viewer").
+
+## Checklist (the auditor verifies, it does not trust)
+
+1. **Requirements**: every requirement is met and verified, with evidence; none silently dropped or changed after freeze.
+2. **Simplicity**: parts or processes that could still be deleted; unnecessary tolerances, fasteners, variety.
+3. **Calculations**: units consistent; loads match the black box; hand calculation present; FEA agrees with it (±15% where valid); mesh study done; singularities not reported as real stress; safety factors stated and adequate.
+4. **Failure modes**: fatigue, buckling, joints, wear, corrosion, sealing/IP — whatever applies.
+5. **Design-error catalog**: every item checked (`references/design-errors.md`).
+6. **Interfaces and motion**: interference through the full range; motion.json matches the CAD joints.
+7. **Manufacturability**: every part routed to a machine in the workshop profile; tolerances measurable there; outsourcing justified.
+8. **Drawings** (if produced): dimensions and tolerances complete and consistent with the model.
+9. **Faithful presentation**: the 3D export is current (`stale: false`); numbers in the changelog match the result files; nothing claimed that was not verified.
+
+## Verdict format
+
+```
+VERDICT: APPROVED | CHANGES REQUIRED
+Round: N
+Findings:
+1. [blocker|major|minor] <what is wrong> — evidence: <file, number> — expected: <what would be correct>
+...
+Not verified: <what the auditor could not check and why>
+```
+
+Blockers and majors must be fixed. Minors may be accepted, but are shown to the user.
+
+## Loop
+
+1. Designer finishes the iteration (model exported, calcs/FEA done, changelog drafted).
+2. Auditor reviews → verdict saved in `09-audits/<version>-round-<N>.md`.
+3. `CHANGES REQUIRED`: the designer fixes each finding where it was born (improvement-loop table), re-exports, and calls the auditor again with the findings list. Each finding answered as fixed (with evidence) or disputed (with reason — the auditor decides).
+4. `APPROVED`: only now present the result to the user: viewer, changelog entry, and a one-paragraph audit summary (rounds, what was found and fixed, accepted minors, not verified).
+5. After three rounds without approval, stop and show the user the open findings and the options; the user decides.
+
+The user remains the final validator: the audit makes sure what reaches them is correct and honestly described — it does not replace their review.

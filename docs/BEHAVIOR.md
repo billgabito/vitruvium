@@ -185,6 +185,14 @@ The designer asks you to review the viewer before moving on and never claims a c
 
 **Always in sync.** The CAD model is the only master: the viewer shows the geometry exported from SolidCraft itself, never a hand-made copy that could drift. During a session the viewer runs live in your browser: after every modelling change the designer exports the current state, and the page reloads on its own within seconds, keeping your camera. A green "Live" badge shows the time of the last export; if the CAD model changed and was not exported yet, a red banner says the view is out of date, and the designer checks this before telling you a change is ready. You look and turn the part in the viewer, and talk to the designer in the AI console.
 
+## 13c. Moving parts, animated
+
+If the design has moving parts, the viewer animates them: play and pause, a slider to stop at any position, speed, the moving parts highlighted while the fixed ones fade, the joint axes drawn, and a list of each moving part and how it moves (hinge 0→100°, guide 0→40 mm, wheel geared to the lid ×3.6…). Closed-loop mechanisms such as linkages or cams are animated from positions sampled in the CAD motion study. Interference is checked through the full range before the animation is shown as valid.
+
+## 13d. An independent auditor before you see anything
+
+No result reaches you until an independent auditor has approved it. The auditor is a separate agent that never saw the designer's reasoning — only the project files — and checks them against a fixed list: requirements met with evidence, anything that could still be deleted, calculations and simulation (recomputing key numbers itself), failure modes, the error catalog, interfaces and motion, whether your workshop can make and measure every part, drawings, and that the 3D view and every number shown are current and true. It answers *approved* or *changes required*, with evidence for each finding. The designer fixes and resubmits until it is approved; after three rounds without approval you get the open findings and decide. With each result you see a short audit summary — rounds, what was found and fixed, accepted minor points, and what could not be verified. The auditor makes sure what you receive is correct and honestly described; you remain the final judge.
+
 ## 14. Drawings
 
 A design is not finished until someone else can build it from the drawing. Drawings follow ISO (first-angle) by default, or ASME Y14.5 when required: functional dimensions from the right datums, a general tolerance in the title block, tight tolerances and fits only where the function needs them and the workshop can measure them, material, finish, treatment, quantity and a complete title block. Assemblies get a bill of materials; sheet metal gets flat patterns; weldments get weld symbols.

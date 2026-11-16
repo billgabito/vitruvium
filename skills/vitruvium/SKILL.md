@@ -37,6 +37,7 @@ When a check fails, go back to where the problem was born — not to the start b
 | Not manufacturable in the workshop | Step 2 (redesign before outsourcing) |
 | Physical prototype fails | Step 1 (reality corrects the paper) |
 | Field use reveals improvements | Step 1, as a new version |
+| The independent auditor returns CHANGES REQUIRED | Wherever each finding points (this table); then re-audit |
 
 Log every loop in the design log (what failed, where you went back, what changed), and at the end of every iteration record it with `scripts/log_iteration.py`: what changed, why, the decision or loop behind it, the key numbers against the previous iteration, and images (model screenshot from SolidCraft, FEA plots). It keeps `CHANGELOG.md` and a visual timeline `iterations/index.html` so the user can see how the design evolved and why — offer to open the timeline after each iteration. If the same loop repeats three times, the problem lives one level up — escalate (model → delete → requirements).
 
@@ -63,6 +64,14 @@ The user is the one who validates and corrects, and they can only judge what the
 - Before saying a change is ready, check `curl -s http://127.0.0.1:8765/state`: `stale: true` means the CAD file is newer than the export — export again. The page also shows a red "out of date" banner in that case.
 - If the user wants to watch the real CAD itself, SolidCraft's MCP can drive the running desktop app (`solidcraft-cli mcp --connect`); the viewer remains the place for simulation overlays, history and sharing.
 → `references/project-folder.md`
+
+## Independent audit before the user sees a result
+
+Every iteration passes an independent audit before it is presented: a separate agent with a fresh context (the `vitruvium-auditor` subagent in Claude Code; a separate session with `agents/vitruvium-auditor.md` elsewhere) reviews the project files against a checklist — requirements met, simplicity, calculations and FEA, failure modes, error catalog, interfaces and motion, manufacturability in the workshop, drawings, and that the 3D view and the numbers shown are current and true. It answers APPROVED or CHANGES REQUIRED with evidence. Fix the findings, re-audit, and only after APPROVED show the user the result with a short audit summary (rounds, findings fixed, accepted minors, what was not verified). Record it with `log_iteration.py --audit … --audit-file …`. After three rounds without approval, show the user the open findings and let them decide. If no separate agent can be run, say clearly that the review was not independent. → `references/audit-gate.md`
+
+## Moving parts are shown moving
+
+If the design has moving parts, write `motion.json` (joints from SolidCraft: revolute/prismatic axes, origins and ranges, coupled parts, or keyframes for closed loops) next to the export. The viewer then animates it: play/pause, position slider, speed, moving parts highlighted, joint axes drawn, and a list of every moving part with how it moves. Check interference through the full range before showing it. → `references/motion.md`
 
 ## The workshop is persistent knowledge
 

@@ -2,6 +2,10 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.9.0 — 2026-11-15
+- **Animation of moving parts** in the viewer from `motion.json` (revolute, prismatic, coupled parts, keyframes for closed loops): play/pause, position slider, speed, highlighted moving parts, joint axes, list of motions. *Why:* the user must see which parts move and how, not read it.
+- **Independent audit gate**: `vitruvium-auditor` agent (fresh context, project files only) approves each iteration or returns findings with evidence; verdicts in `09-audits/`, shown in changelog and viewer. *Why:* the designer must not audit its own work; what reaches the user must be correct.
+
 ## v0.8.0 — 2026-11-15
 - **Live viewer** (`viewer.py --serve`): the working copy (`03-model/current.*`) appears as LIVE and the page reloads by itself after every export, keeping the camera; red banner and `/state` flag when the CAD is newer than the export; camera fit respects window shape. *Why:* what the user sees must always be the current design — one source of truth (SolidCraft), never a second model rebuilt in three.js.
 

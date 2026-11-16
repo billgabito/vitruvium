@@ -17,6 +17,7 @@ Ask once where the user keeps projects (default `~/mechanical-projects/`), remem
 ├── 06-manufacturing/      routes.md, outsource.md
 ├── 07-drawings/           PDF, DXF, bill of materials
 ├── 08-prototypes/         photos, tests, results
+├── 09-audits/             independent auditor verdicts per version and round (audit-gate.md)
 ├── references/           catalogs, datasheets, links with dates
 ├── deliveries/            released packages (v1.0/, v1.1/…) ready to send
 ├── viewer.html            interactive 3D viewer: rotate, section, systems on/off, FEA overlay, version history (viewer.py)
@@ -58,6 +59,8 @@ python3 scripts/log_iteration.py --project <project> --version v0.3 --title "Thi
 
 - `--why` is mandatory: every change carries its reason. Add `--loop` when an improvement loop triggered it and `--decision` when the user chose it.
 - Export the geometry of each version from SolidCraft into `03-model/` and pass it with `--model` (repeat once per system/component: frame, guard, motor…; or one glTF whose top-level nodes are the systems). STL is in mm; glTF is in metres by spec — the viewer rescales it automatically when an FEA result shows the mismatch.
+- Pass `--motion <motion.json>` when parts move (motion.md); for the live copy put it in `03-model/current/motion.json`.
+- Pass `--audit "APPROVED, round N (…)" --audit-file 09-audits/<version>-round-<N>.md` once the independent auditor approved; an iteration without a recorded audit is flagged in the changelog and the viewer.
 - Pass `--fea <run folder>` so the viewer can overlay the stress map, deformed shape, supports and loads.
 - Save a model screenshot for the changelog (`03-model/vX.Y.png`) and attach the FEA plots.
 - Live mode during a session: `python3 scripts/viewer.py --project <project> --serve --open` serves the viewer at http://127.0.0.1:8765 and reloads it automatically whenever `03-model/current.*` (the working copy, exported after every change) or `05-simulation/current/` changes. `/state` reports `stale: true` when a CAD file in `03-model/` is newer than the export. The working copy appears at the top of the history as **LIVE**.

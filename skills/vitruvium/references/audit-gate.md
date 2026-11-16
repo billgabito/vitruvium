@@ -15,6 +15,7 @@ Paths only, no explanations: `01-requirements/` (black box, requirements), `02-c
 
 ## Checklist (the auditor verifies, it does not trust)
 
+0. **Every part and every change has a reason — and the reason holds.** Each part in `parts.json` has a function, the requirements it serves and why it must exist as a separate part; each non-obvious feature has its reason; each change in the changelog has its why. The auditor does not accept the reason on trust: it challenges it — does the part really need to be separate (moves? different material? assembly/maintenance?), does the requirement really exist, does the feature really do what the reason claims (check the number)? Missing reason = finding; reason that does not hold = finding with the deletion, merge or correction it implies.
 1. **Requirements**: every requirement is met and verified, with evidence; none silently dropped or changed after freeze.
 2. **Simplicity**: parts or processes that could still be deleted; unnecessary tolerances, fasteners, variety.
 3. **Calculations**: units consistent; loads match the black box; hand calculation present; FEA agrees with it (±15% where valid); mesh study done; singularities not reported as real stress; safety factors stated and adequate.
@@ -24,6 +25,8 @@ Paths only, no explanations: `01-requirements/` (black box, requirements), `02-c
 7. **Manufacturability**: every part routed to a machine in the workshop profile; tolerances measurable there; outsourcing justified.
 8. **Drawings** (if produced): dimensions and tolerances complete and consistent with the model.
 9. **Faithful presentation**: the 3D export is current (`stale: false`); numbers in the changelog match the result files; nothing claimed that was not verified.
+
+Independence is not optional: the auditor works only from the files, never from the designer's explanations in conversation. If a reason is not written in the project, for the auditor it does not exist.
 
 ## Verdict format
 

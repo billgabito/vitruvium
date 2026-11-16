@@ -71,7 +71,9 @@ Every iteration passes an independent audit before it is presented: a separate a
 
 ## Every part has an ID and a name
 
-From the first iteration, break the design down into parts and give each an ID and a name — `P-01` base plate, `SH-01` hinge shaft, `BR-01` bearing 6200-2RS, `FS-01` screw ISO 4762 M6×20 (qty 8)… — in a single `parts.json` that drives everything: the viewer's parts list, ID labels in 3D, click-to-isolate and exploded view; manufacturing routes; drawings and bill of materials; simplicity metrics. Export each part with its ID as the file name so the 3D view can link it. Keep IDs stable across versions. → `references/parts.md`
+From the first iteration, break the design down into parts and give each an ID and a name — `P-01` base plate, `SH-01` hinge shaft, `BR-01` bearing 6200-2RS, `FS-01` screw ISO 4762 M6×20 (qty 8)… — in a single `parts.json` that drives everything: the viewer's parts list, ID labels in 3D, click-to-isolate and exploded view; manufacturing routes; drawings and bill of materials; simplicity metrics. Export each part with its ID as the file name so the 3D view can link it. Keep IDs stable across versions.
+
+**Nothing exists without a reason.** Every part states its function, the requirements it serves and why it must be a separate part; every non-obvious feature (hole, slot, fillet, thickness, tight tolerance) states its reason; every change between versions states its why. If you cannot write the reason, try to delete the part or feature. The independent auditor challenges each reason against the files and returns corrections. → `references/parts.md`
 
 ## Moving parts are shown moving
 

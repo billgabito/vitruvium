@@ -1,6 +1,6 @@
 # Parts breakdown: IDs, names and the parts list
 
-Every part of a design gets an **ID** and a **name** from the first iteration, and a single parts list (`parts.json`) is the master used everywhere: the viewer (parts list, ID labels in 3D, exploded view), manufacturing routes, drawings and bill of materials, the auditor and the changelog counts.
+Every part of a design gets an **ID**, a **name** and a **reason to exist** from the first iteration, and a single parts list (`parts.json`) is the master used everywhere: the viewer (parts list, ID labels in 3D, exploded view), manufacturing routes, drawings and bill of materials, the auditor and the changelog counts.
 
 ## ID convention
 
@@ -21,15 +21,32 @@ Every part of a design gets an **ID** and a **name** from the first iteration, a
 
 Identical parts share one ID with a quantity (eight identical screws = `FS-01`, qty 8).
 
+## Every part must justify its existence
+
+Nothing is in the design "because": each part carries
+- `function` — what it does, verb + noun ("locates the lid", "transmits torque to the wheel");
+- `requirements` — the requirement IDs it serves (`R1`, `R4`…); a part that serves none is a deletion candidate;
+- `why` — why it must be a **separate** part and cannot be deleted or merged (Boothroyd's test: it moves relative to its neighbours, it must be a different material, or it must be separate for assembly or maintenance — or another stated reason);
+- `features` (optional but expected for fabricated parts) — the reason for each non-obvious feature: `{"feature": "R5 fillet at the bend", "why": "Kt 2.8 → 1.6, fatigue FS 1.3 → 2.1"}`. Holes, slots, fillets, chamfers, thickness, tolerances tighter than general — each has a reason.
+
+Changes follow the same rule: every alteration between versions is logged with its why (`log_iteration.py --why`, mandatory). `log_iteration.py` warns about parts without `function` or `why` and counts them as `unjustified_parts`; the independent auditor treats any unjustified part or feature as a finding.
+
 ## parts.json
 
 ```json
 [
-  {"id": "P-01", "name": "Base plate", "type": "fabricated", "material": "S275 8 mm", "qty": 1, "source": "make", "route": "plasma → drill"},
-  {"id": "SH-01", "name": "Hinge pin", "type": "shaft", "material": "C45 Ø10 h9", "qty": 1, "source": "make", "route": "lathe"},
-  {"id": "BR-01", "name": "Deep groove ball bearing", "type": "bearing", "spec": "6200-2RS", "qty": 2, "source": "buy", "supplier": "SKF / local"},
-  {"id": "FS-01", "name": "Socket head cap screw", "type": "fastener", "standard": "ISO 4762 M6×20 8.8 zinc", "qty": 8, "source": "buy"},
-  {"id": "P-02", "name": "Lid", "type": "fabricated", "material": "AlMg3 3 mm", "qty": 1, "source": "make", "explode": [0, 0, 1]}
+  {"id": "P-01", "name": "Base plate", "type": "fabricated", "material": "S275 8 mm", "qty": 1, "source": "make", "route": "plasma → drill",
+   "function": "carries the motor and transfers its load to the frame", "requirements": ["R1", "R2"],
+   "why": "different material and thickness than the frame; must be removable for motor service",
+   "features": [{"feature": "4 slotted holes 9×20", "why": "belt tension adjustment ±10 mm (R5)"}]},
+  {"id": "SH-01", "name": "Hinge pin", "type": "shaft", "material": "C45 Ø10 h9", "qty": 1, "source": "make", "route": "lathe",
+   "function": "guides the lid rotation", "requirements": ["R3"], "why": "the lid rotates relative to the base: needs a separate pivot"},
+  {"id": "BR-01", "name": "Deep groove ball bearing", "type": "bearing", "spec": "6200-2RS", "qty": 2, "source": "buy", "supplier": "SKF / local",
+   "function": "supports the drive shaft with low friction", "requirements": ["R4"], "why": "rotating interface; catalog part beats a machined bushing at 1500 rpm"},
+  {"id": "FS-01", "name": "Socket head cap screw", "type": "fastener", "standard": "ISO 4762 M6×20 8.8 zinc", "qty": 8, "source": "buy",
+   "function": "clamps the base plate to the frame", "requirements": ["R2"], "why": "plate must be removable for service (no weld); one screw size for the whole assembly"},
+  {"id": "P-02", "name": "Lid", "type": "fabricated", "material": "AlMg3 3 mm", "qty": 1, "source": "make", "explode": [0, 0, 1],
+   "function": "closes the enclosure (IP54)", "requirements": ["R6"], "why": "must open for access: moves relative to the base"}
 ]
 ```
 
@@ -41,6 +58,7 @@ Export each part from SolidCraft with its **ID as the file name** (`03-model/cur
 
 ## Rules
 
+- No `function` / `why` → not finished. If you cannot state why a part exists, try to delete it (simplicity.md).
 - Keep IDs stable across versions; the changelog says when a part is added, deleted (ID retired) or merged.
 - Total vs unique parts and the number of fastener references come from this list (simplicity metrics).
 - Use the same IDs in manufacturing routes, drawings (title blocks, balloons) and the bill of materials.

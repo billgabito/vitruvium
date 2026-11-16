@@ -160,7 +160,8 @@ footer b{font-weight:500;color:var(--ink)}
 .tag.on{background:var(--ink);color:#fff}
 .bom{width:100%;border-collapse:collapse;font-size:12px}.bom th{font:600 10.5px Barlow;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:left;padding:3px 4px;border-bottom:1px solid var(--line)}
 .bom td{padding:3px 4px;border-bottom:1px dotted #E6E0D2;vertical-align:top}.bom td.id{font:13px var(--iso);white-space:nowrap}.bom tr{cursor:pointer}.bom tr:hover td{background:#F1ECE0}.bom tr.on td{background:#E3EBFB}
-.bom small{color:var(--muted)}
+.bom small{color:var(--muted)}.pf{font-size:11.5px;margin-top:3px;color:#3E3526}.pf.warn{color:#8A1C14;font-weight:600}
+.pfeat{margin:3px 0 0 14px;padding:0;font-size:11.5px;color:#3E3526}
 #motlist div{padding:2px 0;border-top:1px dotted #E6E0D2;font-size:12px}
 @media (max-width:900px){body{grid-template-columns:1fr;grid-template-rows:48px 38vh 1fr auto 26px;grid-template-areas:"top" "view" "props" "side" "status"}aside,.props{border:0}}
 </style>
@@ -421,7 +422,11 @@ function setupParts(parts){
   if (!parts || !parts.length){ el.innerHTML = '<small>No parts list for this version (parts.json).</small>'; return; }
   const find = id => layers.find(l => l.name === id);
   el.innerHTML = '<table class="bom"><tr><th>ID</th><th>Name</th><th>Qty</th></tr>' + parts.map(p =>
-    `<tr data-id="${esc(p.id)}"><td class="id">${esc(p.id)}</td><td>${esc(p.name)}<br><small>${esc([p.type, p.spec || p.standard, p.material, p.source].filter(Boolean).join(' · '))}</small></td><td class="mono">${esc(p.qty ?? 1)}</td></tr>`).join('') + '</table>';
+    `<tr data-id="${esc(p.id)}"><td class="id">${esc(p.id)}</td><td>${esc(p.name)}<br><small>${esc([p.type, p.spec || p.standard, p.material, p.source].filter(Boolean).join(' · '))}</small>` +
+    (p.function ? `<div class="pf"><b>Function:</b> ${esc(p.function)}${(p.requirements || []).length ? ' <small>(' + p.requirements.map(esc).join(', ') + ')</small>' : ''}</div>` : '') +
+    (p.why ? `<div class="pf"><b>Why:</b> ${esc(p.why)}</div>` : `<div class="pf warn">⚠ No reason recorded — justify, merge or delete</div>`) +
+    ((p.features || []).length ? '<ul class="pfeat">' + p.features.map(f => `<li>${esc(f.feature)} — <i>${esc(f.why)}</i></li>`).join('') + '</ul>' : '') +
+    `</td><td class="mono">${esc(p.qty ?? 1)}</td></tr>`).join('') + '</table>';
   for (const p of parts){ const l = find(p.id); if (!l) continue;
     const d = document.createElement('div'); d.className = 'tag'; d.textContent = p.id; d.title = p.name; d.onclick = () => selectPart(p.id);
     const o = new CSS2DObject(d), b = new THREE.Box3().setFromObject(l.obj), at = b.getCenter(new THREE.Vector3()); at.z = b.max.z;

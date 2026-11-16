@@ -68,6 +68,10 @@ def main():
         pl = json.load(open(a.parts if os.path.isabs(a.parts) else os.path.join(proj, a.parts)))
         metrics["parts_total"] = sum(int(x.get("qty", 1)) for x in pl); metrics["parts_unique"] = len(pl)
         metrics["fastener_refs"] = sum(1 for x in pl if x.get("type") == "fastener" or str(x.get("id", "")).startswith("FS-"))
+        bad = [x.get("id", "?") for x in pl if not str(x.get("function", "")).strip() or not str(x.get("why", "")).strip()]
+        metrics["unjustified_parts"] = len(bad)
+        if bad:   # every part must say what it does and why it exists (references/parts.md)
+            print(f"WARNING: parts without function/why: {', '.join(bad)} — justify, merge or delete them before the audit")
     for m in a.metric:
         k, _, v = m.partition("=")
         metrics[k.strip()] = num(v) if num(v) is not None else v.strip()

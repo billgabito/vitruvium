@@ -2,6 +2,9 @@
 
 Newest first. Each version: what changed and why.
 
+## v0.11.0 — 2026-11-15
+- **Every part, feature and change must have a reason**: `parts.json` requires `function`, `requirements` and `why` (plus `features` with their reasons); `log_iteration.py` warns and counts `unjustified_parts`; the viewer shows function and why per part and flags missing reasons; the independent auditor challenges each reason against the files (checklist item 0). *Why:* nothing should be in a design without a logic that someone can verify.
+
 ## v0.10.0 — 2026-11-15
 - **Professional viewer UI**: Vitruvium logo and favicon, engineering typography (Barlow; ISO 3098 osifont for IDs and annotations), header with version, audit and live badges, edges, ground grid, status bar (units, size, triangles, export time). *Why:* the visualization must look professional and engineering-grade.
 - **Parts breakdown with IDs** (`parts.json`, `references/parts.md`): ID convention (P, SH, BR, FS, SP, SE, G, MO, CP, AS), parts list tab, ID labels in 3D, click to isolate, parts metrics in the changelog. *Why:* every screw, shaft, bearing and part must be named and traceable.
